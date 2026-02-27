@@ -1,0 +1,1885 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagramador de Canvas Infinito</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #f3f4f6;
+            font-family: system-ui, -apple-system, sans-serif;
+            user-select: none;
+        }
+        
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            cursor: default;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .cursor-pan { cursor: grab !important; }
+        .cursor-panning { cursor: grabbing !important; }
+        .cursor-crosshair { cursor: crosshair !important; }
+        .cursor-pointer { cursor: pointer !important; }
+        .cursor-nwse-resize { cursor: nwse-resize !important; }
+        .cursor-nesw-resize { cursor: nesw-resize !important; }
+
+        .toolbar {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 8px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+            font-family: system-ui, -apple-system, sans-serif;
+            transition: opacity 0.3s;
+        }
+
+        .tool-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            background: transparent;
+            color: #4b5563;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tool-btn:hover { background: #f3f4f6; }
+        .tool-btn.active { background: #eff6ff; color: #3b82f6; border-color: #bfdbfe; }
+        .tool-btn.animate-btn.active { background: #f5f3ff; color: #7c3aed; border-color: #ede9fe; }
+        .tool-btn.present-btn { color: #059669; }
+        .tool-btn.present-btn:hover { background: #ecfdf5; }
+
+        .instructions {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #4b5563;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            pointer-events: none;
+            z-index: 10;
+            font-family: system-ui, -apple-system, sans-serif;
+            transition: opacity 0.3s;
+        }
+
+        .sidebar {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            bottom: 20px;
+            width: 260px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 16px;
+            z-index: 20;
+            display: none;
+            flex-direction: column;
+            overflow-y: auto;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        .sidebar.visible { display: flex; }
+
+        .color-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.1s;
+        }
+        .color-btn:hover { transform: scale(1.1); }
+        .color-btn.active { outline: 2px solid #3b82f6; outline-offset: 2px; }
+        
+        .style-btn {
+            flex: 1;
+            padding: 6px 0;
+            text-align: center;
+            background: #f3f4f6;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #4b5563;
+            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 32px;
+        }
+        .style-btn:hover { background: #e5e7eb; }
+        .style-btn.active { background: #eff6ff; color: #3b82f6; border-color: #bfdbfe; }
+
+        #text-editor {
+            position: absolute;
+            display: none;
+            z-index: 15;
+            background: transparent;
+            border: none;
+            outline: none;
+            resize: none;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        #context-menu {
+            position: absolute;
+            display: none;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e7eb;
+            padding: 4px 0;
+            min-width: 200px;
+            z-index: 50;
+            font-size: 14px;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        .context-menu-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            color: #374151;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.1s;
+        }
+        .context-menu-item:hover { background-color: #f3f4f6; }
+        .context-menu-item.danger { color: #dc2626; }
+        .context-menu-item.disabled { color: #9ca3af; pointer-events: none; }
+        .context-menu-separator { height: 1px; background-color: #e5e7eb; margin: 4px 0; }
+        .shortcut { font-size: 12px; color: #9ca3af; }
+
+        #toast {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1f2937;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            z-index: 100;
+            display: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-size: 14px;
+            font-family: system-ui, -apple-system, sans-serif;
+            opacity: 1;
+            transition: opacity 0.3s;
+        }
+
+        #presentation-controls {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="toolbar" id="main-toolbar">
+        <button id="btn-select" class="tool-btn active" title="Seleccionar y Mover (V)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg>
+            Seleccionar
+        </button>
+        <button id="btn-box" class="tool-btn" title="Dibujar Caja (R)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>
+            Caja
+        </button>
+        <button id="btn-arrow" class="tool-btn" title="Dibujar Flecha (A)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            Flecha
+        </button>
+        
+        <div class="w-px h-6 bg-gray-300 mx-1"></div>
+        
+        <button id="btn-animate" class="tool-btn animate-btn" title="Modo Animación">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            Animar
+        </button>
+        <button id="btn-present" class="tool-btn present-btn" title="Iniciar Presentación">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Presentar
+        </button>
+
+        <div class="w-px h-6 bg-gray-300 mx-1"></div>
+
+        <button id="btn-import" class="tool-btn" title="Importar Diagrama">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </button>
+        <button id="btn-export" class="tool-btn" title="Exportar Diagrama">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </button>
+    </div>
+
+    <!-- Panel de Propiedades Visuales -->
+    <div id="properties-sidebar" class="sidebar">
+        <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Propiedades</h2>
+        
+        <div class="mb-5">
+            <h3 class="text-sm font-semibold text-gray-600 mb-2">Trazo (Color)</h3>
+            <div class="flex gap-2 flex-wrap" id="stroke-colors">
+                <div class="color-btn active" style="background: #1f2937; border-color: #1f2937" data-val="#1f2937"></div>
+                <div class="color-btn" style="background: #ef4444; border-color: #ef4444" data-val="#ef4444"></div>
+                <div class="color-btn" style="background: #22c55e; border-color: #22c55e" data-val="#22c55e"></div>
+                <div class="color-btn" style="background: #3b82f6; border-color: #3b82f6" data-val="#3b82f6"></div>
+                <div class="color-btn" style="background: #f97316; border-color: #f97316" data-val="#f97316"></div>
+                <div class="color-btn flex items-center justify-center" style="background: transparent; border-color: #d1d5db" data-val="transparent" title="Sin borde">
+                    <svg width="18" height="18" viewBox="0 0 24 24"><line x1="2" y1="2" x2="22" y2="22" stroke="#ef4444" stroke-width="2"/></svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-5">
+            <h3 class="text-sm font-semibold text-gray-600 mb-2">Grosor del trazo</h3>
+            <div class="flex gap-2" id="stroke-widths">
+                <div class="style-btn active" data-val="2" title="Fino"><svg width="24" height="24" viewBox="0 0 24 24"><line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2"/></svg></div>
+                <div class="style-btn" data-val="4" title="Medio"><svg width="24" height="24" viewBox="0 0 24 24"><line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="4"/></svg></div>
+                <div class="style-btn" data-val="7" title="Grueso"><svg width="24" height="24" viewBox="0 0 24 24"><line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="7"/></svg></div>
+            </div>
+        </div>
+
+        <div class="mb-5">
+            <h3 class="text-sm font-semibold text-gray-600 mb-2">Estilo del trazo</h3>
+            <div class="flex gap-2" id="stroke-styles">
+                <div class="style-btn active" data-val="solid" title="Continua"><svg width="24" height="24" viewBox="0 0 24 24"><line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="3"/></svg></div>
+                <div class="style-btn" data-val="dashed" title="Discontinua"><svg width="24" height="24" viewBox="0 0 24 24"><line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="3" stroke-dasharray="6 4"/></svg></div>
+                <div class="style-btn" data-val="dotted" title="Punteada"><svg width="24" height="24" viewBox="0 0 24 24"><line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="3" stroke-dasharray="2 4" stroke-linecap="round"/></svg></div>
+            </div>
+        </div>
+
+        <div class="mb-5">
+            <h3 class="text-sm font-semibold text-gray-600 mb-2">Fondo</h3>
+            <div id="all-bg-colors">
+                <div class="flex gap-2 flex-wrap items-center mb-1">
+                    <div class="color-btn flex items-center justify-center" style="background: transparent; border-color: #d1d5db" data-val="transparent" title="Sin fondo">
+                        <svg width="18" height="18" viewBox="0 0 24 24"><line x1="2" y1="2" x2="22" y2="22" stroke="#ef4444" stroke-width="2"/></svg>
+                    </div>
+                    <div class="color-btn active" style="background: #ffffff; border-color: #d1d5db" data-val="#ffffff"></div>
+                    <div class="color-btn" style="background: #fef08a; border-color: #fde047" data-val="#fef08a"></div>
+                    <div class="color-btn" style="background: #bbf7d0; border-color: #86efac" data-val="#bbf7d0"></div>
+                    <div class="color-btn" style="background: #bfdbfe; border-color: #93c5fd" data-val="#bfdbfe"></div>
+                    <div class="color-btn" style="background: #fecaca; border-color: #fca5a5" data-val="#fecaca"></div>
+                    
+                    <!-- Botón Más Colores -->
+                    <button id="btn-toggle-extra-colors" class="w-7 h-7 rounded-md border border-gray-300 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors ml-1" title="Más colores">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+                    </button>
+                </div>
+
+                <!-- Panel de colores extra (Pasteles suaves y distintivos) -->
+                <div id="extra-bg-colors" class="hidden mt-2 p-2 bg-gray-50 border border-gray-200 rounded-lg flex gap-2 flex-wrap relative shadow-sm">
+                    <div class="absolute -top-1.5 right-4 w-3 h-3 bg-gray-50 border-t border-l border-gray-200 transform rotate-45"></div>
+                    <div class="color-btn relative z-10" style="background: #e9ecef; border-color: #ced4da" data-val="#e9ecef" title="Gris suave"></div>
+                    <div class="color-btn relative z-10" style="background: #fff9db; border-color: #fcc419" data-val="#fff9db" title="Amarillo crema"></div>
+                    <div class="color-btn relative z-10" style="background: #d3f9d8; border-color: #8ce99a" data-val="#d3f9d8" title="Verde menta"></div>
+                    <div class="color-btn relative z-10" style="background: #d0ebff; border-color: #74c0fc" data-val="#d0ebff" title="Azul hielo"></div>
+                    <div class="color-btn relative z-10" style="background: #ffe3e3; border-color: #ffa8a8" data-val="#ffe3e3" title="Rosa pastel"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-5">
+            <h3 class="text-sm font-semibold text-gray-600 mb-2">Tamaño de fuente</h3>
+            <div class="flex gap-2" id="font-sizes">
+                <div class="style-btn" data-val="S">S</div>
+                <div class="style-btn active" data-val="M">M</div>
+                <div class="style-btn" data-val="L">L</div>
+                <div class="style-btn" data-val="XL">XL</div>
+            </div>
+        </div>
+
+        <div class="mb-5">
+            <h3 class="text-sm font-semibold text-gray-600 mb-2">Alineado horizontal</h3>
+            <div class="flex gap-2" id="align-h">
+                <div class="style-btn" data-val="left" title="Izquierda"><svg class="mx-auto" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+                <div class="style-btn active" data-val="center" title="Centro"><svg class="mx-auto" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+                <div class="style-btn" data-val="right" title="Derecha"><svg class="mx-auto" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="9" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+            </div>
+        </div>
+
+        <div class="mb-5">
+            <h3 class="text-sm font-semibold text-gray-600 mb-2">Alineado vertical</h3>
+            <div class="flex gap-2" id="align-v">
+                <div class="style-btn" data-val="top">Arriba</div>
+                <div class="style-btn active" data-val="middle">Medio</div>
+                <div class="style-btn" data-val="bottom">Abajo</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel de Animación -->
+    <div id="animation-sidebar" class="sidebar">
+        <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Animaciones</h2>
+        
+        <div class="flex gap-2 mb-4">
+            <button id="btn-add-appear" class="flex-1 bg-violet-500 hover:bg-violet-600 text-white font-semibold py-2 px-3 rounded-lg transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1 text-sm" title="Mostrar elemento">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                Aparecer
+            </button>
+            <button id="btn-add-disappear" class="flex-1 bg-slate-600 hover:bg-slate-700 text-white font-semibold py-2 px-3 rounded-lg transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1 text-sm" title="Ocultar elemento">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22"/></svg>
+                Desaparecer
+            </button>
+        </div>
+        
+        <p class="text-xs text-gray-500 mb-3 leading-relaxed">Selecciona elementos y asígnales una acción (Aparecer o Desaparecer) en el orden deseado.</p>
+        
+        <div id="animation-list" class="flex flex-col gap-2 overflow-y-auto pb-4">
+            <!-- La lista se genera dinámicamente -->
+        </div>
+    </div>
+
+    <div class="instructions" id="main-instructions">
+        <strong>Controles:</strong><br>
+        • Clic derecho / Arrastrar vacío: <em>Mover lienzo / Multiselección</em><br>
+        • Ctrl + Rueda ratón: <em>Zoom in / out</em><br>
+        • Clic derecho en elemento: <em>Opciones y Agrupar</em><br>
+        • Ctrl + Clic: <em>Añadir / Quitar de selección</em><br>
+        • Doble clic: <em>Editar texto</em><br>
+        • Tiradores de flecha: <em>Reconectar a cajas o soltar al aire</em>
+    </div>
+
+    <!-- Controles de Presentación -->
+    <div id="presentation-controls" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full shadow-2xl z-50 items-center gap-6 font-system-ui">
+        <button id="btn-prev-step" class="flex items-center gap-2 hover:text-blue-400 transition-colors" title="Paso anterior (Flecha Izq)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+            Atrás
+        </button>
+        <span id="presentation-step-text" class="font-bold text-lg min-w-[3rem] text-center">0 / 0</span>
+        <button id="btn-next-step" class="flex items-center gap-2 hover:text-blue-400 transition-colors" title="Siguiente paso (Espacio / Flecha Der)">
+            Siguiente
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="w-px h-5 bg-gray-600"></div>
+        <button id="btn-exit-present" class="hover:text-red-400 font-medium transition-colors" title="Salir de la presentación (Esc)">Salir</button>
+    </div>
+
+    <div id="context-menu">
+        <div class="context-menu-item" id="cm-copy">Copiar <span class="shortcut">Ctrl+C</span></div>
+        <div class="context-menu-item" id="cm-paste">Pegar <span class="shortcut">Ctrl+V</span></div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item" id="cm-group">Agrupar <span class="shortcut">Ctrl+G</span></div>
+        <div class="context-menu-item" id="cm-ungroup">Desagrupar <span class="shortcut">Ctrl+Shift+G</span></div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item" id="cm-front">Traer al frente del todo</div>
+        <div class="context-menu-item" id="cm-forward">Traer hacia delante</div>
+        <div class="context-menu-item" id="cm-backward">Enviar hacia atrás</div>
+        <div class="context-menu-item" id="cm-back">Enviar al fondo del todo</div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item danger" id="cm-delete">Borrar <span class="shortcut">Supr</span></div>
+    </div>
+
+    <div id="canvas-container">
+        <canvas id="app-canvas"></canvas>
+        <textarea id="text-editor"></textarea>
+    </div>
+
+    <input type="file" id="file-import" accept=".json" style="display: none;">
+    <div id="toast"></div>
+
+    <script>
+        const canvas = document.getElementById('app-canvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('canvas-container');
+        const textEditor = document.getElementById('text-editor');
+        const propertiesSidebar = document.getElementById('properties-sidebar');
+        const animationSidebar = document.getElementById('animation-sidebar');
+        const contextMenu = document.getElementById('context-menu');
+
+        let state = {
+            mode: 'select', 
+            camera: { x: 0, y: 0, zoom: 1 },
+            boxes: [],
+            arrows: [],
+            animations: [], // { id, order, type: 'appear'|'disappear', elementIds: [] }
+            selectedIds: [], 
+            hoveredBoxId: null,
+            editingTextId: null,
+            clipboard: null, 
+            
+            presentationStep: 0,
+
+            isPanning: false,
+            panStartScreen: { x: 0, y: 0 },
+            panStartCamera: { x: 0, y: 0 },
+            
+            isSelecting: false, 
+            selectionStart: { x: 0, y: 0 },
+            
+            isDrawingBox: false,
+            newBoxStart: { x: 0, y: 0 },
+            
+            isDragging: false,
+            dragStartMouse: { x: 0, y: 0 },
+            dragOriginalBoxes: [], 
+            dragOriginalArrows: [], 
+            
+            isResizing: false,
+            resizeHandle: null,
+            resizeOriginalBounds: null,
+            resizeOriginalBoxes: [],
+            
+            isDraggingArrowHandle: false,
+            activeArrowId: null,
+            activeArrowHandleType: null, // 'start', 'end', 'cp'
+
+            isDrawingArrow: false,
+            tempArrowStart: null,
+            mouseX: 0,
+            mouseY: 0
+        };
+
+        const generateId = () => Math.random().toString(36).substr(2, 9);
+
+        // --- Evento de UI para el botón de Más Colores ---
+        document.getElementById('btn-toggle-extra-colors').addEventListener('click', () => {
+            const extraColorsDiv = document.getElementById('extra-bg-colors');
+            extraColorsDiv.classList.toggle('hidden');
+        });
+
+        // --- Utilidades de Coordenadas y Geometría ---
+        function screenToWorld(screenX, screenY) {
+            return { x: (screenX - state.camera.x) / state.camera.zoom, y: (screenY - state.camera.y) / state.camera.zoom };
+        }
+        function worldToScreen(worldX, worldY) {
+            return { x: worldX * state.camera.zoom + state.camera.x, y: worldY * state.camera.zoom + state.camera.y };
+        }
+
+        function isPointInBox(x, y, box) {
+            return x >= box.x && x <= box.x + box.w && y >= box.y && y <= box.y + box.h;
+        }
+
+        function distToSegment(p, v, w) {
+            const l2 = (v.x - w.x)**2 + (v.y - w.y)**2;
+            if (l2 === 0) return Math.sqrt((p.x - v.x)**2 + (p.y - v.y)**2);
+            let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+            t = Math.max(0, Math.min(1, t));
+            return Math.sqrt((p.x - (v.x + t * (w.x - v.x)))**2 + (p.y - (v.y + t * (w.y - v.y)))**2);
+        }
+
+        function getBoxPerimeterPoint(box, targetX, targetY) {
+            const cx = box.x + box.w / 2, cy = box.y + box.h / 2;
+            const dx = targetX - cx, dy = targetY - cy;
+            const angle = Math.atan2(dy, dx);
+            const absCos = Math.abs(Math.cos(angle)), absSin = Math.abs(Math.sin(angle));
+            let x, y;
+            if (box.w / 2 * absSin <= box.h / 2 * absCos) {
+                x = box.w / 2 * Math.sign(Math.cos(angle)); y = x * Math.tan(angle);
+            } else {
+                y = box.h / 2 * Math.sign(Math.sin(angle)); x = y / Math.tan(angle);
+            }
+            return { x: cx + x, y: cy + y };
+        }
+
+        function getArrowCurve(arrow) {
+            let sBox = arrow.start.boxId ? state.boxes.find(b => b.id === arrow.start.boxId) : null;
+            let eBox = arrow.end.boxId ? state.boxes.find(b => b.id === arrow.end.boxId) : null;
+            
+            let centerA = sBox ? { x: sBox.x + sBox.w/2, y: sBox.y + sBox.h/2 } : { x: arrow.start.x, y: arrow.start.y };
+            let centerB = eBox ? { x: eBox.x + eBox.w/2, y: eBox.y + eBox.h/2 } : { x: arrow.end.x, y: arrow.end.y };
+            
+            const cpRaw = arrow.cp || {dx: 0, dy: 0};
+            const M_centers = { x: (centerA.x+centerB.x)/2, y: (centerA.y+centerB.y)/2 };
+            const C_target = { x: M_centers.x + cpRaw.dx, y: M_centers.y + cpRaw.dy };
+
+            const S = sBox ? getBoxPerimeterPoint(sBox, C_target.x, C_target.y) : { x: arrow.start.x, y: arrow.start.y };
+            const E = eBox ? getBoxPerimeterPoint(eBox, C_target.x, C_target.y) : { x: arrow.end.x, y: arrow.end.y };
+            
+            const M = { x: (S.x+E.x)/2, y: (S.y+E.y)/2 };
+            const C = { x: M.x + cpRaw.dx, y: M.y + cpRaw.dy };
+            const T = { 
+                x: 0.25*S.x + 0.5*C.x + 0.25*E.x,
+                y: 0.25*S.y + 0.5*C.y + 0.25*E.y
+            };
+
+            return { S, E, C, M, T };
+        }
+
+        function getArrowAt(x, y) {
+            for (let i = state.arrows.length - 1; i >= 0; i--) {
+                const curve = getArrowCurve(state.arrows[i]);
+                if (!curve) continue;
+                
+                let prev = curve.S;
+                let hit = false;
+                for (let t = 0.1; t <= 1; t += 0.1) {
+                    const px = (1-t)*(1-t)*curve.S.x + 2*(1-t)*t*curve.C.x + t*t*curve.E.x;
+                    const py = (1-t)*(1-t)*curve.S.y + 2*(1-t)*t*curve.C.y + t*t*curve.E.y;
+                    if (distToSegment({x, y}, prev, {x:px, y:py}) < 10 / state.camera.zoom) {
+                        hit = true; break;
+                    }
+                    prev = {x:px, y:py};
+                }
+                if (Math.hypot(curve.T.x - x, curve.T.y - y) < 15 / state.camera.zoom) hit = true;
+                
+                if (hit) return state.arrows[i];
+            }
+            return null;
+        }
+
+        function getSelectionBounds() {
+            const selectedBoxes = state.boxes.filter(b => state.selectedIds.includes(b.id));
+            if (selectedBoxes.length === 0) return null;
+            
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            selectedBoxes.forEach(b => {
+                minX = Math.min(minX, b.x); minY = Math.min(minY, b.y);
+                maxX = Math.max(maxX, b.x + b.w); maxY = Math.max(maxY, b.y + b.h);
+            });
+            return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+        }
+
+        function getResizeHandles(bounds) {
+            if (!bounds) return {};
+            const size = 8 / state.camera.zoom;
+            return {
+                nw: { x: bounds.x - size/2, y: bounds.y - size/2, w: size, h: size },
+                ne: { x: bounds.x + bounds.w - size/2, y: bounds.y - size/2, w: size, h: size },
+                sw: { x: bounds.x - size/2, y: bounds.y + bounds.h - size/2, w: size, h: size },
+                se: { x: bounds.x + bounds.w - size/2, y: bounds.y + bounds.h - size/2, w: size, h: size }
+            };
+        }
+
+        function getHitResizeHandle(x, y, bounds) {
+            if (!bounds) return null;
+            const handles = getResizeHandles(bounds);
+            for (const [pos, rect] of Object.entries(handles)) {
+                if (x >= rect.x && x <= rect.x + rect.w && y >= rect.y && y <= rect.y + rect.h) return pos;
+            }
+            return null;
+        }
+
+        function resolveSelectionGroups() {
+            let changed = true;
+            while(changed) {
+                changed = false;
+                const groupsInSelection = new Set();
+                state.boxes.forEach(b => { if (state.selectedIds.includes(b.id) && b.groupId) groupsInSelection.add(b.groupId); });
+                state.arrows.forEach(a => { if (state.selectedIds.includes(a.id) && a.groupId) groupsInSelection.add(a.groupId); });
+
+                state.boxes.forEach(b => {
+                    if (b.groupId && groupsInSelection.has(b.groupId) && !state.selectedIds.includes(b.id)) {
+                        state.selectedIds.push(b.id);
+                        changed = true;
+                    }
+                });
+                state.arrows.forEach(a => {
+                    if (a.groupId && groupsInSelection.has(a.groupId) && !state.selectedIds.includes(a.id)) {
+                        state.selectedIds.push(a.id);
+                        changed = true;
+                    }
+                });
+            }
+        }
+
+        function toggleSelection(element, isMultiSelect) {
+            const elementIdsToToggle = element.groupId 
+                ? [...state.boxes, ...state.arrows].filter(e => e.groupId === element.groupId).map(e => e.id)
+                : [element.id];
+                
+            const isSelected = state.selectedIds.includes(element.id);
+
+            if (!isMultiSelect) {
+                state.selectedIds = elementIdsToToggle;
+            } else {
+                if (isSelected) {
+                    state.selectedIds = state.selectedIds.filter(id => !elementIdsToToggle.includes(id));
+                } else {
+                    elementIdsToToggle.forEach(id => {
+                        if (!state.selectedIds.includes(id)) state.selectedIds.push(id);
+                    });
+                }
+            }
+        }
+
+        // --- Acciones de Animación ---
+        function cleanEmptyAnimations() {
+            state.animations = state.animations.filter(a => a.elementIds.length > 0);
+            state.animations.sort((a, b) => a.order - b.order);
+            state.animations.forEach((a, index) => {
+                a.order = index + 1;
+            });
+        }
+
+        function addAnimation(type) {
+            if (state.selectedIds.length === 0) return;
+            const nextOrder = state.animations.length > 0 ? Math.max(...state.animations.map(a => a.order)) + 1 : 1;
+            state.animations.push({
+                id: generateId(),
+                order: nextOrder,
+                type: type, // 'appear' or 'disappear'
+                elementIds: [...state.selectedIds]
+            });
+            cleanEmptyAnimations();
+            updateSidebar();
+            render();
+        }
+
+        document.getElementById('btn-add-appear').addEventListener('click', () => addAnimation('appear'));
+        document.getElementById('btn-add-disappear').addEventListener('click', () => addAnimation('disappear'));
+
+        function isElementVisible(id, step) {
+            if (state.mode !== 'presentation') return true;
+            
+            const elementAnims = state.animations.filter(a => a.elementIds.includes(id)).sort((a, b) => a.order - b.order);
+            if (elementAnims.length === 0) return true; // Si no tiene animaciones siempre es visible
+            
+            // Si su primera animación es 'Aparecer', empieza oculto. Si es 'Desaparecer', empieza visible.
+            let visible = (elementAnims[0].type !== 'appear');
+            
+            for (let anim of elementAnims) {
+                if (anim.order <= step) visible = (anim.type === 'appear');
+                else break;
+            }
+            return visible;
+        }
+
+        // --- Acciones y Comandos ---
+        function deleteSelected() {
+            state.boxes = state.boxes.filter(b => !state.selectedIds.includes(b.id));
+            state.arrows = state.arrows.filter(a => {
+                if (state.selectedIds.includes(a.id)) return false;
+                // Eliminar flecha si conectaba a una caja que acaba de ser borrada
+                if (a.start.boxId && !state.boxes.some(b => b.id === a.start.boxId)) return false;
+                if (a.end.boxId && !state.boxes.some(b => b.id === a.end.boxId)) return false;
+                return true;
+            });
+            
+            state.animations.forEach(a => {
+                a.elementIds = a.elementIds.filter(id => !state.selectedIds.includes(id));
+            });
+            cleanEmptyAnimations();
+
+            state.selectedIds = [];
+            updateSidebar(); render();
+        }
+
+        function copySelected() {
+            const boxesToCopy = state.boxes.filter(b => state.selectedIds.includes(b.id)).map(b => ({...b}));
+            const arrowsToCopy = state.arrows.filter(a => state.selectedIds.includes(a.id)).map(a => JSON.parse(JSON.stringify(a)));
+            state.clipboard = { boxes: boxesToCopy, arrows: arrowsToCopy };
+        }
+
+        function pasteSelected() {
+            if (!state.clipboard || (state.clipboard.boxes.length === 0 && state.clipboard.arrows.length === 0)) return;
+            const newSelectedIds = [];
+            const idMap = {};
+            const groupMap = {}; 
+            
+            state.clipboard.boxes.forEach(b => {
+                const newId = generateId();
+                idMap[b.id] = newId;
+                const newBox = { ...b, id: newId, x: b.x + 20, y: b.y + 20 };
+                if (b.groupId) {
+                    if (!groupMap[b.groupId]) groupMap[b.groupId] = generateId();
+                    newBox.groupId = groupMap[b.groupId];
+                }
+                state.boxes.push(newBox);
+                newSelectedIds.push(newId);
+            });
+
+            state.clipboard.arrows.forEach(a => {
+                const newId = generateId();
+                let newStart = { ...a.start };
+                let newEnd = { ...a.end };
+                
+                // Mapear el ID de la caja conectada si también fue copiada
+                if (a.start.boxId && idMap[a.start.boxId]) {
+                    newStart = { boxId: idMap[a.start.boxId] };
+                } else if (a.start.boxId) {
+                    // La caja no fue copiada, convertir el inicio a coordenadas absolutas aproximadas
+                    const box = state.boxes.find(b => b.id === a.start.boxId);
+                    if (box) newStart = { x: box.x + box.w/2 + 20, y: box.y + box.h/2 + 20 };
+                } else {
+                    newStart.x += 20; newStart.y += 20;
+                }
+
+                if (a.end.boxId && idMap[a.end.boxId]) {
+                    newEnd = { boxId: idMap[a.end.boxId] };
+                } else if (a.end.boxId) {
+                    const box = state.boxes.find(b => b.id === a.end.boxId);
+                    if (box) newEnd = { x: box.x + box.w/2 + 20, y: box.y + box.h/2 + 20 };
+                } else {
+                    newEnd.x += 20; newEnd.y += 20;
+                }
+                
+                const standalonePaste = !idMap[a.start.boxId] && !idMap[a.end.boxId];
+                const newCp = standalonePaste ? { dx: (a.cp?.dx||0) + 40, dy: (a.cp?.dy||0) + 40 } : { ...(a.cp || {dx:0, dy:0}) };
+                
+                const newArrow = { ...a, id: newId, start: newStart, end: newEnd, cp: newCp };
+                if (a.groupId) {
+                    if (!groupMap[a.groupId]) groupMap[a.groupId] = generateId();
+                    newArrow.groupId = groupMap[a.groupId];
+                }
+                
+                state.arrows.push(newArrow);
+                newSelectedIds.push(newId);
+            });
+            
+            state.selectedIds = newSelectedIds;
+            updateSidebar(); render();
+        }
+
+        function bringToFront() {
+            const selected = state.boxes.filter(b => state.selectedIds.includes(b.id));
+            state.boxes = state.boxes.filter(b => !state.selectedIds.includes(b.id)).concat(selected);
+            render();
+        }
+        function sendToBack() {
+            const selected = state.boxes.filter(b => state.selectedIds.includes(b.id));
+            state.boxes = selected.concat(state.boxes.filter(b => !state.selectedIds.includes(b.id)));
+            render();
+        }
+        function bringForward() {
+            for (let i = state.boxes.length - 2; i >= 0; i--) {
+                if (state.selectedIds.includes(state.boxes[i].id) && !state.selectedIds.includes(state.boxes[i+1].id)) {
+                    [state.boxes[i], state.boxes[i+1]] = [state.boxes[i+1], state.boxes[i]];
+                }
+            }
+            render();
+        }
+        function sendBackward() {
+            for (let i = 1; i < state.boxes.length; i++) {
+                if (state.selectedIds.includes(state.boxes[i].id) && !state.selectedIds.includes(state.boxes[i-1].id)) {
+                    [state.boxes[i], state.boxes[i-1]] = [state.boxes[i-1], state.boxes[i]];
+                }
+            }
+            render();
+        }
+
+        // --- Renderizado y Autoajuste de Texto ---
+        function applyStrokeStyles(ctx, element) {
+            ctx.lineWidth = parseInt(element.strokeWidth) || 2;
+            const style = element.strokeStyle || 'solid';
+            if (style === 'dashed') ctx.setLineDash([8, 8]);
+            else if (style === 'dotted') ctx.setLineDash([2, 4]);
+            else ctx.setLineDash([]);
+            if (style === 'dotted') ctx.lineCap = 'round'; else ctx.lineCap = 'butt';
+        }
+
+        function renderText(text, x, y, width, height, fontSizeStr, alignH, alignV, isArrow) {
+            let fontSize = 16;
+            if (fontSizeStr === 'S') fontSize = 12; else if (fontSizeStr === 'M') fontSize = 16;
+            else if (fontSizeStr === 'L') fontSize = 24; else if (fontSizeStr === 'XL') fontSize = 32;
+
+            ctx.font = `${fontSize}px system-ui, -apple-system, sans-serif`;
+            ctx.textAlign = alignH || 'center'; 
+            ctx.textBaseline = 'top'; 
+            
+            const padding = 10;
+            // Para flechas no limitamos, para cajas calculamos el ancho máximo menos el padding
+            const maxTextWidth = isArrow ? Infinity : Math.max(20, width - padding * 2);
+            
+            // Autoajuste: Envolviendo palabras (Word Wrapping) y cortando caracteres largos
+            const rawLines = text.split('\n');
+            let lines = [];
+            
+            for (let rawLine of rawLines) {
+                if (isArrow) {
+                    lines.push(rawLine);
+                    continue;
+                }
+                
+                // Si hay una línea vacía (intro), la respetamos
+                if (rawLine === '') {
+                    lines.push('');
+                    continue;
+                }
+                
+                const words = rawLine.split(' ');
+                let currentLine = '';
+
+                for (let i = 0; i < words.length; i++) {
+                    let word = words[i];
+
+                    // Si la palabra en sí misma es más ancha que la caja, forzamos el corte letra a letra
+                    if (ctx.measureText(word).width > maxTextWidth) {
+                        if (currentLine !== '') {
+                            lines.push(currentLine);
+                            currentLine = '';
+                        }
+                        
+                        let tempWord = '';
+                        for (let char of word) {
+                            if (ctx.measureText(tempWord + char).width > maxTextWidth) {
+                                lines.push(tempWord);
+                                tempWord = char;
+                            } else {
+                                tempWord += char;
+                            }
+                        }
+                        currentLine = tempWord; // Guardamos el fragmento que sobra en la nueva línea
+                    } else {
+                        // Comportamiento normal para palabras cortas (separadas por espacio)
+                        const testLine = currentLine === '' ? word : currentLine + ' ' + word;
+                        if (ctx.measureText(testLine).width > maxTextWidth) {
+                            lines.push(currentLine);
+                            currentLine = word;
+                        } else {
+                            currentLine = testLine;
+                        }
+                    }
+                }
+                if (currentLine !== '') {
+                    lines.push(currentLine);
+                }
+            }
+
+            const lineHeight = fontSize * 1.2;
+            const totalHeight = lines.length * lineHeight;
+            
+            let startY = y + padding;
+            let xPos = x + width / 2;
+
+            if (isArrow) {
+                startY = y - totalHeight / 2;
+                xPos = x;
+                const maxW = Math.max(...lines.map(l => ctx.measureText(l).width));
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+                ctx.beginPath();
+                ctx.roundRect(x - maxW/2 - 6, startY - 4, maxW + 12, totalHeight + 8, 4);
+                ctx.fill();
+            } else {
+                if (alignV === 'middle') startY = y + (height - totalHeight) / 2;
+                else if (alignV === 'bottom') startY = y + height - padding - totalHeight;
+                if (alignH === 'left') xPos = x + padding;
+                else if (alignH === 'right') xPos = x + width - padding;
+            }
+
+            ctx.fillStyle = '#1f2937';
+            lines.forEach((line, i) => ctx.fillText(line, xPos, startY + (i * lineHeight)));
+        }
+
+        function drawBadge(x, y, text) {
+            const str = String(text);
+            ctx.font = `bold ${12 / state.camera.zoom}px system-ui`;
+            const metrics = ctx.measureText(str);
+            const w = Math.max(24 / state.camera.zoom, metrics.width + 12 / state.camera.zoom);
+            const h = 24 / state.camera.zoom;
+            
+            ctx.fillStyle = '#8b5cf6'; // Violet Tailwind
+            ctx.beginPath();
+            ctx.roundRect(x - w/2, y - h/2, w, h, 12 / state.camera.zoom);
+            ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2 / state.camera.zoom;
+            ctx.stroke();
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(str, x, y);
+        }
+
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; render(); }
+
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Actualizar el tamaño del grid según el zoom para que se escale con todo lo demás
+            const gridSize = 20 * state.camera.zoom;
+            canvas.style.backgroundSize = `${gridSize}px ${gridSize}px`;
+            canvas.style.backgroundPosition = `${state.camera.x}px ${state.camera.y}px`;
+
+            ctx.save();
+            ctx.translate(state.camera.x, state.camera.y);
+            ctx.scale(state.camera.zoom, state.camera.zoom);
+
+            // 1. Dibujar Cajas (MOVIDO ARRIBA PARA QUE SE DIBUJEN AL FONDO)
+            state.boxes.forEach(box => {
+                if (!isElementVisible(box.id, state.presentationStep)) return;
+
+                const bgColor = box.backgroundColor || '#ffffff';
+                const strokeColor = box.strokeColor || '#1f2937';
+                ctx.fillStyle = bgColor;
+                
+                const isSelected = state.selectedIds.includes(box.id);
+                
+                applyStrokeStyles(ctx, box);
+                if (isSelected) {
+                    ctx.shadowColor = 'rgba(59, 130, 246, 0.5)'; ctx.shadowBlur = 10;
+                    ctx.strokeStyle = '#3b82f6'; 
+                } else if (box.id === state.hoveredBoxId && (state.mode === 'arrow' || state.mode === 'select' || state.isDraggingArrowHandle)) {
+                    // Feedback visual suave de que la caja va a recibir una conexión o está sobrevolada
+                    ctx.shadowColor = 'rgba(59, 130, 246, 0.3)'; ctx.shadowBlur = 10;
+                    ctx.strokeStyle = '#3b82f6';
+                } else if (box.id === state.hoveredBoxId && state.mode !== 'box') {
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.1)'; ctx.shadowBlur = 10;
+                    ctx.strokeStyle = '#4b5563';
+                } else {
+                    ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0;
+                    ctx.strokeStyle = strokeColor;
+                }
+
+                ctx.beginPath();
+                ctx.roundRect(box.x, box.y, box.w, box.h, 8);
+                if (bgColor !== 'transparent') ctx.fill();
+                if (strokeColor !== 'transparent') ctx.stroke();
+                ctx.setLineDash([]); ctx.lineCap = 'butt'; 
+
+                if (box.text && state.editingTextId !== box.id) {
+                    ctx.save(); ctx.beginPath(); ctx.roundRect(box.x, box.y, box.w, box.h, 8); ctx.clip();
+                    renderText(box.text, box.x, box.y, box.w, box.h, box.fontSize, box.textAlignH, box.textAlignV, false);
+                    ctx.restore();
+                }
+            });
+
+            // 2. Dibujar Flechas (MOVIDO ABAJO PARA QUE SE DIBUJEN POR ENCIMA DE LAS CAJAS)
+            state.arrows.forEach(arrow => {
+                if (!isElementVisible(arrow.id, state.presentationStep)) return;
+
+                const curve = getArrowCurve(arrow);
+                if (!curve) return;
+                
+                const isSelected = state.selectedIds.includes(arrow.id);
+                ctx.strokeStyle = isSelected ? '#3b82f6' : (arrow.strokeColor || '#9ca3af'); 
+                ctx.fillStyle = isSelected ? '#3b82f6' : (arrow.strokeColor || '#9ca3af');
+                
+                applyStrokeStyles(ctx, arrow);
+                
+                ctx.beginPath();
+                ctx.moveTo(curve.S.x, curve.S.y);
+                ctx.quadraticCurveTo(curve.C.x, curve.C.y, curve.E.x, curve.E.y);
+                ctx.stroke();
+                
+                ctx.setLineDash([]); 
+                const headlen = 10 + (parseInt(arrow.strokeWidth)||2);
+                const angle = Math.atan2(curve.E.y - curve.C.y, curve.E.x - curve.C.x);
+                ctx.beginPath();
+                ctx.moveTo(curve.E.x, curve.E.y);
+                ctx.lineTo(curve.E.x - headlen * Math.cos(angle - Math.PI / 6), curve.E.y - headlen * Math.sin(angle - Math.PI / 6));
+                ctx.lineTo(curve.E.x - headlen * Math.cos(angle + Math.PI / 6), curve.E.y - headlen * Math.sin(angle + Math.PI / 6));
+                ctx.lineTo(curve.E.x, curve.E.y); 
+                ctx.fill();
+
+                if (isSelected && (state.mode === 'select' || state.mode === 'animate')) {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.strokeStyle = '#3b82f6';
+                    ctx.lineWidth = 2 / state.camera.zoom;
+                    // Start Handle
+                    ctx.beginPath(); ctx.arc(curve.S.x, curve.S.y, 6 / state.camera.zoom, 0, 2*Math.PI); ctx.fill(); ctx.stroke();
+                    // End Handle
+                    ctx.beginPath(); ctx.arc(curve.E.x, curve.E.y, 6 / state.camera.zoom, 0, 2*Math.PI); ctx.fill(); ctx.stroke();
+                    // CP Handle
+                    ctx.beginPath(); ctx.arc(curve.T.x, curve.T.y, 6 / state.camera.zoom, 0, 2*Math.PI); ctx.fill(); ctx.stroke();
+                }
+
+                if (arrow.text && state.editingTextId !== arrow.id) {
+                    renderText(arrow.text, curve.T.x, curve.T.y, 0, 0, arrow.fontSize, 'center', 'middle', true);
+                }
+            });
+            ctx.setLineDash([]); 
+
+            // Flecha en progreso dibujando - Lógica fluida que sigue al ratón
+            if (state.isDrawingArrow && state.tempArrowStart) {
+                const mouseWorld = screenToWorld(state.mouseX, state.mouseY);
+                let sBox = state.tempArrowStart.boxId ? state.boxes.find(b=>b.id===state.tempArrowStart.boxId) : null;
+                
+                // La salida desde el centro original
+                let centerA = sBox ? { x: sBox.x + sBox.w/2, y: sBox.y + sBox.h/2 } : { x: state.tempArrowStart.x, y: state.tempArrowStart.y };
+                
+                // Sigue al ratón fluidamente en vez de encajarse rígidamente antes de tiempo
+                const S = sBox ? getBoxPerimeterPoint(sBox, mouseWorld.x, mouseWorld.y) : centerA;
+                const E = { x: mouseWorld.x, y: mouseWorld.y };
+                
+                ctx.strokeStyle = '#9ca3af'; ctx.fillStyle = '#9ca3af'; ctx.lineWidth = 2;
+                const headlen = 10;
+                const angle = Math.atan2(E.y - S.y, E.x - S.x);
+                ctx.beginPath(); ctx.moveTo(S.x, S.y); ctx.lineTo(E.x, E.y); ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(E.x, E.y);
+                ctx.lineTo(E.x - headlen * Math.cos(angle - Math.PI / 6), E.y - headlen * Math.sin(angle - Math.PI / 6));
+                ctx.lineTo(E.x - headlen * Math.cos(angle + Math.PI / 6), E.y - headlen * Math.sin(angle + Math.PI / 6));
+                ctx.lineTo(E.x, E.y); ctx.fill();
+            }
+
+            // Dibujar Bounding Box y Tiradores si hay selección
+            if ((state.mode === 'select' || state.mode === 'animate') && state.selectedIds.length > 0 && !state.isDraggingArrowHandle) {
+                const bounds = getSelectionBounds();
+                if (bounds) {
+                    ctx.shadowColor = 'transparent';
+                    if (state.selectedIds.length > 1) {
+                        ctx.strokeStyle = 'rgba(59, 130, 246, 0.4)';
+                        ctx.setLineDash([4, 4]); ctx.lineWidth = 1 / state.camera.zoom;
+                        ctx.strokeRect(bounds.x, bounds.y, bounds.w, bounds.h);
+                        ctx.setLineDash([]);
+                    }
+
+                    const boxesSelected = state.boxes.some(b => state.selectedIds.includes(b.id));
+                    if (boxesSelected) {
+                        const handles = getResizeHandles(bounds);
+                        ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 2 / state.camera.zoom;
+                        for (const pos in handles) {
+                            const rect = handles[pos];
+                            ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+                            ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
+                        }
+                    }
+                }
+            }
+
+            // 3. Dibujar acciones temporales
+            if (state.isDrawingBox || state.isSelecting) {
+                const mouseWorld = screenToWorld(state.mouseX, state.mouseY);
+                const start = state.isDrawingBox ? state.newBoxStart : state.selectionStart;
+                const x = Math.min(start.x, mouseWorld.x);
+                const y = Math.min(start.y, mouseWorld.y);
+                const w = Math.abs(mouseWorld.x - start.x);
+                const h = Math.abs(mouseWorld.y - start.y);
+
+                if (state.isDrawingBox) {
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                    ctx.strokeStyle = '#1f2937';
+                } else { 
+                    ctx.fillStyle = 'rgba(59, 130, 246, 0.1)'; 
+                    ctx.strokeStyle = '#3b82f6';
+                }
+                ctx.lineWidth = 1 / state.camera.zoom; ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                if (state.isDrawingBox) ctx.roundRect(x, y, w, h, 8);
+                else ctx.rect(x, y, w, h);
+                ctx.fill(); ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            // 4. Dibujar Insignias de Animación (Siempre por encima)
+            if (state.mode === 'animate') {
+                state.boxes.forEach(box => {
+                    let boxAnims = state.animations.filter(a => a.elementIds.includes(box.id));
+                    if (boxAnims.length > 0) {
+                        drawBadge(box.x + box.w, box.y, boxAnims.map(a => a.order).join(','));
+                    }
+                });
+                state.arrows.forEach(arrow => {
+                    let arrowAnims = state.animations.filter(a => a.elementIds.includes(arrow.id));
+                    if (arrowAnims.length > 0) {
+                        const curve = getArrowCurve(arrow);
+                        if (curve) drawBadge(curve.T.x, curve.T.y, arrowAnims.map(a => a.order).join(','));
+                    }
+                });
+            }
+
+            ctx.restore();
+        }
+
+        // --- Lógica del Zoom con Rueda ---
+        canvas.addEventListener('wheel', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault(); // Evita el zoom nativo del navegador
+
+                const zoomSensitivity = 0.0015;
+                const delta = -e.deltaY * zoomSensitivity;
+                let newZoom = state.camera.zoom * Math.exp(delta);
+                
+                // Limitar el zoom para que no sea extremo
+                newZoom = Math.max(0.1, Math.min(newZoom, 5));
+
+                // Calcular posición del ratón antes del zoom
+                const mouseScreen = { x: e.clientX, y: e.clientY };
+                const mouseWorldBefore = screenToWorld(mouseScreen.x, mouseScreen.y);
+
+                // Aplicar zoom
+                state.camera.zoom = newZoom;
+
+                // Ajustar la cámara para que el ratón siga apuntando al mismo sitio en el mundo
+                state.camera.x = mouseScreen.x - mouseWorldBefore.x * state.camera.zoom;
+                state.camera.y = mouseScreen.y - mouseWorldBefore.y * state.camera.zoom;
+
+                render();
+            } else {
+                // Si no se pulsa Ctrl, usamos la rueda para desplazarnos (Pan)
+                state.camera.x -= e.deltaX;
+                state.camera.y -= e.deltaY;
+                render();
+            }
+        }, { passive: false });
+
+        // --- Eventos y Modo ---
+        canvas.addEventListener('dblclick', (e) => {
+            if (e.button !== 0 || (state.mode !== 'select' && state.mode !== 'animate')) return;
+            const mouseWorld = screenToWorld(e.clientX, e.clientY);
+            let clickedObj = state.boxes.slice().reverse().find(b => isPointInBox(mouseWorld.x, mouseWorld.y, b));
+            if (!clickedObj) clickedObj = getArrowAt(mouseWorld.x, mouseWorld.y);
+            if (clickedObj) startTextEditing(clickedObj);
+        });
+
+        function startTextEditing(obj, initialChar = null) {
+            state.editingTextId = obj.id;
+            
+            if (initialChar !== null) {
+                textEditor.value = initialChar;
+            } else if (obj.text === 'Haz doble clic\npara editar texto autoajustable') {
+                textEditor.value = '';
+            } else {
+                textEditor.value = obj.text || '';
+            }
+            
+            textEditor.style.display = 'block';
+            let tx, ty, tw, th;
+            if (obj.w !== undefined) { 
+                const screenPos = worldToScreen(obj.x, obj.y);
+                tx = screenPos.x; ty = screenPos.y;
+                tw = obj.w * state.camera.zoom; th = obj.h * state.camera.zoom;
+                textEditor.style.textAlign = obj.textAlignH || 'center';
+            } else { 
+                const curve = getArrowCurve(obj);
+                const screenPos = worldToScreen(curve.T.x, curve.T.y);
+                tw = 150 * state.camera.zoom; th = 100 * state.camera.zoom;
+                tx = screenPos.x - tw/2; ty = screenPos.y - th/2;
+                textEditor.style.textAlign = 'center';
+            }
+
+            textEditor.style.left = tx + 'px'; textEditor.style.top = ty + 'px';
+            textEditor.style.width = tw + 'px'; textEditor.style.height = th + 'px';
+            
+            let fontSize = 16;
+            if (obj.fontSize === 'S') fontSize = 12; else if (obj.fontSize === 'M') fontSize = 16;
+            else if (obj.fontSize === 'L') fontSize = 24; else if (obj.fontSize === 'XL') fontSize = 32;
+            
+            textEditor.style.fontSize = (fontSize * state.camera.zoom) + 'px';
+            textEditor.style.fontFamily = 'system-ui, -apple-system, sans-serif';
+            textEditor.style.color = '#1f2937';
+            textEditor.style.padding = `${10 * state.camera.zoom}px`; 
+            textEditor.style.boxSizing = 'border-box';
+            textEditor.style.wordWrap = 'break-word';
+
+            textEditor.focus(); textEditor.setSelectionRange(textEditor.value.length, textEditor.value.length);
+            render();
+        }
+
+        textEditor.addEventListener('blur', () => {
+            if (state.editingTextId) {
+                const box = state.boxes.find(b => b.id === state.editingTextId);
+                const arrow = state.arrows.find(a => a.id === state.editingTextId);
+                const obj = box || arrow;
+                if (obj) obj.text = textEditor.value;
+                state.editingTextId = null; textEditor.style.display = 'none'; render();
+            }
+        });
+        textEditor.addEventListener('mousedown', (e) => e.stopPropagation());
+
+        canvas.addEventListener('mousedown', (e) => {
+            if (state.editingTextId) textEditor.blur();
+            closeContextMenu();
+
+            const mouseScreen = { x: e.clientX, y: e.clientY };
+            const mouseWorld = screenToWorld(mouseScreen.x, mouseScreen.y);
+            
+            // Pan (Clic Derecho o Botón central del ratón)
+            if (e.button === 2 || e.button === 1) {
+                state.isPanning = true;
+                state.panStartScreen = { x: mouseScreen.x, y: mouseScreen.y };
+                state.panStartCamera = { x: state.camera.x, y: state.camera.y };
+                
+                if (e.button === 2 && (state.mode === 'select' || state.mode === 'animate')) {
+                    let targetBox = state.boxes.slice().reverse().find(b => isPointInBox(mouseWorld.x, mouseWorld.y, b));
+                    if (targetBox && !state.selectedIds.includes(targetBox.id)) {
+                        toggleSelection(targetBox, false);
+                    } else if (!targetBox) {
+                        let targetArrow = getArrowAt(mouseWorld.x, mouseWorld.y);
+                        if (targetArrow && !state.selectedIds.includes(targetArrow.id)) toggleSelection(targetArrow, false);
+                    }
+                    updateSidebar(); 
+                }
+                render();
+                return;
+            }
+
+            if (e.button !== 0 || state.mode === 'presentation') return;
+
+            let clickedBox = state.boxes.slice().reverse().find(b => isPointInBox(mouseWorld.x, mouseWorld.y, b));
+            let clickedArrow = !clickedBox ? getArrowAt(mouseWorld.x, mouseWorld.y) : null;
+            const isMultiSelect = e.shiftKey || e.ctrlKey || e.metaKey;
+
+            if (state.mode === 'select' || state.mode === 'animate') {
+                // Comprobar si se ha hecho click en un tirador de flecha (inicio, fin o curva)
+                let hitArrowHandle = null;
+                let handleType = null;
+                for (let id of state.selectedIds) {
+                    const a = state.arrows.find(arr => arr.id === id);
+                    if (a) {
+                        const c = getArrowCurve(a);
+                        if (c) {
+                            if (Math.hypot(c.T.x - mouseWorld.x, c.T.y - mouseWorld.y) < 15/state.camera.zoom) {
+                                hitArrowHandle = a; handleType = 'cp'; break;
+                            }
+                            if (Math.hypot(c.S.x - mouseWorld.x, c.S.y - mouseWorld.y) < 15/state.camera.zoom) {
+                                hitArrowHandle = a; handleType = 'start'; break;
+                            }
+                            if (Math.hypot(c.E.x - mouseWorld.x, c.E.y - mouseWorld.y) < 15/state.camera.zoom) {
+                                hitArrowHandle = a; handleType = 'end'; break;
+                            }
+                        }
+                    }
+                }
+
+                if (hitArrowHandle) {
+                    state.isDraggingArrowHandle = true;
+                    state.activeArrowId = hitArrowHandle.id;
+                    state.activeArrowHandleType = handleType;
+                    return;
+                }
+
+                const bounds = getSelectionBounds();
+                const handle = getHitResizeHandle(mouseWorld.x, mouseWorld.y, bounds);
+                
+                if (handle && state.selectedIds.length > 0 && state.boxes.some(b=>state.selectedIds.includes(b.id))) {
+                    state.isResizing = true;
+                    state.resizeHandle = handle;
+                    state.resizeOriginalBounds = bounds;
+                    state.resizeOriginalBoxes = state.boxes.filter(b => state.selectedIds.includes(b.id)).map(b => ({...b}));
+                    return;
+                }
+
+                if (clickedBox) {
+                    if (isMultiSelect) {
+                        toggleSelection(clickedBox, true);
+                    } else if (!state.selectedIds.includes(clickedBox.id)) {
+                        toggleSelection(clickedBox, false);
+                    }
+                    
+                    state.isDragging = true;
+                    state.dragStartMouse = mouseWorld;
+                    state.dragOriginalBoxes = state.boxes.filter(b => state.selectedIds.includes(b.id)).map(b => ({...b}));
+                    state.dragOriginalArrows = state.arrows.filter(a => state.selectedIds.includes(a.id)).map(a => JSON.parse(JSON.stringify(a)));
+                    
+                } else if (clickedArrow) {
+                    if (isMultiSelect) {
+                        toggleSelection(clickedArrow, true);
+                    } else if (!state.selectedIds.includes(clickedArrow.id)) {
+                        toggleSelection(clickedArrow, false);
+                    }
+                    state.isDragging = true;
+                    state.dragStartMouse = mouseWorld;
+                    state.dragOriginalBoxes = state.boxes.filter(b => state.selectedIds.includes(b.id)).map(b => ({...b}));
+                    state.dragOriginalArrows = state.arrows.filter(a => state.selectedIds.includes(a.id)).map(a => JSON.parse(JSON.stringify(a)));
+                } else {
+                    state.selectedIds = [];
+                    state.isSelecting = true;
+                    state.selectionStart = mouseWorld;
+                }
+            } 
+            else if (state.mode === 'box') {
+                state.isDrawingBox = true; state.newBoxStart = mouseWorld; state.selectedIds = [];
+            }
+            else if (state.mode === 'arrow') {
+                state.isDrawingArrow = true;
+                state.tempArrowStart = clickedBox ? { boxId: clickedBox.id } : { x: mouseWorld.x, y: mouseWorld.y };
+                state.selectedIds = [];
+            }
+
+            updateSidebar(); render();
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            state.mouseX = e.clientX; state.mouseY = e.clientY;
+            const mouseScreen = { x: e.clientX, y: e.clientY };
+            const mouseWorld = screenToWorld(mouseScreen.x, mouseScreen.y);
+
+            if (state.isPanning) {
+                state.camera.x = state.panStartCamera.x + (mouseScreen.x - state.panStartScreen.x);
+                state.camera.y = state.panStartCamera.y + (mouseScreen.y - state.panStartScreen.y);
+                container.classList.add('cursor-panning');
+                render(); return;
+            }
+
+            if (state.mode === 'presentation') return;
+
+            let newHovered = state.boxes.slice().reverse().find(b => isPointInBox(mouseWorld.x, mouseWorld.y, b))?.id || null;
+            if (state.hoveredBoxId !== newHovered) { state.hoveredBoxId = newHovered; render(); }
+
+            container.className = '';
+            if (state.mode === 'box') container.classList.add('cursor-crosshair');
+            else if (state.mode === 'arrow') {
+                container.classList.add('cursor-crosshair');
+                if (state.hoveredBoxId) container.classList.add('cursor-pointer');
+            } else if (state.mode === 'select' || state.mode === 'animate') {
+                let hoverHandle = false;
+                for (let id of state.selectedIds) {
+                    const a = state.arrows.find(arr => arr.id === id);
+                    if (a) {
+                        const c = getArrowCurve(a);
+                        if (c && (
+                            Math.hypot(c.T.x - mouseWorld.x, c.T.y - mouseWorld.y) < 15/state.camera.zoom ||
+                            Math.hypot(c.S.x - mouseWorld.x, c.S.y - mouseWorld.y) < 15/state.camera.zoom ||
+                            Math.hypot(c.E.x - mouseWorld.x, c.E.y - mouseWorld.y) < 15/state.camera.zoom
+                        )) { hoverHandle = true; break; }
+                    }
+                }
+                
+                if (hoverHandle) container.classList.add('cursor-pan'); 
+                else {
+                    const bounds = getSelectionBounds();
+                    const boxesSelected = state.boxes.some(b => state.selectedIds.includes(b.id));
+                    const handle = boxesSelected ? getHitResizeHandle(mouseWorld.x, mouseWorld.y, bounds) : null;
+                    if (handle === 'nw' || handle === 'se') container.classList.add('cursor-nwse-resize');
+                    else if (handle === 'ne' || handle === 'sw') container.classList.add('cursor-nesw-resize');
+                    else if (state.hoveredBoxId) container.classList.add('cursor-pan');
+                }
+            }
+
+            if (state.isDraggingArrowHandle && state.activeArrowId) {
+                const a = state.arrows.find(arr => arr.id === state.activeArrowId);
+                if (a) {
+                    if (state.activeArrowHandleType === 'cp') {
+                        const sBox = a.start.boxId ? state.boxes.find(b=>b.id===a.start.boxId) : null;
+                        const eBox = a.end.boxId ? state.boxes.find(b=>b.id===a.end.boxId) : null;
+                        const centerA = sBox ? { x: sBox.x + sBox.w/2, y: sBox.y + sBox.h/2 } : { x: a.start.x, y: a.start.y };
+                        const centerB = eBox ? { x: eBox.x + eBox.w/2, y: eBox.y + eBox.h/2 } : { x: a.end.x, y: a.end.y };
+                        const S = sBox ? getBoxPerimeterPoint(sBox, centerB.x, centerB.y) : centerA;
+                        const E = eBox ? getBoxPerimeterPoint(eBox, centerA.x, centerA.y) : centerB;
+                        const M = { x: (S.x+E.x)/2, y: (S.y+E.y)/2 };
+                        const C = { x: 2*mouseWorld.x - 0.5*S.x - 0.5*E.x, y: 2*mouseWorld.y - 0.5*S.y - 0.5*E.y };
+                        a.cp = { dx: C.x - M.x, dy: C.y - M.y };
+                    } 
+                    else if (state.activeArrowHandleType === 'start') {
+                        // Fluye con el ratón sin anclarse durante el movimiento
+                        a.start = { x: mouseWorld.x, y: mouseWorld.y };
+                    } 
+                    else if (state.activeArrowHandleType === 'end') {
+                        // Fluye con el ratón sin anclarse durante el movimiento
+                        a.end = { x: mouseWorld.x, y: mouseWorld.y };
+                    }
+                    render();
+                }
+            }
+            else if (state.isDragging && state.selectedIds.length > 0) {
+                const dx = mouseWorld.x - state.dragStartMouse.x;
+                const dy = mouseWorld.y - state.dragStartMouse.y;
+                state.dragOriginalBoxes.forEach(orig => {
+                    const box = state.boxes.find(b => b.id === orig.id);
+                    if (box) { box.x = orig.x + dx; box.y = orig.y + dy; }
+                });
+                state.dragOriginalArrows.forEach(orig => {
+                    const arrow = state.arrows.find(a => a.id === orig.id);
+                    if (arrow) {
+                        // Solo desplazar conectores si están libres en el aire y no atados a una caja
+                        if (!orig.start.boxId) arrow.start = { x: orig.start.x + dx, y: orig.start.y + dy };
+                        if (!orig.end.boxId) arrow.end = { x: orig.end.x + dx, y: orig.end.y + dy };
+                    }
+                });
+                render();
+            }
+            else if (state.isResizing && state.resizeOriginalBounds) {
+                const origB = state.resizeOriginalBounds;
+                let newX = origB.x, newY = origB.y, newW = origB.w, newH = origB.h;
+                const minSize = 20;
+
+                if (state.resizeHandle === 'se') { newW = Math.max(minSize, mouseWorld.x - origB.x); newH = Math.max(minSize, mouseWorld.y - origB.y); }
+                else if (state.resizeHandle === 'sw') { newW = Math.max(minSize, origB.x + origB.w - mouseWorld.x); newX = origB.x + origB.w - newW; newH = Math.max(minSize, mouseWorld.y - origB.y); }
+                else if (state.resizeHandle === 'ne') { newW = Math.max(minSize, mouseWorld.x - origB.x); newH = Math.max(minSize, origB.y + origB.h - mouseWorld.y); newY = origB.y + origB.h - newH; }
+                else if (state.resizeHandle === 'nw') { newW = Math.max(minSize, origB.x + origB.w - mouseWorld.x); newX = origB.x + origB.w - newW; newH = Math.max(minSize, origB.y + origB.h - mouseWorld.y); newY = origB.y + origB.h - newH; }
+
+                const scaleX = newW / origB.w;
+                const scaleY = newH / origB.h;
+
+                state.resizeOriginalBoxes.forEach(orig => {
+                    const box = state.boxes.find(b => b.id === orig.id);
+                    if (box) {
+                        box.x = newX + (orig.x - origB.x) * scaleX;
+                        box.y = newY + (orig.y - origB.y) * scaleY;
+                        box.w = Math.max(10, orig.w * scaleX);
+                        box.h = Math.max(10, orig.h * scaleY);
+                    }
+                });
+                render();
+            }
+            else if (state.isDrawingBox || state.isDrawingArrow || state.isSelecting) {
+                render();
+            }
+        });
+
+        canvas.addEventListener('mouseup', (e) => {
+            const mouseScreen = { x: e.clientX, y: e.clientY };
+            const mouseWorld = screenToWorld(mouseScreen.x, mouseScreen.y);
+
+            if (e.button === 2 || e.button === 1) {
+                state.isPanning = false;
+                container.classList.remove('cursor-panning');
+                const distMoved = Math.hypot(mouseScreen.x - state.panStartScreen.x, mouseScreen.y - state.panStartScreen.y);
+                if (e.button === 2 && distMoved < 5 && state.mode !== 'presentation') openContextMenu(mouseScreen.x, mouseScreen.y);
+                return;
+            }
+
+            if (state.mode === 'presentation') return;
+
+            // Lógica de anclaje de flechas existentes AL SOLTAR (Mouseup)
+            if (state.isDraggingArrowHandle && state.activeArrowId) {
+                const a = state.arrows.find(arr => arr.id === state.activeArrowId);
+                if (a) {
+                    if (state.activeArrowHandleType === 'start' && state.hoveredBoxId && state.hoveredBoxId !== a.end.boxId) {
+                        a.start = { boxId: state.hoveredBoxId };
+                    }
+                    else if (state.activeArrowHandleType === 'end' && state.hoveredBoxId && state.hoveredBoxId !== a.start.boxId) {
+                        a.end = { boxId: state.hoveredBoxId };
+                    }
+                }
+            }
+
+            if (state.isSelecting) {
+                const x = Math.min(state.selectionStart.x, mouseWorld.x);
+                const y = Math.min(state.selectionStart.y, mouseWorld.y);
+                const w = Math.abs(mouseWorld.x - state.selectionStart.x);
+                const h = Math.abs(mouseWorld.y - state.selectionStart.y);
+                
+                state.boxes.forEach(b => {
+                    if (b.x < x + w && b.x + b.w > x && b.y < y + h && b.y + b.h > y) {
+                        if (!state.selectedIds.includes(b.id)) state.selectedIds.push(b.id);
+                    }
+                });
+                
+                state.arrows.forEach(a => {
+                    const curve = getArrowCurve(a);
+                    if (curve) {
+                        if ((curve.T.x >= x && curve.T.x <= x + w && curve.T.y >= y && curve.T.y <= y + h) ||
+                            (curve.S.x >= x && curve.S.x <= x + w && curve.S.y >= y && curve.S.y <= y + h) ||
+                            (curve.E.x >= x && curve.E.x <= x + w && curve.E.y >= y && curve.E.y <= y + h)) {
+                            if (!state.selectedIds.includes(a.id)) state.selectedIds.push(a.id);
+                        }
+                    }
+                });
+
+                resolveSelectionGroups();
+            }
+            else if (state.isDrawingBox) {
+                const x = Math.min(state.newBoxStart.x, mouseWorld.x); const y = Math.min(state.newBoxStart.y, mouseWorld.y);
+                const w = Math.max(Math.abs(mouseWorld.x - state.newBoxStart.x), 10); const h = Math.max(Math.abs(mouseWorld.y - state.newBoxStart.y), 10);
+                if (w > 20 && h > 20) {
+                    const newBox = { 
+                        id: generateId(), x, y, w, h,
+                        backgroundColor: '#ffffff', strokeColor: '#1f2937', strokeWidth: 2, strokeStyle: 'solid',
+                        fontSize: 'M', textAlignH: 'center', textAlignV: 'middle', text: ''
+                    };
+                    state.boxes.push(newBox);
+                    state.selectedIds = [newBox.id];
+                    setMode('select');
+                }
+            } 
+            else if (state.isDrawingArrow && state.tempArrowStart) {
+                // Al soltar el ratón dibujando, verificamos si hay caja hovered, si no, se queda libre
+                let endData = state.hoveredBoxId ? { boxId: state.hoveredBoxId } : { x: mouseWorld.x, y: mouseWorld.y };
+                if (!(state.tempArrowStart.boxId && state.tempArrowStart.boxId === endData.boxId)) {
+                    state.arrows.push({ 
+                        id: generateId(), start: state.tempArrowStart, end: endData, 
+                        cp: {dx:0, dy:0}, strokeColor: '#9ca3af', strokeWidth: 2, strokeStyle: 'solid', fontSize: 'M', text: '' 
+                    });
+                }
+                setMode('select');
+            }
+
+            state.isSelecting = false; state.isDrawingBox = false; state.isDragging = false;
+            state.isResizing = false; state.isDrawingArrow = false; state.tempArrowStart = null;
+            state.resizeHandle = null; state.resizeOriginalBounds = null; state.dragOriginalBoxes = []; state.dragOriginalArrows = [];
+            state.isDraggingArrowHandle = false; state.activeArrowId = null; state.activeArrowHandleType = null;
+
+            updateSidebar(); render();
+        });
+
+        canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+        // --- Atajos de Teclado ---
+        window.addEventListener('keydown', (e) => {
+            if (state.editingTextId) return;
+
+            if (state.mode === 'presentation') {
+                if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+                    document.getElementById('btn-next-step').click();
+                    e.preventDefault();
+                } else if (e.key === 'ArrowLeft') {
+                    document.getElementById('btn-prev-step').click();
+                    e.preventDefault();
+                } else if (e.key === 'Escape') {
+                    document.getElementById('btn-exit-present').click();
+                    e.preventDefault();
+                }
+                return; // Bloquea el resto de atajos
+            }
+
+            if (e.key === 'Delete' || e.key === 'Backspace') {
+                deleteSelected();
+                return;
+            }
+            
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') { copySelected(); return; }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'v') { pasteSelected(); return; }
+
+            if (state.selectedIds.length === 1 && !e.ctrlKey && !e.metaKey) {
+                const objId = state.selectedIds[0];
+                const obj = state.boxes.find(b => b.id === objId) || state.arrows.find(a => a.id === objId);
+                
+                if (obj) {
+                    if (e.key === 'Enter') {
+                        startTextEditing(obj);
+                        e.preventDefault();
+                        return;
+                    } else if (e.key.length === 1) { 
+                        startTextEditing(obj, e.key);
+                        e.preventDefault();
+                        return;
+                    }
+                }
+            }
+
+            if (e.key.toLowerCase() === 'v' && !e.ctrlKey && !e.metaKey) setMode('select');
+            if (e.key.toLowerCase() === 'r' && !e.ctrlKey && !e.metaKey) setMode('box');
+            if (e.key.toLowerCase() === 'a' && !e.ctrlKey && !e.metaKey) setMode('arrow');
+        });
+
+        // --- Configuración de UI e Interfaz ---
+        function setMode(newMode) {
+            state.mode = newMode;
+            
+            if (newMode === 'presentation') {
+                document.getElementById('main-toolbar').style.opacity = '0';
+                setTimeout(() => document.getElementById('main-toolbar').style.display = 'none', 300);
+                document.getElementById('main-instructions').style.opacity = '0';
+                
+                document.getElementById('presentation-controls').style.display = 'flex';
+                state.selectedIds = [];
+                state.presentationStep = 0;
+                updatePresentationUI();
+            } else {
+                document.getElementById('main-toolbar').style.display = 'flex';
+                setTimeout(() => document.getElementById('main-toolbar').style.opacity = '1', 10);
+                document.getElementById('main-instructions').style.opacity = '1';
+                document.getElementById('presentation-controls').style.display = 'none';
+                
+                document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
+                if (newMode !== 'presentation') {
+                    document.getElementById(`btn-${newMode}`).classList.add('active');
+                }
+            }
+
+            state.isDrawingBox = false; state.isDrawingArrow = false; state.isSelecting = false;
+            updateSidebar();
+            render();
+        }
+
+        document.getElementById('btn-select').addEventListener('click', () => setMode('select'));
+        document.getElementById('btn-box').addEventListener('click', () => setMode('box'));
+        document.getElementById('btn-arrow').addEventListener('click', () => setMode('arrow'));
+        document.getElementById('btn-animate').addEventListener('click', () => setMode('animate'));
+        document.getElementById('btn-present').addEventListener('click', () => setMode('presentation'));
+
+        // Controladores Presentación
+        function updatePresentationUI() {
+            const maxSteps = state.animations.length > 0 ? Math.max(...state.animations.map(a => a.order)) : 0;
+            document.getElementById('presentation-step-text').textContent = `${state.presentationStep} / ${maxSteps}`;
+            document.getElementById('btn-prev-step').style.opacity = state.presentationStep === 0 ? '0.5' : '1';
+            document.getElementById('btn-next-step').style.opacity = state.presentationStep === maxSteps ? '0.5' : '1';
+        }
+
+        document.getElementById('btn-next-step').addEventListener('click', () => {
+            const maxSteps = state.animations.length > 0 ? Math.max(...state.animations.map(a => a.order)) : 0;
+            if (state.presentationStep < maxSteps) {
+                state.presentationStep++;
+                updatePresentationUI();
+                render();
+            }
+        });
+
+        document.getElementById('btn-prev-step').addEventListener('click', () => {
+            if (state.presentationStep > 0) {
+                state.presentationStep--;
+                updatePresentationUI();
+                render();
+            }
+        });
+
+        document.getElementById('btn-exit-present').addEventListener('click', () => setMode('select'));
+
+        // Control de los Paneles Laterales
+        function updateAnimationList() {
+            const list = document.getElementById('animation-list');
+            list.innerHTML = '';
+            
+            if (state.animations.length === 0) {
+                list.innerHTML = '<p class="text-sm text-gray-400 italic text-center mt-4">No hay animaciones</p>';
+                return;
+            }
+
+            state.animations.forEach(anim => {
+                const div = document.createElement('div');
+                const isAppear = (!anim.type || anim.type === 'appear');
+                const typeLabel = isAppear ? 'Aparecer' : 'Desap.';
+                const bgBadge = isAppear ? 'bg-violet-500' : 'bg-slate-600';
+                const borderHighlight = isAppear ? 'hover:border-violet-300' : 'hover:border-slate-300';
+                const activeClass = isAppear ? 'border-violet-400 bg-violet-50' : 'border-slate-400 bg-slate-50';
+                
+                const isSelectedStep = state.selectedIds.some(id => anim.elementIds.includes(id));
+                if (isSelectedStep) div.className = `flex justify-between items-center p-2 rounded-lg border cursor-pointer transition-colors ${activeClass}`;
+                else div.className = `flex justify-between items-center bg-gray-50 p-2 rounded-lg border border-gray-200 cursor-pointer transition-colors ${borderHighlight}`;
+
+                div.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="${bgBadge} text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full">${anim.order}</span>
+                        <span class="text-sm text-gray-700 font-medium">${anim.elementIds.length} elem. <span class="text-xs font-normal text-gray-500">(${typeLabel})</span></span>
+                    </div>
+                    <button class="text-gray-400 hover:text-red-500 transition-colors p-1" title="Eliminar paso">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    </button>
+                `;
+
+                div.addEventListener('click', () => {
+                    state.selectedIds = [...anim.elementIds];
+                    updateSidebar();
+                    render();
+                });
+
+                div.querySelector('button').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    state.animations = state.animations.filter(a => a.id !== anim.id);
+                    cleanEmptyAnimations();
+                    updateSidebar();
+                    render();
+                });
+
+                list.appendChild(div);
+            });
+        }
+
+        function updateSidebar() {
+            propertiesSidebar.classList.remove('visible');
+            animationSidebar.classList.remove('visible');
+
+            if (state.mode === 'presentation') return;
+
+            if (state.mode === 'animate') {
+                animationSidebar.classList.add('visible');
+                document.getElementById('btn-add-appear').disabled = state.selectedIds.length === 0;
+                document.getElementById('btn-add-disappear').disabled = state.selectedIds.length === 0;
+                updateAnimationList();
+                return;
+            }
+
+            if (state.selectedIds.length > 0) {
+                propertiesSidebar.classList.add('visible');
+                const objId = state.selectedIds[0];
+                const obj = state.boxes.find(b => b.id === objId) || state.arrows.find(a => a.id === objId);
+                
+                if (!obj) return;
+
+                const updateActiveBtn = (selector, value, defaultVal) => {
+                    document.querySelectorAll(selector).forEach(btn => {
+                        btn.classList.remove('active');
+                        if (btn.dataset.val == (value || defaultVal)) btn.classList.add('active');
+                    });
+                };
+
+                updateActiveBtn('#stroke-colors .color-btn', obj.strokeColor, '#1f2937');
+                updateActiveBtn('#stroke-widths .style-btn', obj.strokeWidth, 2);
+                updateActiveBtn('#stroke-styles .style-btn', obj.strokeStyle, 'solid');
+                
+                if (obj.w !== undefined) updateActiveBtn('#all-bg-colors .color-btn', obj.backgroundColor, '#ffffff');
+                else updateActiveBtn('#all-bg-colors .color-btn', null, '#ffffff'); 
+
+                updateActiveBtn('#font-sizes .style-btn', obj.fontSize, 'M');
+                updateActiveBtn('#align-h .style-btn', obj.textAlignH, 'center');
+                updateActiveBtn('#align-v .style-btn', obj.textAlignV, 'middle');
+            }
+        }
+
+        function setupSidebarEvent(selector, propName) {
+            document.querySelectorAll(selector).forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    if (state.selectedIds.length === 0) return;
+                    const val = e.currentTarget.dataset.val;
+                    
+                    state.selectedIds.forEach(id => {
+                        const box = state.boxes.find(b => b.id === id);
+                        const arrow = state.arrows.find(a => a.id === id);
+                        const obj = box || arrow;
+                        if (obj) obj[propName] = val;
+                    });
+                    updateSidebar(); render();
+                });
+            });
+        }
+
+        setupSidebarEvent('#stroke-colors .color-btn', 'strokeColor');
+        setupSidebarEvent('#stroke-widths .style-btn', 'strokeWidth');
+        setupSidebarEvent('#stroke-styles .style-btn', 'strokeStyle');
+        setupSidebarEvent('#all-bg-colors .color-btn', 'backgroundColor');
+        setupSidebarEvent('#font-sizes .style-btn', 'fontSize');
+        setupSidebarEvent('#align-h .style-btn', 'textAlignH');
+        setupSidebarEvent('#align-v .style-btn', 'textAlignV');
+
+        // --- Menú Contextual ---
+        function openContextMenu(x, y) {
+            const numBoxesSelected = state.boxes.filter(b => state.selectedIds.includes(b.id)).length;
+            const numArrowsSelected = state.arrows.filter(a => state.selectedIds.includes(a.id)).length;
+            const totalSelected = numBoxesSelected + numArrowsSelected;
+
+            const isGrouped = totalSelected > 0 && (
+                state.boxes.find(b => state.selectedIds.includes(b.id))?.groupId || 
+                state.arrows.find(a => state.selectedIds.includes(a.id))?.groupId
+            );
+
+            document.getElementById('cm-group').style.display = totalSelected > 1 ? 'flex' : 'none';
+            document.getElementById('cm-ungroup').style.display = isGrouped ? 'flex' : 'none';
+            document.getElementById('cm-paste').style.display = (state.clipboard && (state.clipboard.boxes.length > 0 || state.clipboard.arrows.length > 0)) ? 'flex' : 'none';
+            
+            const hasSelection = state.selectedIds.length > 0;
+            ['cm-copy', 'cm-delete', 'cm-front', 'cm-forward', 'cm-backward', 'cm-back'].forEach(id => {
+                document.getElementById(id).style.display = hasSelection ? 'flex' : 'none';
+            });
+
+            contextMenu.style.display = 'block';
+            const rect = contextMenu.getBoundingClientRect();
+            let finalX = x, finalY = y;
+            if (x + rect.width > window.innerWidth) finalX = window.innerWidth - rect.width;
+            if (y + rect.height > window.innerHeight) finalY = window.innerHeight - rect.height;
+            
+            contextMenu.style.left = finalX + 'px';
+            contextMenu.style.top = finalY + 'px';
+        }
+
+        function closeContextMenu() { contextMenu.style.display = 'none'; }
+
+        document.getElementById('cm-copy').addEventListener('click', () => { copySelected(); closeContextMenu(); });
+        document.getElementById('cm-paste').addEventListener('click', () => { pasteSelected(); closeContextMenu(); });
+        document.getElementById('cm-delete').addEventListener('click', () => { deleteSelected(); closeContextMenu(); });
+        document.getElementById('cm-front').addEventListener('click', () => { bringToFront(); closeContextMenu(); });
+        document.getElementById('cm-back').addEventListener('click', () => { sendToBack(); closeContextMenu(); });
+        document.getElementById('cm-forward').addEventListener('click', () => { bringForward(); closeContextMenu(); });
+        document.getElementById('cm-backward').addEventListener('click', () => { sendBackward(); closeContextMenu(); });
+        
+        document.getElementById('cm-group').addEventListener('click', () => {
+            const gid = generateId();
+            state.boxes.forEach(b => { if (state.selectedIds.includes(b.id)) b.groupId = gid; });
+            state.arrows.forEach(a => { if (state.selectedIds.includes(a.id)) a.groupId = gid; });
+            closeContextMenu();
+        });
+        document.getElementById('cm-ungroup').addEventListener('click', () => {
+            state.boxes.forEach(b => { if (state.selectedIds.includes(b.id)) b.groupId = null; });
+            state.arrows.forEach(a => { if (state.selectedIds.includes(a.id)) a.groupId = null; });
+            closeContextMenu();
+        });
+
+        // --- Inicialización y Archivos ---
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        state.camera.x = canvas.width / 2; state.camera.y = canvas.height / 2;
+        
+        state.boxes.push({
+            id: generateId(), x: -100, y: -50, w: 200, h: 100,
+            backgroundColor: '#ffffff', strokeColor: '#1f2937', strokeWidth: 2, strokeStyle: 'solid',
+            text: 'Haz doble clic\npara editar texto autoajustable',
+            fontSize: 'M', textAlignH: 'center', textAlignV: 'middle'
+        });
+
+        render();
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            toast.style.opacity = '1';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.style.display = 'none', 300);
+            }, 3000);
+        }
+
+        document.getElementById('btn-export').addEventListener('click', async () => {
+            const data = {
+                boxes: state.boxes,
+                arrows: state.arrows,
+                animations: state.animations,
+                camera: state.camera
+            };
+            const dataStr = JSON.stringify(data, null, 2);
+            
+            try {
+                if ('showSaveFilePicker' in window) {
+                    const fileHandle = await window.showSaveFilePicker({
+                        suggestedName: 'mi_diagrama.json',
+                        types: [{ description: 'Archivo JSON de Diagrama', accept: { 'application/json': ['.json'] } }],
+                    });
+                    const writable = await fileHandle.createWritable();
+                    await writable.write(dataStr);
+                    await writable.close();
+                    showToast("Diagrama guardado correctamente");
+                } else {
+                    const blob = new Blob([dataStr], { type: "application/json" });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url; a.download = 'mi_diagrama.json';
+                    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    showToast("Diagrama exportado. Revisa tus descargas.");
+                }
+            } catch (err) {
+                if (err.name !== 'AbortError') { showToast("Error al intentar guardar el archivo"); }
+            }
+        });
+
+        const fileInput = document.getElementById('file-import');
+        document.getElementById('btn-import').addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const data = JSON.parse(event.target.result);
+                    if (data.boxes && Array.isArray(data.boxes)) {
+                        state.boxes = data.boxes;
+                        
+                        // Migración de formato antiguo de flechas (from/to) al nuevo (start/end independientes)
+                        state.arrows = (data.arrows || []).map(a => {
+                            if (a.from !== undefined && a.to !== undefined) {
+                                return { ...a, start: { boxId: a.from }, end: { boxId: a.to }, from: undefined, to: undefined };
+                            }
+                            return a;
+                        });
+
+                        state.animations = data.animations || [];
+                        if (data.camera) state.camera = data.camera;
+                        state.selectedIds = [];
+                        setMode('select');
+                        showToast("Diagrama importado correctamente");
+                    } else showToast("El archivo no tiene el formato de diagrama válido");
+                } catch (err) { showToast("Error al leer el archivo JSON"); }
+            };
+            reader.readAsText(file);
+            fileInput.value = ''; 
+        });
+
+    </script>
+</body>
+</html>

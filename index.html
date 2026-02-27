@@ -1758,6 +1758,8 @@
 
                 // Se puede añadir si hay algo seleccionado que NO esté ya en este grupo
                 const canAdd = state.selectedIds.length > 0 && !state.selectedIds.every(id => anim.elementIds.includes(id));
+                // Se puede quitar si hay algo seleccionado que SÍ esté en este grupo
+                const canRemove = state.selectedIds.length > 0 && state.selectedIds.some(id => anim.elementIds.includes(id));
 
                 div.innerHTML = `
                     <div class="flex items-center gap-2 overflow-hidden">
@@ -1768,6 +1770,11 @@
                         ${canAdd ? 
                             `<button class="add-to-anim-btn text-violet-500 hover:bg-violet-100 p-1 rounded transition-colors" title="Añadir selección a este paso">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            </button>` : ''
+                        }
+                        ${canRemove ? 
+                            `<button class="remove-from-anim-btn text-orange-500 hover:bg-orange-100 p-1 rounded transition-colors" title="Quitar selección de este paso">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
                             </button>` : ''
                         }
                         ${index > 0 ? 
@@ -1808,6 +1815,18 @@
                                 anim.elementIds.push(id);
                             }
                         });
+                        cleanEmptyAnimations();
+                        updateSidebar();
+                        render();
+                    });
+                }
+
+                const btnRemove = div.querySelector('.remove-from-anim-btn');
+                if (btnRemove) {
+                    btnRemove.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        // Quitamos de la animación los elementos que estén seleccionados
+                        anim.elementIds = anim.elementIds.filter(id => !state.selectedIds.includes(id));
                         cleanEmptyAnimations();
                         updateSidebar();
                         render();

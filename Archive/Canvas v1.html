@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagramador de Canvas Infinito</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #f3f4f6;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            cursor: default;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .cursor-pan { cursor: grab !important; }
+        .cursor-panning { cursor: grabbing !important; }
+        .cursor-crosshair { cursor: crosshair !important; }
+        .cursor-pointer { cursor: pointer !important; }
+        .cursor-nwse-resize { cursor: nwse-resize !important; }
+        .cursor-nesw-resize { cursor: nesw-resize !important; }
+
+        .toolbar {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 8px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .tool-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            background: transparent;
+            color: #4b5563;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tool-btn:hover { background: #f3f4f6; }
+        .tool-btn.active { background: #eff6ff; color: #3b82f6; border-color: #bfdbfe; }
+
+        .instructions {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #4b5563;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* Estilos de la barra lateral */
+        .sidebar {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            bottom: 20px;
+            width: 250px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 16px;
+            z-index: 20;
+            display: none; /* Oculto por defecto */
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .sidebar.visible {
+            display: flex; /* Se muestra al seleccionar caja */
+        }
+
+        .color-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.1s;
+        }
+
+        .color-btn:hover { transform: scale(1.1); }
+        .color-btn.active { outline: 2px solid #3b82f6; outline-offset: 2px; }
+        
+        .style-btn {
+            flex: 1;
+            padding: 6px 0;
+            text-align: center;
+            background: #f3f4f6;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #4b5563;
+            border: 1px solid transparent;
+        }
+        .style-btn:hover { background: #e5e7eb; }
+        .style-btn.active { background: #eff6ff; color: #3b82f6; border-color: #bfdbfe; }
+
+        /* Editor de texto superpuesto */
+        #text-editor {
+            position: absolute;
+            display: none;
+            z-index: 15;
+            background: transparent;
+            border: none;
+            outline: none;
+            resize: none;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="toolbar">
+        <button id="btn-select" class="tool-btn active" title="Seleccionar y Mover (V)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg>
+            Seleccionar
+        </button>
+        <button id="btn-box" class="tool-btn" title="Dibujar Caja (R)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>
+            Caja
+        </button>
+        <button id="btn-arrow" class="tool-btn" title="Dibujar Flecha (A)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            Flecha
+        </button>
+    </div>
+
+    <!-- Barra lateral de propiedades -->
+    <div id="properties-sidebar" class="sidebar">
+        <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Propiedades</h2>
+        
+        <div class="mb-5">
+            <h3 class="text-sm font-semibold text-gray-600 mb-2">Trazo</h3>
+            <div class="flex gap-2 flex-wrap" id="stroke-colors">
+                <div class="color-btn active" style="background: #1f2937; border-color: #1f2937" data-val="#1f2937"></div>
+                <div class="color-btn" style="background: #ef4444; border-color: #ef4444" data-val="#ef4444"></div>
+                <div class="color-btn" style="background: #22c55e; border-color: #22c55e" data-val="#22c55e"></div>
+                <div class="color-btn" style="background: #3b82f6; border-color: #3b82f6" data-val="#3b82f6"></div>
+                <div class="color-btn" style="background: #f97316; border-color: #f97316" data-val="#f97316"></div>
+                <div class="color-btn flex items-center justify-center" style="background: transparent; border-color: #d1d5db" data-val="transparent" title="Sin borde">
+                    <svg width="18" height="18" viewBox="0 0 24 24"><line x1="2" y1="2" x2="22" y2="22" stroke="#ef4444" stroke-width="2"/></svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-5">
+            <h3 class="text-sm font-semibold text-gray-600 mb-2">Fondo</h3>
+            <div class="flex gap-2 flex-wrap" id="bg-colors">
+                <div class="color-btn flex items-center justify-center" style="background: transparent; border-color: #d1d5db" data-val="transparent" title="Sin fondo">
+                    <svg width="18" height="18" viewBox="0 0 24 24"><line x1="2" y1="2" x2="22" y2="22" stroke="#ef4444" stroke-width="2"/></svg>
+                </div>
+                <div class="color-btn" style="background: #f3f4f6; border-color: #d1d5db" data-val="#f3f4f6"></div>
+                <div class="color-btn active" style="background: #fef08a; border-color: #fde047" data-val="#fef08a"></div>
+                <div class="color-btn" style="background: #bbf7d0; border-color: #86efac" data-val="#bbf7d0"></div>
+                <div class="color-btn" style="background: #bfdbfe; border-color: #93c5fd" data-val="#bfdbfe"></div>
+                <div class="color-btn" style="background: #fecaca; border-color: #fca5a5" data-val="#fecaca"></div>
+            </div>
+        </div>
+
+        <div class="mb-5">
+            <h3 class="text-sm font-semibold text-gray-600 mb-2">Tamaño de la fuente</h3>
+            <div class="flex gap-2" id="font-sizes">
+                <div class="style-btn" data-val="S">S</div>
+                <div class="style-btn active" data-val="M">M</div>
+                <div class="style-btn" data-val="L">L</div>
+                <div class="style-btn" data-val="XL">XL</div>
+            </div>
+        </div>
+
+        <div class="mb-5">
+            <h3 class="text-sm font-semibold text-gray-600 mb-2">Alineado horizontal</h3>
+            <div class="flex gap-2" id="align-h">
+                <div class="style-btn" data-val="left" title="Izquierda"><svg class="mx-auto" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+                <div class="style-btn active" data-val="center" title="Centro"><svg class="mx-auto" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+                <div class="style-btn" data-val="right" title="Derecha"><svg class="mx-auto" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="9" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+            </div>
+        </div>
+
+        <div class="mb-5">
+            <h3 class="text-sm font-semibold text-gray-600 mb-2">Alineado vertical</h3>
+            <div class="flex gap-2" id="align-v">
+                <div class="style-btn" data-val="top">Arriba</div>
+                <div class="style-btn active" data-val="middle">Medio</div>
+                <div class="style-btn" data-val="bottom">Abajo</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="instructions">
+        <strong>Controles:</strong><br>
+        • Clic derecho y arrastrar: <em>Mover el lienzo</em><br>
+        • Doble clic en caja: <em>Editar texto</em><br>
+        • Supr / Retroceso: <em>Borrar elemento</em>
+    </div>
+
+    <div id="canvas-container">
+        <canvas id="app-canvas"></canvas>
+        <textarea id="text-editor"></textarea>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('app-canvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('canvas-container');
+        const textEditor = document.getElementById('text-editor');
+        const sidebar = document.getElementById('properties-sidebar');
+
+        // Estado de la aplicación
+        let state = {
+            mode: 'select', 
+            camera: { x: 0, y: 0, zoom: 1 },
+            boxes: [],
+            arrows: [],
+            selectedBoxId: null,
+            hoveredBoxId: null,
+            editingTextId: null,
+            
+            isPanning: false,
+            panStart: { x: 0, y: 0 },
+            
+            isDrawingBox: false,
+            newBoxStart: { x: 0, y: 0 },
+            
+            isDraggingBox: false,
+            dragOffset: { x: 0, y: 0 },
+            
+            isResizing: false,
+            resizeHandle: null,
+            
+            isDrawingArrow: false,
+            arrowStartBoxId: null,
+            mouseX: 0,
+            mouseY: 0
+        };
+
+        const generateId = () => Math.random().toString(36).substr(2, 9);
+
+        // --- Utilidades de Coordenadas y Geometría ---
+        function screenToWorld(screenX, screenY) {
+            return {
+                x: (screenX - state.camera.x) / state.camera.zoom,
+                y: (screenY - state.camera.y) / state.camera.zoom
+            };
+        }
+
+        function worldToScreen(worldX, worldY) {
+            return {
+                x: worldX * state.camera.zoom + state.camera.x,
+                y: worldY * state.camera.zoom + state.camera.y
+            };
+        }
+
+        function isPointInBox(x, y, box) {
+            return x >= box.x && x <= box.x + box.w && y >= box.y && y <= box.y + box.h;
+        }
+
+        function getResizeHandles(box) {
+            const size = 8 / state.camera.zoom;
+            return {
+                nw: { x: box.x - size/2, y: box.y - size/2, w: size, h: size },
+                ne: { x: box.x + box.w - size/2, y: box.y - size/2, w: size, h: size },
+                sw: { x: box.x - size/2, y: box.y + box.h - size/2, w: size, h: size },
+                se: { x: box.x + box.w - size/2, y: box.y + box.h - size/2, w: size, h: size }
+            };
+        }
+
+        function getHitResizeHandle(x, y, box) {
+            if (!box) return null;
+            const handles = getResizeHandles(box);
+            for (const [pos, rect] of Object.entries(handles)) {
+                if (x >= rect.x && x <= rect.x + rect.w && y >= rect.y && y <= rect.y + rect.h) {
+                    return pos;
+                }
+            }
+            return null;
+        }
+
+        function getBoxPerimeterPoint(box, targetX, targetY) {
+            const cx = box.x + box.w / 2;
+            const cy = box.y + box.h / 2;
+            const dx = targetX - cx;
+            const dy = targetY - cy;
+            const angle = Math.atan2(dy, dx);
+            
+            const absCos = Math.abs(Math.cos(angle));
+            const absSin = Math.abs(Math.sin(angle));
+            
+            let x, y;
+            if (box.w / 2 * absSin <= box.h / 2 * absCos) {
+                x = box.w / 2 * Math.sign(Math.cos(angle));
+                y = x * Math.tan(angle);
+            } else {
+                y = box.h / 2 * Math.sign(Math.sin(angle));
+                x = y / Math.tan(angle);
+            }
+            
+            return { x: cx + x, y: cy + y };
+        }
+
+        // --- Renderizado ---
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            render();
+        }
+
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            container.style.backgroundPosition = `${state.camera.x}px ${state.camera.y}px`;
+
+            ctx.save();
+            ctx.translate(state.camera.x, state.camera.y);
+            ctx.scale(state.camera.zoom, state.camera.zoom);
+
+            // 1. Dibujar Flechas
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#9ca3af';
+            ctx.fillStyle = '#9ca3af';
+
+            state.arrows.forEach(arrow => {
+                const boxA = state.boxes.find(b => b.id === arrow.from);
+                const boxB = state.boxes.find(b => b.id === arrow.to);
+                if (boxA && boxB) drawArrowBetweenBoxes(boxA, boxB);
+            });
+
+            if (state.isDrawingArrow && state.arrowStartBoxId) {
+                const boxA = state.boxes.find(b => b.id === state.arrowStartBoxId);
+                if (boxA) {
+                    const mouseWorld = screenToWorld(state.mouseX, state.mouseY);
+                    let targetPoint = mouseWorld;
+                    if (state.hoveredBoxId && state.hoveredBoxId !== boxA.id) {
+                        const boxB = state.boxes.find(b => b.id === state.hoveredBoxId);
+                        targetPoint = { x: boxB.x + boxB.w/2, y: boxB.y + boxB.h/2 };
+                    }
+                    const startPoint = getBoxPerimeterPoint(boxA, targetPoint.x, targetPoint.y);
+                    drawArrow(startPoint.x, startPoint.y, mouseWorld.x, mouseWorld.y);
+                }
+            }
+
+            // 2. Dibujar Cajas
+            state.boxes.forEach(box => {
+                const bgColor = box.backgroundColor || '#fef08a';
+                const strokeColor = box.strokeColor || '#1f2937';
+
+                ctx.fillStyle = bgColor;
+                
+                if (box.id === state.selectedBoxId) {
+                    ctx.shadowColor = 'rgba(59, 130, 246, 0.5)';
+                    ctx.shadowBlur = 10;
+                    ctx.strokeStyle = '#3b82f6';
+                    ctx.lineWidth = 2;
+                } else if (box.id === state.hoveredBoxId && state.mode !== 'box') {
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.1)';
+                    ctx.shadowBlur = 10;
+                    ctx.strokeStyle = '#4b5563';
+                    ctx.lineWidth = 2;
+                } else {
+                    ctx.shadowColor = 'transparent';
+                    ctx.shadowBlur = 0;
+                    ctx.strokeStyle = strokeColor;
+                    ctx.lineWidth = 2;
+                }
+
+                // Dibujar forma de la caja
+                ctx.beginPath();
+                ctx.roundRect(box.x, box.y, box.w, box.h, 8);
+                if (bgColor !== 'transparent') ctx.fill();
+                if (strokeColor !== 'transparent') ctx.stroke();
+
+                // Dibujar Texto
+                if (box.text && state.editingTextId !== box.id) {
+                    ctx.fillStyle = '#1f2937';
+                    let fontSize = 16;
+                    if (box.fontSize === 'S') fontSize = 12;
+                    else if (box.fontSize === 'M') fontSize = 16;
+                    else if (box.fontSize === 'L') fontSize = 24;
+                    else if (box.fontSize === 'XL') fontSize = 32;
+
+                    ctx.font = `${fontSize}px system-ui, -apple-system, sans-serif`;
+                    ctx.textAlign = box.textAlignH || 'center';
+                    ctx.textBaseline = 'top'; 
+                    
+                    const lines = box.text.split('\n');
+                    const lineHeight = fontSize * 1.2;
+                    const totalHeight = lines.length * lineHeight;
+                    const padding = 10;
+                    
+                    let startY = box.y + padding;
+                    const alignV = box.textAlignV || 'middle';
+                    if (alignV === 'middle') startY = box.y + (box.h - totalHeight) / 2;
+                    else if (alignV === 'bottom') startY = box.y + box.h - padding - totalHeight;
+                    
+                    let xPos = box.x + box.w / 2;
+                    const alignH = box.textAlignH || 'center';
+                    if (alignH === 'left') xPos = box.x + padding;
+                    else if (alignH === 'right') xPos = box.x + box.w - padding;
+
+                    // Evitar que el texto salga de la caja
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.roundRect(box.x, box.y, box.w, box.h, 8);
+                    ctx.clip();
+
+                    lines.forEach((line, i) => {
+                        ctx.fillText(line, xPos, startY + (i * lineHeight));
+                    });
+                    ctx.restore();
+                }
+
+                // Dibujar tiradores si está seleccionada
+                if (box.id === state.selectedBoxId && state.mode === 'select') {
+                    ctx.shadowColor = 'transparent';
+                    const handles = getResizeHandles(box);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.strokeStyle = '#3b82f6';
+                    ctx.lineWidth = 2;
+                    
+                    for (const pos in handles) {
+                        const rect = handles[pos];
+                        ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+                        ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
+                    }
+                }
+            });
+
+            // 3. Dibujar caja temporal
+            if (state.isDrawingBox) {
+                const mouseWorld = screenToWorld(state.mouseX, state.mouseY);
+                const x = Math.min(state.newBoxStart.x, mouseWorld.x);
+                const y = Math.min(state.newBoxStart.y, mouseWorld.y);
+                const w = Math.abs(mouseWorld.x - state.newBoxStart.x);
+                const h = Math.abs(mouseWorld.y - state.newBoxStart.y);
+
+                ctx.fillStyle = 'rgba(254, 240, 138, 0.5)';
+                ctx.strokeStyle = '#1f2937';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.roundRect(x, y, w, h, 8);
+                ctx.fill();
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            ctx.restore();
+        }
+
+        function drawArrowBetweenBoxes(boxA, boxB) {
+            const centerA = { x: boxA.x + boxA.w/2, y: boxA.y + boxA.h/2 };
+            const centerB = { x: boxB.x + boxB.w/2, y: boxB.y + boxB.h/2 };
+            const start = getBoxPerimeterPoint(boxA, centerB.x, centerB.y);
+            const end = getBoxPerimeterPoint(boxB, centerA.x, centerA.y);
+            drawArrow(start.x, start.y, end.x, end.y);
+        }
+
+        function drawArrow(fromX, fromY, toX, toY) {
+            const headlen = 10;
+            const dx = toX - fromX;
+            const dy = toY - fromY;
+            const angle = Math.atan2(dy, dx);
+            
+            ctx.beginPath();
+            ctx.moveTo(fromX, fromY);
+            ctx.lineTo(toX, toY);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(toX, toY);
+            ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6));
+            ctx.lineTo(toX, toY);
+            ctx.fill();
+        }
+
+
+        // --- Eventos del Ratón y Edición de Texto ---
+
+        // Doble Clic para editar texto
+        canvas.addEventListener('dblclick', (e) => {
+            if (e.button !== 0 || state.mode !== 'select') return;
+            
+            const mouseWorld = screenToWorld(e.clientX, e.clientY);
+            let clickedBox = null;
+            for (let i = state.boxes.length - 1; i >= 0; i--) {
+                if (isPointInBox(mouseWorld.x, mouseWorld.y, state.boxes[i])) {
+                    clickedBox = state.boxes[i];
+                    break;
+                }
+            }
+
+            if (clickedBox) {
+                startTextEditing(clickedBox);
+            }
+        });
+
+        function startTextEditing(box) {
+            state.editingTextId = box.id;
+            
+            textEditor.value = box.text || '';
+            textEditor.style.display = 'block';
+            
+            const screenPos = worldToScreen(box.x, box.y);
+            textEditor.style.left = screenPos.x + 'px';
+            textEditor.style.top = screenPos.y + 'px';
+            textEditor.style.width = (box.w * state.camera.zoom) + 'px';
+            textEditor.style.height = (box.h * state.camera.zoom) + 'px';
+            
+            let fontSize = 16;
+            if (box.fontSize === 'S') fontSize = 12;
+            else if (box.fontSize === 'M') fontSize = 16;
+            else if (box.fontSize === 'L') fontSize = 24;
+            else if (box.fontSize === 'XL') fontSize = 32;
+            
+            textEditor.style.fontSize = (fontSize * state.camera.zoom) + 'px';
+            textEditor.style.fontFamily = 'system-ui, -apple-system, sans-serif';
+            textEditor.style.color = '#1f2937';
+            
+            const padding = 10 * state.camera.zoom;
+            textEditor.style.padding = `${padding}px`;
+            textEditor.style.boxSizing = 'border-box';
+            textEditor.style.textAlign = box.textAlignH || 'center';
+
+            textEditor.focus();
+            textEditor.setSelectionRange(textEditor.value.length, textEditor.value.length);
+            render();
+        }
+
+        // Guardar al perder el foco en el editor de texto
+        textEditor.addEventListener('blur', () => {
+            if (state.editingTextId) {
+                const box = state.boxes.find(b => b.id === state.editingTextId);
+                if (box) box.text = textEditor.value;
+                state.editingTextId = null;
+                textEditor.style.display = 'none';
+                render();
+            }
+        });
+        textEditor.addEventListener('mousedown', (e) => e.stopPropagation());
+
+        canvas.addEventListener('mousedown', (e) => {
+            // Guardar texto si se hace clic fuera del editor
+            if (state.editingTextId) textEditor.blur();
+
+            const mouseScreen = { x: e.clientX, y: e.clientY };
+            const mouseWorld = screenToWorld(mouseScreen.x, mouseScreen.y);
+            
+            if (e.button === 2 || e.button === 1) {
+                state.isPanning = true;
+                state.panStart = { x: mouseScreen.x - state.camera.x, y: mouseScreen.y - state.camera.y };
+                container.classList.add('cursor-panning');
+                return;
+            }
+
+            if (e.button !== 0) return;
+
+            let clickedBox = null;
+            for (let i = state.boxes.length - 1; i >= 0; i--) {
+                if (isPointInBox(mouseWorld.x, mouseWorld.y, state.boxes[i])) {
+                    clickedBox = state.boxes[i];
+                    break;
+                }
+            }
+
+            if (state.mode === 'select') {
+                if (state.selectedBoxId) {
+                    const selectedBox = state.boxes.find(b => b.id === state.selectedBoxId);
+                    const handle = getHitResizeHandle(mouseWorld.x, mouseWorld.y, selectedBox);
+                    if (handle) {
+                        state.isResizing = true;
+                        state.resizeHandle = handle;
+                        return;
+                    }
+                }
+
+                if (clickedBox) {
+                    state.selectedBoxId = clickedBox.id;
+                    state.isDraggingBox = true;
+                    state.dragOffset = { x: mouseWorld.x - clickedBox.x, y: mouseWorld.y - clickedBox.y };
+                    state.boxes = state.boxes.filter(b => b.id !== clickedBox.id);
+                    state.boxes.push(clickedBox);
+                } else {
+                    state.selectedBoxId = null;
+                }
+            } 
+            else if (state.mode === 'box') {
+                state.isDrawingBox = true;
+                state.newBoxStart = mouseWorld;
+                state.selectedBoxId = null;
+            }
+            else if (state.mode === 'arrow') {
+                if (clickedBox) {
+                    state.isDrawingArrow = true;
+                    state.arrowStartBoxId = clickedBox.id;
+                    state.selectedBoxId = clickedBox.id;
+                } else {
+                    state.selectedBoxId = null;
+                }
+            }
+
+            updateSidebar();
+            render();
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            state.mouseX = e.clientX;
+            state.mouseY = e.clientY;
+            const mouseScreen = { x: e.clientX, y: e.clientY };
+            const mouseWorld = screenToWorld(mouseScreen.x, mouseScreen.y);
+
+            if (state.isPanning) {
+                state.camera.x = mouseScreen.x - state.panStart.x;
+                state.camera.y = mouseScreen.y - state.panStart.y;
+                render();
+                return;
+            }
+
+            let newHovered = null;
+            for (let i = state.boxes.length - 1; i >= 0; i--) {
+                if (isPointInBox(mouseWorld.x, mouseWorld.y, state.boxes[i])) {
+                    newHovered = state.boxes[i].id;
+                    break;
+                }
+            }
+            
+            if (state.hoveredBoxId !== newHovered) {
+                state.hoveredBoxId = newHovered;
+                render(); 
+            }
+
+            container.className = '';
+            if (state.mode === 'box') {
+                container.classList.add('cursor-crosshair');
+            } else if (state.mode === 'arrow') {
+                container.classList.add('cursor-crosshair');
+                if (state.hoveredBoxId) container.classList.add('cursor-pointer');
+            } else if (state.mode === 'select') {
+                if (state.selectedBoxId) {
+                    const selBox = state.boxes.find(b => b.id === state.selectedBoxId);
+                    const handle = getHitResizeHandle(mouseWorld.x, mouseWorld.y, selBox);
+                    if (handle === 'nw' || handle === 'se') container.classList.add('cursor-nwse-resize');
+                    else if (handle === 'ne' || handle === 'sw') container.classList.add('cursor-nesw-resize');
+                    else if (state.hoveredBoxId) container.classList.add('cursor-pan');
+                } else if (state.hoveredBoxId) {
+                    container.classList.add('cursor-pan');
+                }
+            }
+
+            if (state.isDraggingBox && state.selectedBoxId) {
+                const box = state.boxes.find(b => b.id === state.selectedBoxId);
+                box.x = mouseWorld.x - state.dragOffset.x;
+                box.y = mouseWorld.y - state.dragOffset.y;
+                render();
+            }
+            else if (state.isResizing && state.selectedBoxId && state.resizeHandle) {
+                const box = state.boxes.find(b => b.id === state.selectedBoxId);
+                const minSize = 20;
+
+                if (state.resizeHandle === 'se') {
+                    box.w = Math.max(minSize, mouseWorld.x - box.x);
+                    box.h = Math.max(minSize, mouseWorld.y - box.y);
+                } else if (state.resizeHandle === 'sw') {
+                    const newW = box.x + box.w - mouseWorld.x;
+                    if (newW > minSize) { box.x = mouseWorld.x; box.w = newW; }
+                    box.h = Math.max(minSize, mouseWorld.y - box.y);
+                } else if (state.resizeHandle === 'ne') {
+                    box.w = Math.max(minSize, mouseWorld.x - box.x);
+                    const newH = box.y + box.h - mouseWorld.y;
+                    if (newH > minSize) { box.y = mouseWorld.y; box.h = newH; }
+                } else if (state.resizeHandle === 'nw') {
+                    const newW = box.x + box.w - mouseWorld.x;
+                    const newH = box.y + box.h - mouseWorld.y;
+                    if (newW > minSize) { box.x = mouseWorld.x; box.w = newW; }
+                    if (newH > minSize) { box.y = mouseWorld.y; box.h = newH; }
+                }
+                render();
+            }
+            else if (state.isDrawingBox || state.isDrawingArrow) {
+                render();
+            }
+        });
+
+        canvas.addEventListener('mouseup', (e) => {
+            if (e.button === 2 || e.button === 1) {
+                state.isPanning = false;
+                container.classList.remove('cursor-panning');
+                return;
+            }
+
+            const mouseWorld = screenToWorld(e.clientX, e.clientY);
+
+            if (state.isDrawingBox) {
+                const x = Math.min(state.newBoxStart.x, mouseWorld.x);
+                const y = Math.min(state.newBoxStart.y, mouseWorld.y);
+                const w = Math.max(Math.abs(mouseWorld.x - state.newBoxStart.x), 10);
+                const h = Math.max(Math.abs(mouseWorld.y - state.newBoxStart.y), 10);
+
+                if (w > 20 && h > 20) {
+                    const newBox = { 
+                        id: generateId(), x, y, w, h,
+                        backgroundColor: '#fef08a', strokeColor: '#1f2937', 
+                        fontSize: 'M', textAlignH: 'center', textAlignV: 'middle', text: ''
+                    };
+                    state.boxes.push(newBox);
+                    state.selectedBoxId = newBox.id;
+                    setMode('select');
+                }
+            } 
+            else if (state.isDrawingArrow && state.arrowStartBoxId) {
+                if (state.hoveredBoxId && state.hoveredBoxId !== state.arrowStartBoxId) {
+                    const exists = state.arrows.some(a => a.from === state.arrowStartBoxId && a.to === state.hoveredBoxId);
+                    if (!exists) {
+                        state.arrows.push({ id: generateId(), from: state.arrowStartBoxId, to: state.hoveredBoxId });
+                    }
+                }
+                setMode('select');
+            }
+
+            state.isDrawingBox = false;
+            state.isDraggingBox = false;
+            state.isResizing = false;
+            state.isDrawingArrow = false;
+            state.arrowStartBoxId = null;
+            state.resizeHandle = null;
+
+            updateSidebar();
+            render();
+        });
+
+        canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+        // --- Atajos de Teclado ---
+        window.addEventListener('keydown', (e) => {
+            if (state.editingTextId) return; // No hacer nada si se está editando texto
+
+            if ((e.key === 'Delete' || e.key === 'Backspace') && state.selectedBoxId) {
+                state.boxes = state.boxes.filter(b => b.id !== state.selectedBoxId);
+                state.arrows = state.arrows.filter(a => a.from !== state.selectedBoxId && a.to !== state.selectedBoxId);
+                state.selectedBoxId = null;
+                updateSidebar();
+                render();
+            }
+            
+            if (e.key.toLowerCase() === 'v') setMode('select');
+            if (e.key.toLowerCase() === 'r') setMode('box');
+            if (e.key.toLowerCase() === 'a') setMode('arrow');
+        });
+
+        // --- Configuración de UI ---
+        function setMode(newMode) {
+            state.mode = newMode;
+            document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${newMode}`).classList.add('active');
+            state.isDrawingBox = false;
+            state.isDrawingArrow = false;
+            canvas.dispatchEvent(new MouseEvent('mousemove', { clientX: state.mouseX, clientY: state.mouseY }));
+            render();
+        }
+
+        document.getElementById('btn-select').addEventListener('click', () => setMode('select'));
+        document.getElementById('btn-box').addEventListener('click', () => setMode('box'));
+        document.getElementById('btn-arrow').addEventListener('click', () => setMode('arrow'));
+
+        // --- Lógica de la Barra Lateral ---
+        function updateSidebar() {
+            if (state.selectedBoxId) {
+                sidebar.classList.add('visible');
+                const box = state.boxes.find(b => b.id === state.selectedBoxId);
+                if (!box) return;
+
+                const updateActiveBtn = (selector, value, defaultVal) => {
+                    document.querySelectorAll(selector).forEach(btn => {
+                        btn.classList.remove('active');
+                        if (btn.dataset.val === (value || defaultVal)) btn.classList.add('active');
+                    });
+                };
+
+                updateActiveBtn('#stroke-colors .color-btn', box.strokeColor, '#1f2937');
+                updateActiveBtn('#bg-colors .color-btn', box.backgroundColor, '#fef08a');
+                updateActiveBtn('#font-sizes .style-btn', box.fontSize, 'M');
+                updateActiveBtn('#align-h .style-btn', box.textAlignH, 'center');
+                updateActiveBtn('#align-v .style-btn', box.textAlignV, 'middle');
+            } else {
+                sidebar.classList.remove('visible');
+            }
+        }
+
+        function setupSidebarEvent(selector, propName) {
+            document.querySelectorAll(selector).forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    if (!state.selectedBoxId) return;
+                    const box = state.boxes.find(b => b.id === state.selectedBoxId);
+                    if (box) {
+                        box[propName] = e.currentTarget.dataset.val;
+                        updateSidebar();
+                        render();
+                    }
+                });
+            });
+        }
+
+        setupSidebarEvent('#stroke-colors .color-btn', 'strokeColor');
+        setupSidebarEvent('#bg-colors .color-btn', 'backgroundColor');
+        setupSidebarEvent('#font-sizes .style-btn', 'fontSize');
+        setupSidebarEvent('#align-h .style-btn', 'textAlignH');
+        setupSidebarEvent('#align-v .style-btn', 'textAlignV');
+
+        // --- Inicialización ---
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        state.camera.x = canvas.width / 2;
+        state.camera.y = canvas.height / 2;
+        
+        state.boxes.push({
+            id: generateId(),
+            x: -100, y: -50, w: 200, h: 100,
+            backgroundColor: '#fef08a', strokeColor: '#1f2937',
+            text: 'Haz doble clic\npara editar',
+            fontSize: 'M', textAlignH: 'center', textAlignV: 'middle'
+        });
+
+        render();
+    </script>
+</body>
+</html>
