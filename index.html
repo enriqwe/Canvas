@@ -2063,16 +2063,32 @@
                     if (data.boxes && Array.isArray(data.boxes)) {
                         state.boxes = data.boxes;
                         
-                        // Migración de formato antiguo de flechas (from/to) al nuevo (start/end independientes)
+                        // Migración y Saneamiento de flechas
                         state.arrows = (data.arrows || []).map(a => {
                             if (a.from !== undefined && a.to !== undefined) {
                                 return { ...a, start: { boxId: a.from }, end: { boxId: a.to }, from: undefined, to: undefined };
                             }
                             return a;
+                        }).filter(a => {
+                            // Ignorar flechas corruptas que apuntan a cajas que no existen en el archivo
+                            const startValid = !a.start.boxId || state.boxes.some(b => b.id === a.start.boxId);
+                            const endValid = !a.end.boxId || state.boxes.some(b => b.id === a.end.boxId);
+                            return startValid && endValid;
                         });
 
                         state.animations = data.animations || [];
-                        if (data.camera) state.camera = data.camera;
+                        
+                        // Robustez en la cámara (el JSON usaba 'z' en lugar de 'zoom')
+                        if (data.camera) {
+                            state.camera = {
+                                x: data.camera.x || 0,
+                                y: data.camera.y || 0,
+                                zoom: data.camera.zoom !== undefined ? data.camera.zoom : (data.camera.z !== undefined ? data.camera.z : 1)
+                            };
+                        } else {
+                            state.camera = { x: 0, y: 0, zoom: 1 };
+                        }
+
                         state.selectedIds = [];
                         setMode('select');
                         showToast("Diagrama importado correctamente");
