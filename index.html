@@ -2191,19 +2191,17 @@
                 }
             }
 
-            let shouldPasteImage = hasImage;
+            const clipboardText = (e.clipboardData || window.clipboardData).getData('text');
+            const isInternalCopy = clipboardText === 'BMAD_INTERNAL_COPY';
 
-            if (state.clipboard && (state.clipboard.boxes.length > 0 || state.clipboard.arrows.length > 0)) {
-                const clipboardText = (e.clipboardData || window.clipboardData).getData('text');
-                if (clipboardText) {
-                    state.clipboard = null;
-                    shouldPasteImage = false; 
-                } else if (hasImage) {
-                    shouldPasteImage = false;
-                }
+            // Si hay un texto en el portapapeles del SO y NO es nuestra clave interna,
+            // significa que el usuario copió texto de otra aplicación recientemente.
+            if (clipboardText && !isInternalCopy) {
+                state.clipboard = null; 
             }
 
-            if (shouldPasteImage && imageBlob) {
+            // Si es una imagen y no venimos de hacer una copia interna prioritaria
+            if (hasImage && !isInternalCopy) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     addImageBox(event.target.result);
