@@ -446,7 +446,7 @@
             • Doble clic en texto/centro: <em>Editar texto</em><br>
             • Doble clic en flecha: <em>Añadir/Quitar punto de doblez</em><br>
             • Ctrl + V: <em>Pegar elemento o imagen (captura)</em><br>
-            • Tiradores de esquina: <em>Redimensionar caja</em><br>
+            • Tiradores de esquina: <em>Redimensionar caja(s)</em><br>
             • Tirador superior: <em>Rotar elemento</em><br>
             • Tiradores de flecha: <em>Reconectar a cajas o soltar al aire</em>
         </div>
@@ -544,8 +544,10 @@
             dragOriginalArrows: [], 
             
             isResizing: false,
+            isResizingGroup: false,
             resizeHandle: null,
             resizeOrigBox: null,
+            resizeOrigBounds: null,
             
             isRotating: false,
             rotatingBoxId: null,
@@ -725,7 +727,6 @@
             let centerA = sBox ? { x: sBox.x + sBox.w/2, y: sBox.y + sBox.h/2 } : { x: arrow.start.x, y: arrow.start.y };
             let centerB = eBox ? { x: eBox.x + eBox.w/2, y: eBox.y + eBox.h/2 } : { x: arrow.end.x, y: arrow.end.y };
             
-            // Migración automática de cp a cps
             let cpsRaw = arrow.cps;
             if (!cpsRaw) {
                 cpsRaw = arrow.cp ? [arrow.cp] : [{dx:0, dy:0}];
@@ -748,7 +749,6 @@
             const M = { x: (S.x+E.x)/2, y: (S.y+E.y)/2 };
             const C_array = cpsRaw.map(cp => ({ x: M.x + cp.dx, y: M.y + cp.dy }));
             
-            // Construir los segmentos de la curva cuadrática que pasa por puntos de control
             const segments = [];
             if (C_array.length === 0) {
                 segments.push({ p0: S, p1: M, p2: E });
@@ -770,7 +770,6 @@
                 });
             }
 
-            // Ancla para el texto
             let T;
             const n = C_array.length;
             if (n === 0) T = M;
@@ -809,9 +808,12 @@
 
         function getSelectionBounds() {
             const selectedBoxes = state.boxes.filter(b => state.selectedIds.includes(b.id));
-            if (selectedBoxes.length === 0) return null;
+            const selectedArrows = state.arrows.filter(a => state.selectedIds.includes(a.id));
+            
+            if (selectedBoxes.length === 0 && selectedArrows.length === 0) return null;
             
             let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            
             selectedBoxes.forEach(b => {
                 const cx = b.x + b.w/2, cy = b.y + b.h/2;
                 const angle = b.angle || 0;
@@ -826,7 +828,20 @@
                     maxX = Math.max(maxX, c.x); maxY = Math.max(maxY, c.y);
                 });
             });
-            return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+
+            selectedArrows.forEach(a => {
+                const curve = getArrowCurve(a);
+                if (curve) {
+                    const pts = [curve.S, curve.E, ...curve.C_array];
+                    pts.forEach(p => {
+                        minX = Math.min(minX, p.x); minY = Math.min(minY, p.y);
+                        maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y);
+                    });
+                }
+            });
+
+            if (minX === Infinity) return null;
+            return { x: minX - 5, y: minY - 5, w: maxX - minX + 10, h: maxY - minY + 10 };
         }
 
         function getResizeHandles(bounds) {
@@ -840,7 +855,7 @@
             };
         }
 
-        function getHitResizeHandle(x, y, box) {
+        function getHitResizeHandle(x, y, box, hideRotate = false) {
             if (!box) return null;
             const cx = box.x + box.w / 2;
             const cy = box.y + box.h / 2;
@@ -852,9 +867,11 @@
                 if (p.x >= rect.x && p.x <= rect.x + rect.w && p.y >= rect.y && p.y <= rect.y + rect.h) return pos;
             }
 
-            const rotX = cx;
-            const rotY = box.y - 25 / state.camera.zoom;
-            if (Math.hypot(p.x - rotX, p.y - rotY) <= 8 / state.camera.zoom) return 'rotate';
+            if (!hideRotate) {
+                const rotX = cx;
+                const rotY = box.y - 25 / state.camera.zoom;
+                if (Math.hypot(p.x - rotX, p.y - rotY) <= 8 / state.camera.zoom) return 'rotate';
+            }
 
             return null;
         }
@@ -1061,7 +1078,6 @@
                     newEnd.x += 20; newEnd.y += 20;
                 }
                 
-                // Migración e instanciado correcto
                 const newCps = a.cps ? a.cps.map(c => ({...c})) : (a.cp ? [{...a.cp}] : [{dx:0, dy:0}]);
                 
                 const newArrow = { ...a, id: newId, start: newStart, end: newEnd, cps: newCps };
@@ -1400,7 +1416,6 @@
                     
                     curve.C_array.forEach((c, index) => {
                         ctx.beginPath(); ctx.arc(c.x, c.y, 6 / state.camera.zoom, 0, 2*Math.PI); ctx.fill(); ctx.stroke();
-                        // Indicador opcional de orden de control points si hay mas de 1
                         if(curve.C_array.length > 1) {
                             ctx.fillStyle = '#3b82f6';
                             ctx.font = `${10/state.camera.zoom}px sans-serif`;
@@ -1444,6 +1459,19 @@
                     ctx.setLineDash([4, 4]); ctx.lineWidth = 1 / state.camera.zoom;
                     ctx.strokeRect(bounds.x, bounds.y, bounds.w, bounds.h);
                     ctx.setLineDash([]);
+                    
+                    // Tiradores de redimensionado grupal
+                    if (state.mode === 'select') {
+                        const handles = getResizeHandles(bounds);
+                        ctx.fillStyle = '#ffffff'; 
+                        ctx.lineWidth = 2 / state.camera.zoom;
+                        ctx.strokeStyle = '#3b82f6';
+                        for (const pos in handles) {
+                            const rect = handles[pos];
+                            ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+                            ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
+                        }
+                    }
                 }
             }
 
@@ -1537,16 +1565,14 @@
                 if (distToText < 30 / state.camera.zoom) {
                     startTextEditing(clickedArrow);
                 } else if (hitCpIndex !== -1) {
-                    // Eliminar punto de doblez
                     if (!clickedArrow.cps) clickedArrow.cps = clickedArrow.cp ? [clickedArrow.cp] : [{dx:0, dy:0}];
                     clickedArrow.cps.splice(hitCpIndex, 1);
                     if (clickedArrow.cps.length === 0) {
-                        clickedArrow.cps.push({dx:0, dy:0}); // Siempre mantener 1 punto al menos para que la curva sea estable
+                        clickedArrow.cps.push({dx:0, dy:0}); 
                     }
                     saveHistory();
                     render();
                 } else {
-                    // Añadir nuevo punto de doblez
                     if (!clickedArrow.cps) clickedArrow.cps = clickedArrow.cp ? [clickedArrow.cp] : [{dx:0, dy:0}];
                     
                     const newCp = { dx: mouseWorld.x - c.M.x, dy: mouseWorld.y - c.M.y };
@@ -1561,8 +1587,6 @@
                     
                     clickedArrow.cps.push(newCp);
                     
-                    // Ordenamos los puntos de control proyectándolos sobre el vector principal de la flecha
-                    // Esto asegura que la curva fluya naturalmente y no se enrede al meter nuevos puntos
                     if (vx*vx + vy*vy > 0) {
                         clickedArrow.cps.sort((cpA, cpB) => {
                             const absA = { x: c.M.x + cpA.dx, y: c.M.y + cpA.dy };
@@ -1686,6 +1710,25 @@
                 let handleType = null;
                 
                 if (state.mode === 'select') {
+                    
+                    // Comprobar Group Resize PRIMERO (si hay varios elementos)
+                    if (state.selectedIds.length > 1) {
+                        const bounds = getSelectionBounds();
+                        if (bounds) {
+                            const handle = getHitResizeHandle(mouseWorld.x, mouseWorld.y, bounds, true);
+                            if (handle) {
+                                state.isResizing = true;
+                                state.isResizingGroup = true;
+                                state.resizeHandle = handle;
+                                state.resizeOrigBounds = bounds;
+                                state.dragOriginalBoxes = state.boxes.filter(b => state.selectedIds.includes(b.id)).map(b => ({...b}));
+                                state.dragOriginalArrows = state.arrows.filter(a => state.selectedIds.includes(a.id)).map(a => JSON.parse(JSON.stringify(a)));
+                                return;
+                            }
+                        }
+                    }
+
+                    // Interacción directa con el control visual actual (Individual)
                     if (state.selectedIds.length === 1) {
                         const box = state.boxes.find(b => b.id === state.selectedIds[0]);
                         if (box) {
@@ -1819,6 +1862,14 @@
                             else if (arrowUnderMouse || state.hoveredBoxId) container.classList.add('cursor-pan');
                             hoverHandle = handle !== null;
                         }
+                    } else if (state.selectedIds.length > 1) {
+                        const bounds = getSelectionBounds();
+                        if (bounds) {
+                            const handle = getHitResizeHandle(mouseWorld.x, mouseWorld.y, bounds, true);
+                            if (handle === 'nw' || handle === 'se') container.classList.add('cursor-nwse-resize');
+                            else if (handle === 'ne' || handle === 'sw') container.classList.add('cursor-nesw-resize');
+                            hoverHandle = handle !== null;
+                        }
                     }
 
                     if (!hoverHandle) {
@@ -1903,51 +1954,109 @@
                 });
                 render();
             }
-            else if (state.isResizing && state.resizeOrigBox && state.mode === 'select') {
+            else if (state.isResizing && state.mode === 'select') {
                 state.hasDraggedThisClick = true;
-                const orig = state.resizeOrigBox;
-                const box = state.boxes.find(b => b.id === orig.id);
                 
-                if (box) {
-                    const origCx = orig.x + orig.w / 2;
-                    const origCy = orig.y + orig.h / 2;
-                    
+                if (state.isResizingGroup && state.resizeOrigBounds) {
+                    const origB = state.resizeOrigBounds;
+                    let newX = origB.x, newY = origB.y, newW = origB.w, newH = origB.h;
+
                     let fixedLocalX, fixedLocalY;
-                    if (state.resizeHandle === 'se') { fixedLocalX = orig.x; fixedLocalY = orig.y; }
-                    else if (state.resizeHandle === 'sw') { fixedLocalX = orig.x + orig.w; fixedLocalY = orig.y; }
-                    else if (state.resizeHandle === 'ne') { fixedLocalX = orig.x; fixedLocalY = orig.y + orig.h; }
-                    else if (state.resizeHandle === 'nw') { fixedLocalX = orig.x + orig.w; fixedLocalY = orig.y + orig.h; }
+                    if (state.resizeHandle === 'se') { fixedLocalX = origB.x; fixedLocalY = origB.y; }
+                    else if (state.resizeHandle === 'sw') { fixedLocalX = origB.x + origB.w; fixedLocalY = origB.y; }
+                    else if (state.resizeHandle === 'ne') { fixedLocalX = origB.x; fixedLocalY = origB.y + origB.h; }
+                    else if (state.resizeHandle === 'nw') { fixedLocalX = origB.x + origB.w; fixedLocalY = origB.y + origB.h; }
 
-                    const fixedWorld = rotatePoint({x: fixedLocalX, y: fixedLocalY}, origCx, origCy, orig.angle || 0);
-                    const unrotatedMouse = rotatePoint({x: mouseWorld.x, y: mouseWorld.y}, fixedWorld.x, fixedWorld.y, -(orig.angle || 0));
-
-                    let newW = orig.w, newH = orig.h;
-                    let localDirX = 1, localDirY = 1;
-
-                    if (state.resizeHandle === 'se') { newW = unrotatedMouse.x - fixedLocalX; newH = unrotatedMouse.y - fixedLocalY; }
-                    else if (state.resizeHandle === 'sw') { newW = fixedLocalX - unrotatedMouse.x; newH = unrotatedMouse.y - fixedLocalY; localDirX = -1;}
-                    else if (state.resizeHandle === 'ne') { newW = unrotatedMouse.x - fixedLocalX; newH = fixedLocalY - unrotatedMouse.y; localDirY = -1;}
-                    else if (state.resizeHandle === 'nw') { newW = fixedLocalX - unrotatedMouse.x; newH = fixedLocalY - unrotatedMouse.y; localDirX = -1; localDirY = -1;}
+                    if (state.resizeHandle === 'se') { newW = mouseWorld.x - fixedLocalX; newH = mouseWorld.y - fixedLocalY; }
+                    else if (state.resizeHandle === 'sw') { newW = fixedLocalX - mouseWorld.x; newH = mouseWorld.y - fixedLocalY; }
+                    else if (state.resizeHandle === 'ne') { newW = mouseWorld.x - fixedLocalX; newH = fixedLocalY - mouseWorld.y; }
+                    else if (state.resizeHandle === 'nw') { newW = fixedLocalX - mouseWorld.x; newH = fixedLocalY - mouseWorld.y; }
 
                     const minSize = 20;
                     newW = Math.max(minSize, newW);
                     newH = Math.max(minSize, newH);
 
-                    const newLocalCx = fixedLocalX + (newW / 2) * localDirX;
-                    const newLocalCy = fixedLocalY + (newH / 2) * localDirY;
+                    if (state.resizeHandle === 'sw' || state.resizeHandle === 'nw') newX = fixedLocalX - newW;
+                    if (state.resizeHandle === 'ne' || state.resizeHandle === 'nw') newY = fixedLocalY - newH;
 
-                    const dx = newLocalCx - fixedLocalX;
-                    const dy = newLocalCy - fixedLocalY;
+                    const scaleX = newW / origB.w;
+                    const scaleY = newH / origB.h;
 
-                    const cos = Math.cos(orig.angle || 0);
-                    const sin = Math.sin(orig.angle || 0);
-                    const newCx = fixedWorld.x + dx * cos - dy * sin;
-                    const newCy = fixedWorld.y + dx * sin + dy * cos;
+                    state.dragOriginalBoxes.forEach(orig => {
+                        const box = state.boxes.find(b => b.id === orig.id);
+                        if (box) {
+                            box.x = newX + (orig.x - origB.x) * scaleX;
+                            box.y = newY + (orig.y - origB.y) * scaleY;
+                            box.w = Math.max(10, orig.w * scaleX);
+                            box.h = Math.max(10, orig.h * scaleY);
+                        }
+                    });
 
-                    box.w = newW;
-                    box.h = newH;
-                    box.x = newCx - newW / 2;
-                    box.y = newCy - newH / 2;
+                    state.dragOriginalArrows.forEach(orig => {
+                        const arrow = state.arrows.find(a => a.id === orig.id);
+                        if (arrow) {
+                            if (!orig.start.boxId) {
+                                arrow.start.x = newX + (orig.start.x - origB.x) * scaleX;
+                                arrow.start.y = newY + (orig.start.y - origB.y) * scaleY;
+                            }
+                            if (!orig.end.boxId) {
+                                arrow.end.x = newX + (orig.end.x - origB.x) * scaleX;
+                                arrow.end.y = newY + (orig.end.y - origB.y) * scaleY;
+                            }
+                            if (orig.cps) {
+                                arrow.cps = orig.cps.map(cp => ({
+                                    dx: cp.dx * scaleX,
+                                    dy: cp.dy * scaleY
+                                }));
+                            }
+                        }
+                    });
+                }
+                else if (state.resizeOrigBox) {
+                    const orig = state.resizeOrigBox;
+                    const box = state.boxes.find(b => b.id === orig.id);
+                    
+                    if (box) {
+                        const origCx = orig.x + orig.w / 2;
+                        const origCy = orig.y + orig.h / 2;
+                        
+                        let fixedLocalX, fixedLocalY;
+                        if (state.resizeHandle === 'se') { fixedLocalX = orig.x; fixedLocalY = orig.y; }
+                        else if (state.resizeHandle === 'sw') { fixedLocalX = orig.x + orig.w; fixedLocalY = orig.y; }
+                        else if (state.resizeHandle === 'ne') { fixedLocalX = orig.x; fixedLocalY = orig.y + orig.h; }
+                        else if (state.resizeHandle === 'nw') { fixedLocalX = orig.x + orig.w; fixedLocalY = orig.y + orig.h; }
+
+                        const fixedWorld = rotatePoint({x: fixedLocalX, y: fixedLocalY}, origCx, origCy, orig.angle || 0);
+                        const unrotatedMouse = rotatePoint({x: mouseWorld.x, y: mouseWorld.y}, fixedWorld.x, fixedWorld.y, -(orig.angle || 0));
+
+                        let newW = orig.w, newH = orig.h;
+                        let localDirX = 1, localDirY = 1;
+
+                        if (state.resizeHandle === 'se') { newW = unrotatedMouse.x - fixedLocalX; newH = unrotatedMouse.y - fixedLocalY; }
+                        else if (state.resizeHandle === 'sw') { newW = fixedLocalX - unrotatedMouse.x; newH = unrotatedMouse.y - fixedLocalY; localDirX = -1;}
+                        else if (state.resizeHandle === 'ne') { newW = unrotatedMouse.x - fixedLocalX; newH = fixedLocalY - unrotatedMouse.y; localDirY = -1;}
+                        else if (state.resizeHandle === 'nw') { newW = fixedLocalX - unrotatedMouse.x; newH = fixedLocalY - unrotatedMouse.y; localDirX = -1; localDirY = -1;}
+
+                        const minSize = 20;
+                        newW = Math.max(minSize, newW);
+                        newH = Math.max(minSize, newH);
+
+                        const newLocalCx = fixedLocalX + (newW / 2) * localDirX;
+                        const newLocalCy = fixedLocalY + (newH / 2) * localDirY;
+
+                        const dx = newLocalCx - fixedLocalX;
+                        const dy = newLocalCy - fixedLocalY;
+
+                        const cos = Math.cos(orig.angle || 0);
+                        const sin = Math.sin(orig.angle || 0);
+                        const newCx = fixedWorld.x + dx * cos - dy * sin;
+                        const newCy = fixedWorld.y + dx * sin + dy * cos;
+
+                        box.w = newW;
+                        box.h = newH;
+                        box.x = newCx - newW / 2;
+                        box.y = newCy - newH / 2;
+                    }
                 }
                 render();
             }
@@ -2055,9 +2164,10 @@
             if (madeChange) saveHistory();
 
             state.isSelecting = false; state.isDrawingBox = false; state.isDragging = false;
-            state.isResizing = false; state.isRotating = false; state.rotatingBoxId = null;
+            state.isResizing = false; state.isResizingGroup = false; state.isRotating = false; state.rotatingBoxId = null;
             state.isDrawingArrow = false; state.tempArrowStart = null;
-            state.resizeHandle = null; state.resizeOrigBox = null; state.dragOriginalBoxes = []; state.dragOriginalArrows = [];
+            state.resizeHandle = null; state.resizeOrigBox = null; state.resizeOrigBounds = null; 
+            state.dragOriginalBoxes = []; state.dragOriginalArrows = [];
             state.isDraggingArrowHandle = false; state.activeArrowId = null; state.activeArrowHandleType = null;
             state.hasDraggedThisClick = false;
 
@@ -2194,13 +2304,10 @@
             const clipboardText = (e.clipboardData || window.clipboardData).getData('text');
             const isInternalCopy = clipboardText === 'BMAD_INTERNAL_COPY';
 
-            // Si hay un texto en el portapapeles del SO y NO es nuestra clave interna,
-            // significa que el usuario copió texto de otra aplicación recientemente.
             if (clipboardText && !isInternalCopy) {
                 state.clipboard = null; 
             }
 
-            // Si es una imagen y no venimos de hacer una copia interna prioritaria
             if (hasImage && !isInternalCopy) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
@@ -2663,7 +2770,7 @@
             fontSize: 'M', textAlignH: 'center', textAlignV: 'middle'
         });
 
-        saveHistory(); // Estado inicial
+        saveHistory(); 
         render();
 
         function showToast(message) {
@@ -2727,7 +2834,6 @@
                     if (data.boxes && Array.isArray(data.boxes)) {
                         state.boxes = data.boxes;
                         
-                        // Migración y Saneamiento de flechas
                         state.arrows = (data.arrows || []).map(a => {
                             if (a.from !== undefined && a.to !== undefined) {
                                 return { ...a, start: { boxId: a.from }, end: { boxId: a.to }, from: undefined, to: undefined };
