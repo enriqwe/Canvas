@@ -1,0 +1,5032 @@
+{
+  "boxes": [
+    {
+      "id": "23v03jv60",
+      "x": 580.7410032687965,
+      "y": -1030.4415573691404,
+      "w": 382.3149929495852,
+      "h": 273.08213782113216,
+      "text": "Leyenda",
+      "backgroundColor": "#f3f4f6",
+      "strokeColor": "#374151",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "top"
+    },
+    {
+      "id": "sh1",
+      "x": -563.1508559750739,
+      "y": -1002.3292634383499,
+      "w": 1062.7043556551885,
+      "h": 53.689756088790205,
+      "text": "CORE",
+      "backgroundColor": "#e5e7eb",
+      "strokeColor": "#6b7280",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "XL",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "ag1",
+      "x": -181.01553839344137,
+      "y": -910.4527671319901,
+      "w": 272.5007002471359,
+      "h": 74.96916552520486,
+      "text": "BMAD Master",
+      "backgroundColor": "#f3f4f6",
+      "strokeColor": "#374151",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "top"
+    },
+    {
+      "id": "cm1",
+      "x": -153.51077979593623,
+      "y": -878.3015235439271,
+      "w": 220.038068780041,
+      "h": 27.536607569650187,
+      "text": "/bmad_agent_bmad-master",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#374151",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i1_1",
+      "x": -574.7177944323054,
+      "y": -912.8121099482443,
+      "w": 299.45141146620256,
+      "h": 28.03564516925773,
+      "text": "{root}/core/config.yaml",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i1_2",
+      "x": -576.4878769641701,
+      "y": -876.1835172255114,
+      "w": 299.45141146620256,
+      "h": 28.03564516925773,
+      "text": "{root}/_config/task-manifest.csv",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i1_3",
+      "x": -574.7177944323054,
+      "y": -838.0503894968903,
+      "w": 299.45141146620256,
+      "h": 28.03564516925773,
+      "text": "{root}/_config/workflow-manifest.csv",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o1_1",
+      "x": 223.88058587876097,
+      "y": -917.9058814040749,
+      "w": 275.1062924413751,
+      "h": 31.508671161869405,
+      "text": "Menú interactivo con opciones",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o1_2",
+      "x": 223.88058587876097,
+      "y": -875.8943198549156,
+      "w": 275.1062924413751,
+      "h": 31.508671161869405,
+      "text": "Ejecución de workflows/tasks",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o1_3",
+      "x": 223.88058587876097,
+      "y": -833.8827583057565,
+      "w": 275.1062924413751,
+      "h": 31.508671161869405,
+      "text": "Acceso a agentes BMB y CIS",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "sh2",
+      "x": -575.8852846146501,
+      "y": -737.453147735163,
+      "w": 6076.637217823593,
+      "h": 48.96879956780765,
+      "text": "BMM — Business & Development Management",
+      "backgroundColor": "#bfdbfe",
+      "strokeColor": "#1e40af",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "XL",
+      "textAlignH": "left",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "ag2",
+      "x": -133.24845518020265,
+      "y": -580.375085823322,
+      "w": 269.5787286958986,
+      "h": 74.47726858449732,
+      "text": "Analyst — Mary",
+      "backgroundColor": "#dbeafe",
+      "strokeColor": "#1e40af",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "top"
+    },
+    {
+      "id": "cm2",
+      "x": -108.07340232015349,
+      "y": -547.7028116197589,
+      "w": 221.77550870371553,
+      "h": 31.617451469273114,
+      "text": "/bmad_bmm_agent_analyst",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1e40af",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i2_1",
+      "x": -569.1570731168309,
+      "y": -590.375085823322,
+      "w": 355.9086179366283,
+      "h": 33.45833304633441,
+      "text": "{root}/bmm/config.yaml",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i2_2",
+      "x": -569.1570731168309,
+      "y": -545.7639750948762,
+      "w": 355.9086179366283,
+      "h": 33.45833304633441,
+      "text": "{root}/bmm/data/project-context-template.md",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i2_3",
+      "x": -569.1570731168309,
+      "y": -501.15286436643026,
+      "w": 355.9086179366283,
+      "h": 33.45833304633441,
+      "text": "Datos mercado/dominio/competencia",
+      "backgroundColor": "#fef9c3",
+      "strokeColor": "#92400e",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o2_1",
+      "x": 221.31280038162714,
+      "y": -619.6408831501597,
+      "w": 371.887950102155,
+      "h": 29.863905376476684,
+      "text": "{planning}/product-brief-{project}-{date}.md",
+      "backgroundColor": "#fed7aa",
+      "strokeColor": "#ea580c",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o2_2",
+      "x": 221.31280038162714,
+      "y": -579.8223426481907,
+      "w": 371.887950102155,
+      "h": 29.863905376476684,
+      "text": "{planning}/research/market-{topic}-{date}.md",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o2_3",
+      "x": 221.31280038162714,
+      "y": -540.0038021462217,
+      "w": 371.887950102155,
+      "h": 29.863905376476684,
+      "text": "{planning}/research/domain-{topic}-{date}.md",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o2_4",
+      "x": 229.63284252358955,
+      "y": -492.46466524074197,
+      "w": 371.887950102155,
+      "h": 29.863905376476684,
+      "text": "{planning}/research/technical-{topic}-{date}.md",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "ag3",
+      "x": 1352.7674671331429,
+      "y": -608.9030495284265,
+      "w": 295.87845187516086,
+      "h": 74.76793440256364,
+      "text": "Product Manager — John",
+      "backgroundColor": "#dbeafe",
+      "strokeColor": "#1e40af",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "top"
+    },
+    {
+      "id": "cm3",
+      "x": 1385.7388696148678,
+      "y": -577.6673250448681,
+      "w": 236.7027615001287,
+      "h": 31.689759389272997,
+      "text": "/bmad_bmm_agent_pm",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1e40af",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i3_1",
+      "x": 808.135403730984,
+      "y": -593.5959163155574,
+      "w": 334.81044054096657,
+      "h": 29.94966473899784,
+      "text": "{root}/bmm/config.yaml",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i3_2",
+      "x": 808.135403730984,
+      "y": -553.6630299968936,
+      "w": 334.81044054096657,
+      "h": 29.94966473899784,
+      "text": "Investigación usuarios/competencia",
+      "backgroundColor": "#fef9c3",
+      "strokeColor": "#92400e",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i3_3",
+      "x": 807.0461245884168,
+      "y": -430.85598946070706,
+      "w": 334.81044054096657,
+      "h": 29.94966473899784,
+      "text": "{planning}/architecture.md",
+      "backgroundColor": "#fed7aa",
+      "strokeColor": "#ea580c",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i3_4",
+      "x": 808.135403730984,
+      "y": -513.7301436782298,
+      "w": 334.81044054096657,
+      "h": 29.94966473899784,
+      "text": "{planning}/prd.md (para validar/editar)",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i3_5",
+      "x": 808.135403730984,
+      "y": -473.797257359566,
+      "w": 334.81044054096657,
+      "h": 29.94966473899784,
+      "text": "{planning}/epics.md",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i3_6",
+      "x": 806.4436250838793,
+      "y": -634.5507800694788,
+      "w": 334.81044054096657,
+      "h": 29.94966473899784,
+      "text": "{planning}/product-brief-*.md",
+      "backgroundColor": "#fed7aa",
+      "strokeColor": "#ea580c",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o3_1",
+      "x": 1486.7670754576893,
+      "y": -469.78544455453937,
+      "w": 168.23269373541805,
+      "h": 29.26611422620541,
+      "text": "{planning}/prd.md",
+      "backgroundColor": "#fed7aa",
+      "strokeColor": "#ea580c",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o3_2",
+      "x": 1668.6705094494416,
+      "y": -469.99037354151795,
+      "w": 168.23269373541805,
+      "h": 29.26611422620541,
+      "text": "{planning}/epics.md",
+      "backgroundColor": "#fed7aa",
+      "strokeColor": "#ea580c",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o3_3",
+      "x": 1265.1385668965793,
+      "y": -466.77315880039384,
+      "w": 207.63568651819833,
+      "h": 28.192292414070153,
+      "text": "PRD validado/actualizado",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "ag4",
+      "x": 1179.161239040303,
+      "y": -161.72842747722268,
+      "w": 294.4206143882416,
+      "h": 78.46658112173304,
+      "text": "UX Designer — Sally",
+      "backgroundColor": "#dbeafe",
+      "strokeColor": "#1e40af",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "top"
+    },
+    {
+      "id": "cm4",
+      "x": 1191.8546918727911,
+      "y": -124.6433812200089,
+      "w": 263.958372781951,
+      "h": 27.847305687682287,
+      "text": "/bmad_bmm_agent_ux-designer",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1e40af",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i4_1",
+      "x": 1080.5465950494304,
+      "y": -314.81646760205683,
+      "w": 195.5939672050281,
+      "h": 31.180501928825336,
+      "text": "{root}/bmm/config.yaml",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i4_2",
+      "x": 1387.5337240831914,
+      "y": -236.191101444803,
+      "w": 170.3876808920786,
+      "h": 31.95357259508019,
+      "text": "{planning}/prd.md",
+      "backgroundColor": "#fed7aa",
+      "strokeColor": "#ea580c",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i4_3",
+      "x": 1221.5952545143655,
+      "y": -275.2644949158792,
+      "w": 236.31872066454707,
+      "h": 29.663979514633198,
+      "text": "Datos investigación usuario",
+      "backgroundColor": "#fef9c3",
+      "strokeColor": "#92400e",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o4_1",
+      "x": 1286.7188168729076,
+      "y": -1.5337156055606158,
+      "w": 310.9814013474597,
+      "h": 29.213673152776153,
+      "text": "{planning}/ux-design-specification.md",
+      "backgroundColor": "#fed7aa",
+      "strokeColor": "#ea580c",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o4_2",
+      "x": 1139.2926257324552,
+      "y": -41.32023334723141,
+      "w": 234.8922419378889,
+      "h": 29.41839571149052,
+      "text": "Wireframes/flujos interacción",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "ag5",
+      "x": 2070.830776192315,
+      "y": 112.57245973781396,
+      "w": 293.6736676170272,
+      "h": 74.28310635459248,
+      "text": "Architect — Winston",
+      "backgroundColor": "#dbeafe",
+      "strokeColor": "#1e40af",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "top"
+    },
+    {
+      "id": "cm5",
+      "x": 2099.9721290208054,
+      "y": 145.49444033471593,
+      "w": 233.1308226279198,
+      "h": 28.09466090442783,
+      "text": "/bmad_bmm_agent_architect",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1e40af",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i5_1",
+      "x": 2300.6711140163166,
+      "y": -34.04205953333908,
+      "w": 207.97604351127958,
+      "h": 28.585711700509904,
+      "text": "{root}/bmm/config.yaml",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i5_2",
+      "x": 2077.521527616455,
+      "y": -31.116468601711162,
+      "w": 170.75691327497816,
+      "h": 26.300554177634886,
+      "text": "{planning}/prd.md",
+      "backgroundColor": "#fed7aa",
+      "strokeColor": "#ea580c",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i5_3",
+      "x": 1756.6110386819992,
+      "y": 2.498055946484641,
+      "w": 397.30372176201627,
+      "h": 27.326924816297627,
+      "text": "{planning}/ux-design-specification.md (opcional)",
+      "backgroundColor": "#fed7aa",
+      "strokeColor": "#ea580c",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i5_4",
+      "x": 2186.913041384038,
+      "y": 2.622825535367184,
+      "w": 177.52402786339664,
+      "h": 31.250572434320105,
+      "text": "{planning}/epics.md",
+      "backgroundColor": "#fed7aa",
+      "strokeColor": "#ea580c",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o5_1",
+      "x": 2004.1935114104517,
+      "y": 236.26135938921448,
+      "w": 228.45595765160394,
+      "h": 31.05195060478509,
+      "text": "{planning}/architecture.md",
+      "backgroundColor": "#fed7aa",
+      "strokeColor": "#ea580c",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o5_2",
+      "x": 2247.2475209730474,
+      "y": 237.47311682188138,
+      "w": 445.0171773157496,
+      "h": 27.97331742250499,
+      "text": "{planning}/implementation-readiness-report-{date}.md",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "ag6",
+      "x": 2288.393778066399,
+      "y": -574.55669391197,
+      "w": 293.3524733858963,
+      "h": 74.58925720830277,
+      "text": "Scrum Master — Bob",
+      "backgroundColor": "#dbeafe",
+      "strokeColor": "#1e40af",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "top"
+    },
+    {
+      "id": "cm6",
+      "x": 2317.5351308948893,
+      "y": -537.7568231130757,
+      "w": 233.1308226279198,
+      "h": 28.09466090442783,
+      "text": "/bmad_bmm_agent_sm",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1e40af",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i6_1",
+      "x": 1940.2028111661216,
+      "y": -598.4058870841183,
+      "w": 275.15018039926053,
+      "h": 27.391303694825776,
+      "text": "{root}/bmm/config.yaml",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i6_2",
+      "x": 1940.2028111661216,
+      "y": -488.79177861798274,
+      "w": 275.15018039926053,
+      "h": 27.391303694825776,
+      "text": "{planning}/epics.md",
+      "backgroundColor": "#fed7aa",
+      "strokeColor": "#ea580c",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i6_3",
+      "x": 1940.2028111661216,
+      "y": -561.8841488243505,
+      "w": 275.15018039926053,
+      "h": 27.391303694825776,
+      "text": "{impl}/sprint-status.yaml",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i6_4",
+      "x": 1940.2028111661216,
+      "y": -525.3624105645828,
+      "w": 275.15018039926053,
+      "h": 27.391303694825776,
+      "text": "{root}/_config/agent-manifest.csv",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o6_1",
+      "x": 2681.57264751646,
+      "y": -606.8719570992578,
+      "w": 245.30583191314744,
+      "h": 29.13668448310267,
+      "text": "{impl}/sprint-status.yaml",
+      "backgroundColor": "#fed7aa",
+      "strokeColor": "#ea580c",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o6_2",
+      "x": 2681.57264751646,
+      "y": -568.0230444551208,
+      "w": 245.30583191314744,
+      "h": 29.13668448310267,
+      "text": "Story con contexto para dev",
+      "backgroundColor": "#fed7aa",
+      "strokeColor": "#ea580c",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o6_3",
+      "x": 2681.57264751646,
+      "y": -529.174131810984,
+      "w": 245.30583191314744,
+      "h": 29.13668448310267,
+      "text": "Retrospectiva de epic",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o6_4",
+      "x": 2681.57264751646,
+      "y": -490.3252191668471,
+      "w": 245.30583191314744,
+      "h": 29.13668448310267,
+      "text": "Guía corrección de rumbo",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "ag7",
+      "x": 3413.282936568735,
+      "y": -565.534084498647,
+      "w": 251.01687539511204,
+      "h": 73.67991383785318,
+      "text": "Developer — Amelia",
+      "backgroundColor": "#dbeafe",
+      "strokeColor": "#1e40af",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "top"
+    },
+    {
+      "id": "cm7",
+      "x": 3433.925050375955,
+      "y": -531.0487331147233,
+      "w": 196.1600320736994,
+      "h": 27.560891847952824,
+      "text": "/bmad_bmm_agent_dev",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1e40af",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i7_1",
+      "x": 3045.9563486882716,
+      "y": -522.8261002749521,
+      "w": 282.90596080324394,
+      "h": 28.231260613752397,
+      "text": "{root}/bmm/config.yaml",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i7_2",
+      "x": 3045.9563486882716,
+      "y": -561.2695049926986,
+      "w": 282.90596080324394,
+      "h": 28.231260613752397,
+      "text": "Fichero de story (tasks/subtasks)",
+      "backgroundColor": "#fed7aa",
+      "strokeColor": "#ea580c",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i7_3",
+      "x": 3047.895293789268,
+      "y": -599.2466831132115,
+      "w": 282.90596080324394,
+      "h": 28.231260613752397,
+      "text": "{impl}/sprint-status.yaml",
+      "backgroundColor": "#fed7aa",
+      "strokeColor": "#ea580c",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i7_4",
+      "x": 3045.9563486882716,
+      "y": -485.1844194566157,
+      "w": 282.90596080324394,
+      "h": 28.231260613752397,
+      "text": "project-context.md",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o7_1",
+      "x": 3768.563281217322,
+      "y": -497.74181298097557,
+      "w": 353.3275745816136,
+      "h": 31.093928633131625,
+      "text": "Código implementado",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o7_2",
+      "x": 3768.563281217322,
+      "y": -580.65895600266,
+      "w": 353.3275745816136,
+      "h": 31.093928633131625,
+      "text": "Tests unitarios OK",
+      "backgroundColor": "#fed7aa",
+      "strokeColor": "#ea580c",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o7_3",
+      "x": 3768.563281217322,
+      "y": -539.2003844918179,
+      "w": 353.3275745816136,
+      "h": 31.093928633131625,
+      "text": "Story actualizado (Dev record + file list)",
+      "backgroundColor": "#fed7aa",
+      "strokeColor": "#ea580c",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "ag8",
+      "x": -175.12302596251135,
+      "y": -244.697026862702,
+      "w": 396.96036745541744,
+      "h": 78.32048184728129,
+      "text": "Quick Flow Solo Dev — Barry",
+      "backgroundColor": "#dbeafe",
+      "strokeColor": "#1e40af",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "top"
+    },
+    {
+      "id": "cm8",
+      "x": -164.67626887042118,
+      "y": -205.88639708700927,
+      "w": 359.2264755789893,
+      "h": 27.219416398141256,
+      "text": "/bmad_bmm_agent_quick-flow-solo-dev",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1e40af",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i8_1",
+      "x": -545.2897200281773,
+      "y": -253.59802366242994,
+      "w": 259.50896084905673,
+      "h": 27.73488352552933,
+      "text": "{root}/bmm/config.yaml",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i8_2",
+      "x": -545.2897200281773,
+      "y": -216.61817896172417,
+      "w": 259.50896084905673,
+      "h": 27.73488352552933,
+      "text": "**/project-context.md (si existe)",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i8_3",
+      "x": -545.2897200281773,
+      "y": -179.63833426101837,
+      "w": 259.50896084905673,
+      "h": 27.73488352552933,
+      "text": "Requisitos técnicos usuario",
+      "backgroundColor": "#fef9c3",
+      "strokeColor": "#92400e",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o8_1",
+      "x": 339.3214184819331,
+      "y": -246.16103861576096,
+      "w": 217.21324999528326,
+      "h": 27.73488352552933,
+      "text": "Tech-spec con stories",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o8_2",
+      "x": 339.3214184819331,
+      "y": -207.70507425115719,
+      "w": 217.21324999528326,
+      "h": 27.73488352552933,
+      "text": "Código end-to-end",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o8_3",
+      "x": 339.3214184819331,
+      "y": -170.72522955045142,
+      "w": 217.21324999528326,
+      "h": 27.73488352552933,
+      "text": "Code review report",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "ag9",
+      "x": 4752.810522441783,
+      "y": -503.7625012261195,
+      "w": 278.1621068090599,
+      "h": 76.79178190523271,
+      "text": "Master Test Architect — Murat",
+      "backgroundColor": "#dbeafe",
+      "strokeColor": "#1e40af",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "top"
+    },
+    {
+      "id": "cm9",
+      "x": 4777.136631940897,
+      "y": -469.42179366537175,
+      "w": 225.63199760884163,
+      "h": 30.767780904400578,
+      "text": "/bmad_bmm_agent_tea",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1e40af",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i9_1",
+      "x": 4305.9871854204775,
+      "y": -502.930712291182,
+      "w": 298.1331444053286,
+      "h": 28.764614301031983,
+      "text": "{root}/bmm/config.yaml",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i9_2",
+      "x": 4305.9871854204775,
+      "y": -464.5778932231393,
+      "w": 298.1331444053286,
+      "h": 28.764614301031983,
+      "text": "{root}/bmm/testarch/tea-index.csv",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i9_3",
+      "x": 4305.9871854204775,
+      "y": -426.22507415509665,
+      "w": 298.1331444053286,
+      "h": 28.764614301031983,
+      "text": "{root}/bmm/testarch/knowledge/*",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i9_4",
+      "x": 4308.210507727359,
+      "y": -540.5952448405468,
+      "w": 298.1331444053286,
+      "h": 28.764614301031983,
+      "text": "Docs requisitos/stories",
+      "backgroundColor": "#fed7aa",
+      "strokeColor": "#ea580c",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i9_5",
+      "x": 4308.210507727361,
+      "y": -578.465536679911,
+      "w": 298.1331444053286,
+      "h": 28.764614301031983,
+      "text": "Tests existentes",
+      "backgroundColor": "#fed7aa",
+      "strokeColor": "#ea580c",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i9_6",
+      "x": 4305.9871854204775,
+      "y": -387.8722550870541,
+      "w": 298.1331444053286,
+      "h": 28.764614301031983,
+      "text": "Métricas rendimiento",
+      "backgroundColor": "#fef9c3",
+      "strokeColor": "#92400e",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o9_1",
+      "x": 5181.770780928224,
+      "y": -597.1371405689534,
+      "w": 330.06023336966007,
+      "h": 29.602507579141555,
+      "text": "{output}/atdd-checklist-{story_id}.md",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o9_2",
+      "x": 5181.770780928224,
+      "y": -557.6671304634314,
+      "w": 330.06023336966007,
+      "h": 29.602507579141555,
+      "text": "{output}/automation-summary.md",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o9_3",
+      "x": 5181.770780928224,
+      "y": -518.1971203579092,
+      "w": 330.06023336966007,
+      "h": 29.602507579141555,
+      "text": "{output}/test-design-architecture.md",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o9_4",
+      "x": 5181.770780928224,
+      "y": -478.7271102523871,
+      "w": 330.06023336966007,
+      "h": 29.602507579141555,
+      "text": "{output}/test-design-qa.md",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o9_5",
+      "x": 5181.770780928224,
+      "y": -439.257100146865,
+      "w": 330.06023336966007,
+      "h": 29.602507579141555,
+      "text": "{output}/test-review.md",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o9_6",
+      "x": 5181.770780928224,
+      "y": -399.78709004134294,
+      "w": 330.06023336966007,
+      "h": 29.602507579141555,
+      "text": "{output}/traceability-matrix.md",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o9_7",
+      "x": 5181.770780928224,
+      "y": -360.31707993582086,
+      "w": 330.06023336966007,
+      "h": 29.602507579141555,
+      "text": "{output}/nfr-assessment.md",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o9_8",
+      "x": 5181.770780928224,
+      "y": -320.8470698302989,
+      "w": 330.06023336966007,
+      "h": 29.602507579141555,
+      "text": "Config CI/fixtures/factories",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "ag10",
+      "x": -27.746845124042636,
+      "y": 54.65329714327166,
+      "w": 335.60898850325407,
+      "h": 84.12718218367102,
+      "text": "Technical Writer — Paige",
+      "backgroundColor": "#dbeafe",
+      "strokeColor": "#1e40af",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "top"
+    },
+    {
+      "id": "cm10",
+      "x": -23.590788226517304,
+      "y": 89.1844398641191,
+      "w": 326.35916014989823,
+      "h": 26.674067911586263,
+      "text": "/bmad_bmm_agent_tech-writer_tech-writer",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1e40af",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i10_1",
+      "x": -547.8476897593007,
+      "y": 19.23486218174812,
+      "w": 421.1380714643717,
+      "h": 30.54111078514439,
+      "text": "{root}/bmm/config.yaml",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i10_2",
+      "x": -547.8476897593007,
+      "y": 59.95634322860731,
+      "w": 421.1380714643717,
+      "h": 30.54111078514439,
+      "text": "{root}/_memory/tech-writer-sidecar/docs-standards.md",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i10_3",
+      "x": -547.8476897593007,
+      "y": 100.6778242754665,
+      "w": 421.1380714643717,
+      "h": 30.54111078514439,
+      "text": "Código fuente/arquitectura",
+      "backgroundColor": "#fef9c3",
+      "strokeColor": "#92400e",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i10_4",
+      "x": -547.8476897593007,
+      "y": 141.3993053223257,
+      "w": 421.1380714643717,
+      "h": 30.54111078514439,
+      "text": "Docs existentes",
+      "backgroundColor": "#fef9c3",
+      "strokeColor": "#92400e",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o10_1",
+      "x": 395.48564357403257,
+      "y": 41.1324208982773,
+      "w": 261.2051630121027,
+      "h": 36.090127664290875,
+      "text": "{output}/project-documentation/*",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o10_2",
+      "x": 395.48564357403257,
+      "y": 89.25259111733182,
+      "w": 261.2051630121027,
+      "h": 36.090127664290875,
+      "text": "Diagramas Mermaid",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o10_3",
+      "x": 395.48564357403257,
+      "y": 137.3727613363863,
+      "w": 261.2051630121027,
+      "h": 36.090127664290875,
+      "text": "Review calidad doc",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "sh3",
+      "x": -532.5882272400908,
+      "y": 345.89939176480755,
+      "w": 1158.833006201443,
+      "h": 46.07548318703612,
+      "text": "BMB — Build Management Builder",
+      "backgroundColor": "#bbf7d0",
+      "strokeColor": "#166534",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "XL",
+      "textAlignH": "left",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "ag11",
+      "x": -166.35796964310103,
+      "y": 424.79822357107935,
+      "w": 374.57801112428507,
+      "h": 89.642981707132,
+      "text": "Agent Builder — Bond",
+      "backgroundColor": "#dcfce7",
+      "strokeColor": "#166534",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "top"
+    },
+    {
+      "id": "cm11",
+      "x": -128.90016853067252,
+      "y": 484.560211375834,
+      "w": 299.66240889942804,
+      "h": 29.88099390237733,
+      "text": "Via /bmad_agent_bmad-master",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#166534",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i11_1",
+      "x": -533.0689303358757,
+      "y": 435.3716528904391,
+      "w": 289.25784642068993,
+      "h": 29.532340253133903,
+      "text": "{root}/bmb/config.yaml",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i11_2",
+      "x": -533.0689303358757,
+      "y": 474.7481065612843,
+      "w": 289.25784642068993,
+      "h": 29.532340253133903,
+      "text": "Especificaciones de agente",
+      "backgroundColor": "#fef9c3",
+      "strokeColor": "#92400e",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o11_1",
+      "x": 290.0787150353393,
+      "y": 417.5434527950325,
+      "w": 341.8850887775891,
+      "h": 29.81593385294997,
+      "text": "Agentes BMAD nuevos/editados",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o11_2",
+      "x": 290.0787150353393,
+      "y": 457.2980312656324,
+      "w": 341.8850887775891,
+      "h": 29.81593385294997,
+      "text": "Validación agentes existentes",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "ag12",
+      "x": -166.35796964310103,
+      "y": 524.4015365790038,
+      "w": 374.57801112428507,
+      "h": 89.642981707132,
+      "text": "Module Builder — Morgan",
+      "backgroundColor": "#dcfce7",
+      "strokeColor": "#166534",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "top"
+    },
+    {
+      "id": "cm12",
+      "x": -128.90016853067252,
+      "y": 584.1635243837585,
+      "w": 299.66240889942804,
+      "h": 29.88099390237733,
+      "text": "Via /bmad_agent_bmad-master",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#166534",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i12_1",
+      "x": -533.0689303358757,
+      "y": 533.8127870675522,
+      "w": 289.25784642068993,
+      "h": 29.532340253133903,
+      "text": "{root}/bmb/config.yaml",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i12_2",
+      "x": -533.0689303358757,
+      "y": 573.1892407383974,
+      "w": 289.25784642068993,
+      "h": 29.532340253133903,
+      "text": "Especificaciones de módulo",
+      "backgroundColor": "#fef9c3",
+      "strokeColor": "#92400e",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o12_1",
+      "x": 290.0787150353393,
+      "y": 516.9298989715325,
+      "w": 341.8850887775891,
+      "h": 29.81593385294997,
+      "text": "Módulos BMAD completos",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o12_2",
+      "x": 290.0787150353393,
+      "y": 556.6844774421323,
+      "w": 341.8850887775891,
+      "h": 29.81593385294997,
+      "text": "Product briefs de módulo",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o12_3",
+      "x": 290.0787150353393,
+      "y": 596.4390559127324,
+      "w": 341.8850887775891,
+      "h": 29.81593385294997,
+      "text": "Validación módulos",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "ag13",
+      "x": -166.35796964310103,
+      "y": 663.846174790098,
+      "w": 374.57801112428507,
+      "h": 89.642981707132,
+      "text": "Workflow Builder — Wendy",
+      "backgroundColor": "#dcfce7",
+      "strokeColor": "#166534",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "top"
+    },
+    {
+      "id": "cm13",
+      "x": -128.90016853067252,
+      "y": 723.6081625948526,
+      "w": 299.66240889942804,
+      "h": 29.88099390237733,
+      "text": "Via /bmad_agent_bmad-master",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#166534",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i13_1",
+      "x": -533.0689303358757,
+      "y": 671.6303749155103,
+      "w": 289.25784642068993,
+      "h": 29.532340253133903,
+      "text": "{root}/bmb/config.yaml",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i13_2",
+      "x": -533.0689303358757,
+      "y": 711.0068285863555,
+      "w": 289.25784642068993,
+      "h": 29.532340253133903,
+      "text": "Especificaciones de workflow",
+      "backgroundColor": "#fef9c3",
+      "strokeColor": "#92400e",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o13_1",
+      "x": 290.0787150353393,
+      "y": 656.0709236186323,
+      "w": 341.8850887775891,
+      "h": 29.81593385294997,
+      "text": "Workflows nuevos/editados",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o13_2",
+      "x": 290.0787150353393,
+      "y": 695.8255020892321,
+      "w": 341.8850887775891,
+      "h": 29.81593385294997,
+      "text": "Workflows convertidos a V6",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o13_3",
+      "x": 290.0787150353393,
+      "y": 735.5800805598323,
+      "w": 341.8850887775891,
+      "h": 29.81593385294997,
+      "text": "Validación (MAX-PARALLEL)",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "sh4",
+      "x": 717.1117467324749,
+      "y": 346.490936108372,
+      "w": 1220.7791821052358,
+      "h": 47.10466423314147,
+      "text": "CIS — Creative Innovation Series",
+      "backgroundColor": "#e9d5ff",
+      "strokeColor": "#6b21a8",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "XL",
+      "textAlignH": "left",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "ag14",
+      "x": 1135.1006373215964,
+      "y": 419.8946841486917,
+      "w": 374.57801112428507,
+      "h": 89.642981707132,
+      "text": "Brainstorming Coach — Carson",
+      "backgroundColor": "#f3e8ff",
+      "strokeColor": "#6b21a8",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "top"
+    },
+    {
+      "id": "cm14",
+      "x": 1172.558438434025,
+      "y": 479.65667195344656,
+      "w": 299.66240889942804,
+      "h": 29.88099390237733,
+      "text": "Via /bmad_agent_bmad-master",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#6b21a8",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i14_1",
+      "x": 763.2959051729914,
+      "y": 435.54206952414245,
+      "w": 289.25784642068993,
+      "h": 29.532340253133903,
+      "text": "{root}/cis/config.yaml",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i14_2",
+      "x": 763.2959051729914,
+      "y": 474.9185231949874,
+      "w": 289.25784642068993,
+      "h": 29.532340253133903,
+      "text": "Tema/contexto del usuario",
+      "backgroundColor": "#fef9c3",
+      "strokeColor": "#92400e",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o14_1",
+      "x": 1599.1779791837826,
+      "y": 416.77947077020747,
+      "w": 341.8850887775891,
+      "h": 29.81593385294997,
+      "text": "Sesión guiada",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o14_2",
+      "x": 1599.1779791837826,
+      "y": 456.53404924080735,
+      "w": 341.8850887775891,
+      "h": 29.81593385294997,
+      "text": "Output en {output}/",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "ag15",
+      "x": 1135.1006373215964,
+      "y": 519.4979971566162,
+      "w": 374.57801112428507,
+      "h": 89.642981707132,
+      "text": "Creative Problem Solver — Dr. Quinn",
+      "backgroundColor": "#f3e8ff",
+      "strokeColor": "#6b21a8",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "top"
+    },
+    {
+      "id": "cm15",
+      "x": 1172.558438434025,
+      "y": 579.2599849613708,
+      "w": 299.66240889942804,
+      "h": 29.88099390237733,
+      "text": "Via /bmad_agent_bmad-master",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#6b21a8",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i15_1",
+      "x": 763.2959051729914,
+      "y": 533.9832037012553,
+      "w": 289.25784642068993,
+      "h": 29.532340253133903,
+      "text": "{root}/cis/config.yaml",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i15_2",
+      "x": 763.2959051729914,
+      "y": 573.3596573721005,
+      "w": 289.25784642068993,
+      "h": 29.532340253133903,
+      "text": "Problema/contexto del usuario",
+      "backgroundColor": "#fef9c3",
+      "strokeColor": "#92400e",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o15_1",
+      "x": 1599.1779791837826,
+      "y": 516.1659169467074,
+      "w": 341.8850887775891,
+      "h": 29.81593385294997,
+      "text": "Análisis + soluciones",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o15_2",
+      "x": 1599.1779791837826,
+      "y": 555.9204954173075,
+      "w": 341.8850887775891,
+      "h": 29.81593385294997,
+      "text": "Output en {output}/",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "ag16",
+      "x": 1135.1006373215964,
+      "y": 619.1013101645408,
+      "w": 374.57801112428507,
+      "h": 89.642981707132,
+      "text": "Design Thinking Coach — Maya",
+      "backgroundColor": "#f3e8ff",
+      "strokeColor": "#6b21a8",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "top"
+    },
+    {
+      "id": "cm16",
+      "x": 1172.558438434025,
+      "y": 678.8632979692952,
+      "w": 299.66240889942804,
+      "h": 29.88099390237733,
+      "text": "Via /bmad_agent_bmad-master",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#6b21a8",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i16_1",
+      "x": 763.2959051729914,
+      "y": 632.4243378783681,
+      "w": 289.25784642068993,
+      "h": 29.532340253133903,
+      "text": "{root}/cis/config.yaml",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i16_2",
+      "x": 763.2959051729914,
+      "y": 671.8007915492135,
+      "w": 289.25784642068993,
+      "h": 29.532340253133903,
+      "text": "Reto de diseño del usuario",
+      "backgroundColor": "#fef9c3",
+      "strokeColor": "#92400e",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o16_1",
+      "x": 1599.1779791837826,
+      "y": 615.5523631232072,
+      "w": 341.8850887775891,
+      "h": 29.81593385294997,
+      "text": "Insights de diseño",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o16_2",
+      "x": 1599.1779791837826,
+      "y": 655.3069415938071,
+      "w": 341.8850887775891,
+      "h": 29.81593385294997,
+      "text": "Output en {output}/",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "ag17",
+      "x": 1135.1006373215964,
+      "y": 718.7046231724653,
+      "w": 374.57801112428507,
+      "h": 89.642981707132,
+      "text": "Innovation Strategist — Victor",
+      "backgroundColor": "#f3e8ff",
+      "strokeColor": "#6b21a8",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "top"
+    },
+    {
+      "id": "cm17",
+      "x": 1172.558438434025,
+      "y": 778.4666109772197,
+      "w": 299.66240889942804,
+      "h": 29.88099390237733,
+      "text": "Via /bmad_agent_bmad-master",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#6b21a8",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i17_1",
+      "x": 763.2959051729914,
+      "y": 730.8654720554814,
+      "w": 289.25784642068993,
+      "h": 29.532340253133903,
+      "text": "{root}/cis/config.yaml",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i17_2",
+      "x": 763.2959051729914,
+      "y": 770.2419257263264,
+      "w": 289.25784642068993,
+      "h": 29.532340253133903,
+      "text": "Contexto negocio/mercado",
+      "backgroundColor": "#fef9c3",
+      "strokeColor": "#92400e",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o17_1",
+      "x": 1599.1779791837826,
+      "y": 714.9388092997069,
+      "w": 341.8850887775891,
+      "h": 29.81593385294997,
+      "text": "Estrategia innovación",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o17_2",
+      "x": 1599.1779791837826,
+      "y": 754.6933877703073,
+      "w": 341.8850887775891,
+      "h": 29.81593385294997,
+      "text": "Recomendaciones",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o17_3",
+      "x": 1599.1779791837826,
+      "y": 794.4479662409076,
+      "w": 341.8850887775891,
+      "h": 29.81593385294997,
+      "text": "Output en {output}/",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "ag18",
+      "x": 1135.1006373215964,
+      "y": 858.1492613835594,
+      "w": 374.57801112428507,
+      "h": 89.642981707132,
+      "text": "Presentation Master — Caravaggio",
+      "backgroundColor": "#f3e8ff",
+      "strokeColor": "#6b21a8",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "top"
+    },
+    {
+      "id": "cm18",
+      "x": 1172.558438434025,
+      "y": 917.9112491883143,
+      "w": 299.66240889942804,
+      "h": 29.88099390237733,
+      "text": "Via /bmad_agent_bmad-master",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#6b21a8",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i18_1",
+      "x": 763.2959051729914,
+      "y": 868.6830599034402,
+      "w": 289.25784642068993,
+      "h": 29.532340253133903,
+      "text": "{root}/cis/config.yaml",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i18_2",
+      "x": 763.2959051729914,
+      "y": 908.0595135742851,
+      "w": 289.25784642068993,
+      "h": 29.532340253133903,
+      "text": "Contenido + contexto audiencia",
+      "backgroundColor": "#fef9c3",
+      "strokeColor": "#92400e",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o18_1",
+      "x": 1599.1779791837826,
+      "y": 854.0798339468074,
+      "w": 341.8850887775891,
+      "h": 29.81593385294997,
+      "text": "Diseños presentación",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o18_2",
+      "x": 1599.1779791837826,
+      "y": 893.8344124174073,
+      "w": 341.8850887775891,
+      "h": 29.81593385294997,
+      "text": "Scripts visuales",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o18_3",
+      "x": 1599.1779791837826,
+      "y": 933.5889908880072,
+      "w": 341.8850887775891,
+      "h": 29.81593385294997,
+      "text": "Output en {output}/",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "ag19",
+      "x": 1135.1006373215964,
+      "y": 997.5938995946535,
+      "w": 374.57801112428507,
+      "h": 89.642981707132,
+      "text": "Storyteller — Sophia",
+      "backgroundColor": "#f3e8ff",
+      "strokeColor": "#6b21a8",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "top"
+    },
+    {
+      "id": "cm19",
+      "x": 1172.558438434025,
+      "y": 1057.355887399408,
+      "w": 299.66240889942804,
+      "h": 29.88099390237733,
+      "text": "Via /bmad_agent_bmad-master",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#6b21a8",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i19_1",
+      "x": 628.7916646892676,
+      "y": 991.8384504098622,
+      "w": 426.30897263232896,
+      "h": 29.87995696569049,
+      "text": "{root}/cis/config.yaml",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i19_2",
+      "x": 628.7916646892676,
+      "y": 1031.678393030783,
+      "w": 426.30897263232896,
+      "h": 29.87995696569049,
+      "text": "{root}/_memory/storyteller-sidecar/story-preferences.md",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "i19_3",
+      "x": 628.7916646892676,
+      "y": 1071.5183356517036,
+      "w": 426.30897263232896,
+      "h": 29.87995696569049,
+      "text": "{root}/_memory/storyteller-sidecar/stories-told.md",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o19_1",
+      "x": 1599.1779791837826,
+      "y": 993.220858593907,
+      "w": 341.8850887775891,
+      "h": 29.81593385294997,
+      "text": "Narrativas/historias",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o19_2",
+      "x": 1599.1779791837826,
+      "y": 1032.9754370645069,
+      "w": 341.8850887775891,
+      "h": 29.81593385294997,
+      "text": "Output en {output}/",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "o19_3",
+      "x": 1599.1779791837826,
+      "y": 1072.7300155351068,
+      "w": 341.8850887775891,
+      "h": 29.81593385294997,
+      "text": "Actualiza memoria (prefs + historial)",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "wqzpl36ny",
+      "x": 599.6077827359401,
+      "y": -993.1882470933094,
+      "w": 339.8302988600733,
+      "h": 45.40939090245774,
+      "text": "Fichero propio / config (no viene de otro agente)\t",
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "tbi2eywgi",
+      "x": 600.7415272148238,
+      "y": -939.4119990778752,
+      "w": 334.2681953894956,
+      "h": 46.24957045124996,
+      "text": "\tInput contextual (no es un fichero, es info del usuario/entorno)",
+      "backgroundColor": "#fef9c3",
+      "strokeColor": "#92400e",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "v4fdqsi2t",
+      "x": 602.54062512481,
+      "y": -879.1215214576084,
+      "w": 335.42133680730547,
+      "h": 45.003879386903535,
+      "text": "Output contextual (resultado no-fichero: menús, código, wireframes)",
+      "backgroundColor": "#fff7ed",
+      "strokeColor": "#9a3412",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    },
+    {
+      "id": "zw56dh3ub",
+      "x": 603.8070854137104,
+      "y": -816.4067660498996,
+      "w": 326.77427819891494,
+      "h": 44.28614986291127,
+      "text": "Dependencia inter-agente (output que alimenta input de otro agente)",
+      "backgroundColor": "#fed7aa",
+      "strokeColor": "#ea580c",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "textAlignH": "center",
+      "textAlignV": "middle"
+    }
+  ],
+  "arrows": [
+    {
+      "id": "ai1_1",
+      "start": {
+        "boxId": "i1_1",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag1",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai1_2",
+      "start": {
+        "boxId": "i1_2",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag1",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai1_3",
+      "start": {
+        "boxId": "i1_3",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag1",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao1_1",
+      "start": {
+        "boxId": "ag1",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o1_1",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao1_2",
+      "start": {
+        "boxId": "ag1",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o1_2",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao1_3",
+      "start": {
+        "boxId": "ag1",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o1_3",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai2_1",
+      "start": {
+        "boxId": "i2_1",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag2",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai2_2",
+      "start": {
+        "boxId": "i2_2",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag2",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai2_3",
+      "start": {
+        "boxId": "i2_3",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag2",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao2_1",
+      "start": {
+        "boxId": "ag2",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o2_1",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao2_2",
+      "start": {
+        "boxId": "ag2",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o2_2",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao2_3",
+      "start": {
+        "boxId": "ag2",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o2_3",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao2_4",
+      "start": {
+        "boxId": "ag2",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o2_4",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai3_1",
+      "start": {
+        "boxId": "i3_1",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag3",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai3_2",
+      "start": {
+        "boxId": "i3_2",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag3",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai3_3",
+      "start": {
+        "boxId": "i3_3",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag3",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai3_4",
+      "start": {
+        "boxId": "i3_4",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag3",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai3_5",
+      "start": {
+        "boxId": "i3_5",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag3",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai3_6",
+      "start": {
+        "boxId": "i3_6",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag3",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao3_1",
+      "start": {
+        "boxId": "ag3",
+        "side": "bottom"
+      },
+      "end": {
+        "boxId": "o3_1",
+        "side": "top"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao3_2",
+      "start": {
+        "boxId": "ag3",
+        "side": "bottom"
+      },
+      "end": {
+        "boxId": "o3_2",
+        "side": "top"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao3_3",
+      "start": {
+        "boxId": "ag3",
+        "side": "bottom"
+      },
+      "end": {
+        "boxId": "o3_3",
+        "side": "top"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai4_1",
+      "start": {
+        "boxId": "i4_1",
+        "side": "bottom"
+      },
+      "end": {
+        "boxId": "ag4",
+        "side": "top"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai4_2",
+      "start": {
+        "boxId": "i4_2",
+        "side": "bottom"
+      },
+      "end": {
+        "boxId": "ag4",
+        "side": "top"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai4_3",
+      "start": {
+        "boxId": "i4_3",
+        "side": "bottom"
+      },
+      "end": {
+        "boxId": "ag4",
+        "side": "top"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao4_1",
+      "start": {
+        "boxId": "ag4",
+        "side": "bottom"
+      },
+      "end": {
+        "boxId": "o4_1",
+        "side": "top"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao4_2",
+      "start": {
+        "boxId": "ag4",
+        "side": "bottom"
+      },
+      "end": {
+        "boxId": "o4_2",
+        "side": "top"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai5_1",
+      "start": {
+        "boxId": "i5_1",
+        "side": "bottom"
+      },
+      "end": {
+        "boxId": "ag5",
+        "side": "top"
+      },
+      "cp": {
+        "dx": 104.97008738075147,
+        "dy": 57.07559486271978
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai5_2",
+      "start": {
+        "boxId": "i5_2",
+        "side": "bottom"
+      },
+      "end": {
+        "boxId": "ag5",
+        "side": "top"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai5_3",
+      "start": {
+        "boxId": "i5_3",
+        "side": "bottom"
+      },
+      "end": {
+        "boxId": "ag5",
+        "side": "top"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai5_4",
+      "start": {
+        "boxId": "i5_4",
+        "side": "bottom"
+      },
+      "end": {
+        "boxId": "ag5",
+        "side": "top"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao5_1",
+      "start": {
+        "boxId": "ag5",
+        "side": "bottom"
+      },
+      "end": {
+        "boxId": "o5_1",
+        "side": "top"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao5_2",
+      "start": {
+        "boxId": "ag5",
+        "side": "bottom"
+      },
+      "end": {
+        "boxId": "o5_2",
+        "side": "top"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai6_1",
+      "start": {
+        "boxId": "i6_1",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag6",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai6_2",
+      "start": {
+        "boxId": "i6_2",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag6",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai6_3",
+      "start": {
+        "boxId": "i6_3",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag6",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai6_4",
+      "start": {
+        "boxId": "i6_4",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag6",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao6_1",
+      "start": {
+        "boxId": "ag6",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o6_1",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao6_2",
+      "start": {
+        "boxId": "ag6",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o6_2",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao6_3",
+      "start": {
+        "boxId": "ag6",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o6_3",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao6_4",
+      "start": {
+        "boxId": "ag6",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o6_4",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai7_1",
+      "start": {
+        "boxId": "i7_1",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag7",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai7_2",
+      "start": {
+        "boxId": "i7_2",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag7",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai7_3",
+      "start": {
+        "boxId": "i7_3",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag7",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai7_4",
+      "start": {
+        "boxId": "i7_4",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag7",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao7_1",
+      "start": {
+        "boxId": "ag7",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o7_1",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao7_2",
+      "start": {
+        "boxId": "ag7",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o7_2",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao7_3",
+      "start": {
+        "boxId": "ag7",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o7_3",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai8_1",
+      "start": {
+        "boxId": "i8_1",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag8",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai8_2",
+      "start": {
+        "boxId": "i8_2",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag8",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai8_3",
+      "start": {
+        "boxId": "i8_3",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag8",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao8_1",
+      "start": {
+        "boxId": "ag8",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o8_1",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao8_2",
+      "start": {
+        "boxId": "ag8",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o8_2",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao8_3",
+      "start": {
+        "boxId": "ag8",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o8_3",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai9_1",
+      "start": {
+        "boxId": "i9_1",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag9",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai9_2",
+      "start": {
+        "boxId": "i9_2",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag9",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai9_3",
+      "start": {
+        "boxId": "i9_3",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag9",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai9_4",
+      "start": {
+        "boxId": "i9_4",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag9",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai9_5",
+      "start": {
+        "boxId": "i9_5",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag9",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai9_6",
+      "start": {
+        "boxId": "i9_6",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag9",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao9_1",
+      "start": {
+        "boxId": "ag9",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o9_1",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao9_2",
+      "start": {
+        "boxId": "ag9",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o9_2",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao9_3",
+      "start": {
+        "boxId": "ag9",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o9_3",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao9_4",
+      "start": {
+        "boxId": "ag9",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o9_4",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao9_5",
+      "start": {
+        "boxId": "ag9",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o9_5",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao9_6",
+      "start": {
+        "boxId": "ag9",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o9_6",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao9_7",
+      "start": {
+        "boxId": "ag9",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o9_7",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao9_8",
+      "start": {
+        "boxId": "ag9",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o9_8",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai10_1",
+      "start": {
+        "boxId": "i10_1",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag10",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai10_2",
+      "start": {
+        "boxId": "i10_2",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag10",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai10_3",
+      "start": {
+        "boxId": "i10_3",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag10",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai10_4",
+      "start": {
+        "boxId": "i10_4",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag10",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao10_1",
+      "start": {
+        "boxId": "ag10",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o10_1",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao10_2",
+      "start": {
+        "boxId": "ag10",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o10_2",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao10_3",
+      "start": {
+        "boxId": "ag10",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o10_3",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai11_1",
+      "start": {
+        "boxId": "i11_1",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag11",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai11_2",
+      "start": {
+        "boxId": "i11_2",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag11",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao11_1",
+      "start": {
+        "boxId": "ag11",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o11_1",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao11_2",
+      "start": {
+        "boxId": "ag11",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o11_2",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai12_1",
+      "start": {
+        "boxId": "i12_1",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag12",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai12_2",
+      "start": {
+        "boxId": "i12_2",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag12",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao12_1",
+      "start": {
+        "boxId": "ag12",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o12_1",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao12_2",
+      "start": {
+        "boxId": "ag12",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o12_2",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao12_3",
+      "start": {
+        "boxId": "ag12",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o12_3",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai13_1",
+      "start": {
+        "boxId": "i13_1",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag13",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai13_2",
+      "start": {
+        "boxId": "i13_2",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag13",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao13_1",
+      "start": {
+        "boxId": "ag13",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o13_1",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao13_2",
+      "start": {
+        "boxId": "ag13",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o13_2",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao13_3",
+      "start": {
+        "boxId": "ag13",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o13_3",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai14_1",
+      "start": {
+        "boxId": "i14_1",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag14",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai14_2",
+      "start": {
+        "boxId": "i14_2",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag14",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao14_1",
+      "start": {
+        "boxId": "ag14",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o14_1",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao14_2",
+      "start": {
+        "boxId": "ag14",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o14_2",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai15_1",
+      "start": {
+        "boxId": "i15_1",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag15",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai15_2",
+      "start": {
+        "boxId": "i15_2",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag15",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao15_1",
+      "start": {
+        "boxId": "ag15",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o15_1",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao15_2",
+      "start": {
+        "boxId": "ag15",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o15_2",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai16_1",
+      "start": {
+        "boxId": "i16_1",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag16",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai16_2",
+      "start": {
+        "boxId": "i16_2",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag16",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao16_1",
+      "start": {
+        "boxId": "ag16",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o16_1",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao16_2",
+      "start": {
+        "boxId": "ag16",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o16_2",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai17_1",
+      "start": {
+        "boxId": "i17_1",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag17",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai17_2",
+      "start": {
+        "boxId": "i17_2",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag17",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao17_1",
+      "start": {
+        "boxId": "ag17",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o17_1",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao17_2",
+      "start": {
+        "boxId": "ag17",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o17_2",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao17_3",
+      "start": {
+        "boxId": "ag17",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o17_3",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai18_1",
+      "start": {
+        "boxId": "i18_1",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag18",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai18_2",
+      "start": {
+        "boxId": "i18_2",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag18",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao18_1",
+      "start": {
+        "boxId": "ag18",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o18_1",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao18_2",
+      "start": {
+        "boxId": "ag18",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o18_2",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao18_3",
+      "start": {
+        "boxId": "ag18",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o18_3",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai19_1",
+      "start": {
+        "boxId": "i19_1",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag19",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai19_2",
+      "start": {
+        "boxId": "i19_2",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag19",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ai19_3",
+      "start": {
+        "boxId": "i19_3",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "ag19",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao19_1",
+      "start": {
+        "boxId": "ag19",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o19_1",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao19_2",
+      "start": {
+        "boxId": "ag19",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o19_2",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "ao19_3",
+      "start": {
+        "boxId": "ag19",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "o19_3",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 0,
+        "dy": 0
+      },
+      "strokeColor": "#1f2937",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "fontSize": "M",
+      "text": ""
+    },
+    {
+      "id": "dep1",
+      "start": {
+        "boxId": "o2_1",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "i3_6",
+        "side": "left"
+      },
+      "cp": {
+        "dx": -17.553676583875813,
+        "dy": 22.55897978720941
+      },
+      "strokeColor": "#f97316",
+      "strokeWidth": 2,
+      "strokeStyle": "dashed",
+      "fontSize": "S",
+      "text": "product-brief"
+    },
+    {
+      "id": "dep2",
+      "start": {
+        "boxId": "o3_1",
+        "side": "bottom"
+      },
+      "end": {
+        "boxId": "i4_2",
+        "side": "top"
+      },
+      "cp": {
+        "dx": -23.291942396787363,
+        "dy": -32.33770758807373
+      },
+      "strokeColor": "#f97316",
+      "strokeWidth": 2,
+      "strokeStyle": "dashed",
+      "fontSize": "S",
+      "text": "prd.md"
+    },
+    {
+      "id": "dep3",
+      "start": {
+        "boxId": "o3_1",
+        "side": "bottom"
+      },
+      "end": {
+        "boxId": "i5_2",
+        "side": "top"
+      },
+      "cp": {
+        "dx": 82.7844236255387,
+        "dy": -5.587183583181059
+      },
+      "strokeColor": "#f97316",
+      "strokeWidth": 2,
+      "strokeStyle": "dashed",
+      "fontSize": "S",
+      "text": "prd.md"
+    },
+    {
+      "id": "dep4",
+      "start": {
+        "boxId": "o3_2",
+        "side": "bottom"
+      },
+      "end": {
+        "boxId": "i5_4",
+        "side": "top"
+      },
+      "cp": {
+        "dx": 58.19898738891243,
+        "dy": -69.34130652594581
+      },
+      "strokeColor": "#f97316",
+      "strokeWidth": 2,
+      "strokeStyle": "dashed",
+      "fontSize": "S",
+      "text": "epics.md"
+    },
+    {
+      "id": "dep5",
+      "start": {
+        "boxId": "o3_2",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "i6_2",
+        "side": "left"
+      },
+      "cp": {
+        "dx": -20.925733460777792,
+        "dy": 17.91272400014236
+      },
+      "strokeColor": "#f97316",
+      "strokeWidth": 2,
+      "strokeStyle": "dashed",
+      "fontSize": "S",
+      "text": "epics.md"
+    },
+    {
+      "id": "dep6",
+      "start": {
+        "boxId": "o4_1",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "i5_3",
+        "side": "left"
+      },
+      "cp": {
+        "dx": 13.2923033328575,
+        "dy": 3.1126076555710256
+      },
+      "strokeColor": "#f97316",
+      "strokeWidth": 2,
+      "strokeStyle": "dashed",
+      "fontSize": "S",
+      "text": "ux-design-spec"
+    },
+    {
+      "id": "dep7",
+      "start": {
+        "boxId": "o5_1",
+        "side": "left"
+      },
+      "end": {
+        "boxId": "i3_3",
+        "side": "bottom"
+      },
+      "cp": {
+        "dx": -746.6919083780642,
+        "dy": 169.47783218891223
+      },
+      "strokeColor": "#f97316",
+      "strokeWidth": 2,
+      "strokeStyle": "dashed",
+      "fontSize": "S",
+      "text": "architecture.md"
+    },
+    {
+      "id": "dep8",
+      "start": {
+        "boxId": "o6_1",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "i7_3",
+        "side": "left"
+      },
+      "cp": {
+        "dx": -64.08835900778286,
+        "dy": 17.46100031806438
+      },
+      "strokeColor": "#f97316",
+      "strokeWidth": 2,
+      "strokeStyle": "dashed",
+      "fontSize": "S",
+      "text": "sprint-status"
+    },
+    {
+      "id": "dep9",
+      "start": {
+        "boxId": "o6_2",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "i7_2",
+        "side": "left"
+      },
+      "cp": {
+        "dx": -7.858951078895188,
+        "dy": 27.79092715025007
+      },
+      "strokeColor": "#f97316",
+      "strokeWidth": 2,
+      "strokeStyle": "dashed",
+      "fontSize": "S",
+      "text": "story"
+    },
+    {
+      "id": "dep10",
+      "start": {
+        "boxId": "o7_3",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "i9_4",
+        "side": "left"
+      },
+      "cp": {
+        "dx": -71.84413941176808,
+        "dy": 10.588257298288113
+      },
+      "strokeColor": "#f97316",
+      "strokeWidth": 2,
+      "strokeStyle": "dashed",
+      "fontSize": "S",
+      "text": "story/docs"
+    },
+    {
+      "id": "dep11",
+      "start": {
+        "boxId": "o7_2",
+        "side": "right"
+      },
+      "end": {
+        "boxId": "i9_5",
+        "side": "left"
+      },
+      "cp": {
+        "dx": -64.08835900778104,
+        "dy": -18.49591921665393
+      },
+      "strokeColor": "#f97316",
+      "strokeWidth": 2,
+      "strokeStyle": "dashed",
+      "fontSize": "S",
+      "text": "tests"
+    }
+  ],
+  "animations": [],
+  "camera": {
+    "x": 797.5759318352113,
+    "y": 868.0745413607169,
+    "zoom": 0.6774518519449056
+  }
+}
