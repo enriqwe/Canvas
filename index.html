@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Diagramador de Canvas Infinito</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         body, html {
             margin: 0;
@@ -227,9 +228,7 @@
             transition: opacity 0.3s;
         }
 
-        #presentation-controls {
-            display: none;
-        }
+        #presentation-controls { display: none; }
 
         #search-panel {
             position: absolute;
@@ -246,12 +245,8 @@
             z-index: 50;
             font-family: system-ui, -apple-system, sans-serif;
         }
-        #search-input {
-            border: none; outline: none; padding: 4px; width: 160px; font-size: 14px; background: transparent;
-        }
-        .search-btn {
-            background: transparent; border: none; cursor: pointer; padding: 4px; border-radius: 6px; color: #6b7280; display: flex; align-items: center; justify-content: center; transition: background 0.1s, color 0.1s;
-        }
+        #search-input { border: none; outline: none; padding: 4px; width: 160px; font-size: 14px; background: transparent; }
+        .search-btn { background: transparent; border: none; cursor: pointer; padding: 4px; border-radius: 6px; color: #6b7280; display: flex; align-items: center; justify-content: center; transition: background 0.1s, color 0.1s; }
         .search-btn:hover { background: #f3f4f6; color: #1f2937; }
         .search-count { font-size: 13px; color: #6b7280; min-width: 45px; text-align: center; }
     </style>
@@ -299,10 +294,8 @@
         </button>
     </div>
 
-    <!-- Panel de Propiedades Visuales -->
     <div id="properties-sidebar" class="sidebar">
         <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Propiedades</h2>
-        
         <div class="mb-5">
             <h3 class="text-sm font-semibold text-gray-600 mb-2">Trazo (Color)</h3>
             <div class="flex gap-2 flex-wrap" id="stroke-colors">
@@ -340,13 +333,11 @@
                     <div class="color-btn" style="background: #e9d5ff; border-color: #d8b4fe" data-val="#e9d5ff"></div>
                     <div class="color-btn" style="background: #fecaca; border-color: #fca5a5" data-val="#fecaca"></div>
                     
-                    <!-- Botón Más Colores -->
                     <button id="btn-toggle-extra-colors" class="w-7 h-7 rounded-md border border-gray-300 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors ml-1" title="Más colores">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
                     </button>
                 </div>
 
-                <!-- Panel de colores extra (Pasteles suaves y distintivos) -->
                 <div id="extra-bg-colors" class="hidden mt-2 p-2 bg-gray-50 border border-gray-200 rounded-lg flex gap-2 flex-wrap relative shadow-sm">
                     <div class="absolute -top-1.5 right-4 w-3 h-3 bg-gray-50 border-t border-l border-gray-200 transform rotate-45"></div>
                     <div class="color-btn relative z-10" style="background: #f3f4f6; border-color: #e5e7eb" data-val="#f3f4f6" title="Gris muy suave"></div>
@@ -407,7 +398,6 @@
         </div>
     </div>
 
-    <!-- Panel de Animación -->
     <div id="animation-sidebar" class="sidebar">
         <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Animaciones</h2>
         
@@ -424,12 +414,9 @@
         
         <p class="text-xs text-gray-500 mb-3 leading-relaxed">Selecciona elementos y asígnales una acción en el orden deseado. Arrastra selecciones con ➕ o reordena con ⬆️ ⬇️.</p>
         
-        <div id="animation-list" class="flex flex-col gap-2 overflow-y-auto pb-4">
-            <!-- La lista se genera dinámicamente -->
-        </div>
+        <div id="animation-list" class="flex flex-col gap-2 overflow-y-auto pb-4"></div>
     </div>
 
-    <!-- Caja de Instrucciones Desplegable -->
     <div class="instructions" id="main-instructions">
         <div class="instructions-header" id="instructions-toggle">
             <div class="flex items-center gap-2">
@@ -452,17 +439,10 @@
         </div>
     </div>
 
-    <!-- Controles de Presentación -->
     <div id="presentation-controls" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full shadow-2xl z-50 items-center gap-6 font-system-ui">
-        <button id="btn-prev-step" class="flex items-center gap-2 hover:text-blue-400 transition-colors" title="Paso anterior (Flecha Izq)">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-            Atrás
-        </button>
+        <button id="btn-prev-step" class="flex items-center gap-2 hover:text-blue-400 transition-colors" title="Paso anterior (Flecha Izq)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>Atrás</button>
         <span id="presentation-step-text" class="font-bold text-lg min-w-[3rem] text-center">0 / 0</span>
-        <button id="btn-next-step" class="flex items-center gap-2 hover:text-blue-400 transition-colors" title="Siguiente paso (Espacio / Flecha Der)">
-            Siguiente
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
+        <button id="btn-next-step" class="flex items-center gap-2 hover:text-blue-400 transition-colors" title="Siguiente paso (Espacio / Flecha Der)">Siguiente<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
         <div class="w-px h-5 bg-gray-600"></div>
         <button id="btn-exit-present" class="hover:text-red-400 font-medium transition-colors" title="Salir de la presentation (Esc)">Salir</button>
     </div>
@@ -483,7 +463,6 @@
         <div class="context-menu-item danger" id="cm-delete">Borrar <span class="shortcut">Supr</span></div>
     </div>
 
-    <!-- Panel de Búsqueda -->
     <div id="search-panel">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input type="text" id="search-input" placeholder="Buscar texto...">
@@ -493,6 +472,45 @@
             <button id="btn-search-down" class="search-btn" title="Siguiente (Enter)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
         </div>
         <button id="btn-search-close" class="search-btn" title="Cerrar (Esc)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+
+    <div id="choice-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-[100] hidden flex items-center justify-center font-system-ui">
+        <div class="bg-white p-6 rounded-xl shadow-2xl w-80 max-w-[90%] flex flex-col gap-4">
+            <h3 id="choice-modal-title" class="text-lg font-bold text-gray-800 border-b pb-2">Acción</h3>
+            <p class="text-sm text-gray-600 mb-1">¿Dónde quieres realizar esta acción?</p>
+            
+            <div class="flex flex-col gap-3">
+                <button id="btn-choice-local" class="w-full p-3 text-left bg-gray-50 hover:bg-blue-50 hover:border-blue-300 border border-gray-200 rounded-lg text-gray-800 font-medium transition-all flex items-center gap-3">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    En mi PC (Local)
+                </button>
+                
+                <button id="btn-choice-drive" class="w-full p-3 text-left bg-gray-50 hover:bg-gray-100 hover:border-gray-400 border border-gray-200 rounded-lg text-gray-800 font-medium transition-all flex items-center gap-3">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+                    En Google Drive
+                </button>
+            </div>
+            
+            <div class="flex justify-end mt-2">
+                <button id="btn-choice-cancel" class="px-4 py-2 hover:bg-gray-100 rounded-lg text-gray-500 font-medium transition-colors">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="drive-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-[100] hidden flex items-center justify-center font-system-ui">
+        <div class="bg-white p-6 rounded-xl shadow-2xl w-96 max-w-[90%] flex flex-col gap-4">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+                    Archivos en Drive
+                </h3>
+            </div>
+            <div id="drive-file-list" class="max-h-60 overflow-y-auto border border-gray-200 rounded-lg flex flex-col bg-gray-50">
+                </div>
+            <div class="flex justify-end gap-3 mt-2">
+                <button id="btn-close-drive-modal" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-800 font-medium transition-colors">Cancelar</button>
+            </div>
+        </div>
     </div>
 
     <div id="canvas-container">
@@ -505,6 +523,11 @@
     <div id="toast"></div>
 
     <script>
+        // --- CONFIGURACIÓN GOOGLE DRIVE ---
+        const GOOGLE_CLIENT_ID = '518861919052-640hsq2e2j4vvpuip0ii7tuo3b7soern.apps.googleusercontent.com';
+        const DRIVE_FOLDER_ID = '10Qehzr_cWVMLGxaKFmQmXp-oECI4nGvb';
+        let gapiToken = null; // Aquí se guarda el token temporal mientras la pestaña está abierta
+
         const canvas = document.getElementById('app-canvas');
         const ctx = canvas.getContext('2d');
         const container = document.getElementById('canvas-container');
@@ -577,6 +600,293 @@
         let historyStep = -1;
         const MAX_HISTORY = 50;
 
+        // --- FUNCIONES API GOOGLE DRIVE ---
+        function getDriveToken() {
+            return new Promise((resolve, reject) => {
+                if (!window.google) {
+                    return reject(new Error("La librería de Google aún se está cargando. Inténtalo en unos segundos."));
+                }
+                if (gapiToken) {
+                    return resolve(gapiToken);
+                }
+                try {
+                    const tokenClient = google.accounts.oauth2.initTokenClient({
+                        client_id: GOOGLE_CLIENT_ID,
+                        scope: 'https://www.googleapis.com/auth/drive',
+                        callback: (response) => {
+                            if (response.error !== undefined) {
+                                reject(response.error);
+                            }
+                            gapiToken = response.access_token;
+                            resolve(gapiToken);
+                        }
+                    });
+                    // Lanza la ventana de Google para pedir cuenta
+                    tokenClient.requestAccessToken({prompt: ''});
+                } catch (err) {
+                    reject(err);
+                }
+            });
+        }
+
+        async function saveToDrive(filename, dataObj) {
+            showToast("Verificando cuenta de Google...");
+            try {
+                const token = await getDriveToken();
+                showToast("Buscando en Drive...");
+                
+                const jsonStr = JSON.stringify(dataObj, null, 2);
+
+                // 1. Buscamos si el archivo ya existe en la carpeta
+                const query = encodeURIComponent(`name='${filename}' and '${DRIVE_FOLDER_ID}' in parents and trashed=false`);
+                const searchRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${query}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const searchData = await searchRes.json();
+
+                if (searchData.files && searchData.files.length > 0) {
+                    // Si existe, lo SOBREESCRIBIMOS (Actualizar)
+                    const fileId = searchData.files[0].id;
+                    const updateRes = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: jsonStr
+                    });
+                    if (updateRes.ok) {
+                        showToast("¡Diagrama actualizado en Drive exitosamente!");
+                        state.currentFileName = filename;
+                    } else throw new Error("No se pudo actualizar");
+                } else {
+                    // Si no existe, CREAMOS uno nuevo en la carpeta
+                    const boundary = '-------314159265358979323846';
+                    const delimiter = "\r\n--" + boundary + "\r\n";
+                    const close_delim = "\r\n--" + boundary + "--";
+                    
+                    const metadata = { name: filename, parents: [DRIVE_FOLDER_ID], mimeType: 'application/json' };
+                    const multipartBody = 
+                        delimiter + 
+                        'Content-Type: application/json\r\n\r\n' + 
+                        JSON.stringify(metadata) + 
+                        delimiter + 
+                        'Content-Type: application/json\r\n\r\n' + 
+                        jsonStr + 
+                        close_delim;
+
+                    const createRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': `multipart/related; boundary=${boundary}`
+                        },
+                        body: multipartBody
+                    });
+                    if (createRes.ok) {
+                        showToast("¡Diagrama guardado en Drive exitosamente!");
+                        state.currentFileName = filename;
+                    } else throw new Error("No se pudo crear");
+                }
+            } catch(err) {
+                console.error(err);
+                if(err.message) showToast(err.message);
+                else showToast("Error al guardar en Drive. Revisa los permisos.");
+            }
+        }
+
+        async function openDriveImportModal() {
+            showToast("Verificando cuenta de Google...");
+            try {
+                const token = await getDriveToken();
+                showToast("Cargando archivos de la carpeta compartida...");
+                
+                // Busca solo archivos JSON en la carpeta específica
+                const query = encodeURIComponent(`'${DRIVE_FOLDER_ID}' in parents and trashed=false and mimeType='application/json'`);
+                const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name)`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if(!res.ok) throw new Error("No se pudo leer la carpeta");
+                const data = await res.json();
+                
+                const listEl = document.getElementById('drive-file-list');
+                listEl.innerHTML = '';
+                
+                if (!data.files || data.files.length === 0) {
+                    listEl.innerHTML = '<div class="p-4 text-sm text-gray-500 text-center font-medium">No hay diagramas en esta carpeta de Drive.</div>';
+                } else {
+                    data.files.forEach(file => {
+                        const btn = document.createElement('button');
+                        btn.className = "p-3 text-left hover:bg-blue-50 border-b border-gray-200 last:border-0 text-sm text-gray-700 font-medium transition-colors flex items-center gap-2";
+                        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> ${file.name}`;
+                        btn.onclick = () => {
+                            document.getElementById('drive-modal').style.display = 'none';
+                            loadFromDrive(file.id, file.name);
+                        };
+                        listEl.appendChild(btn);
+                    });
+                }
+                
+                document.getElementById('drive-modal').style.display = 'flex';
+            } catch (err) {
+                console.error(err);
+                if(err.message) showToast(err.message);
+                else showToast("Error al leer el Google Drive");
+            }
+        }
+
+        async function loadFromDrive(fileId, filename) {
+            showToast(`Descargando ${filename}...`);
+            try {
+                const token = await getDriveToken();
+                const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) throw new Error("No se pudo descargar el archivo");
+                
+                const data = await res.json();
+                loadDiagramData(data, filename);
+            } catch(err) {
+                console.error(err);
+                showToast("Error al cargar desde Drive");
+            }
+        }
+
+        document.getElementById('btn-close-drive-modal').addEventListener('click', () => {
+            document.getElementById('drive-modal').style.display = 'none';
+        });
+
+        // --- SISTEMA DE ELECCIÓN MODAL (Local vs Drive) ---
+        let pendingAction = null; // 'export' o 'import'
+
+        document.getElementById('btn-export').addEventListener('click', () => {
+            pendingAction = 'export';
+            document.getElementById('choice-modal-title').textContent = 'Exportar Diagrama';
+            document.getElementById('choice-modal').style.display = 'flex';
+        });
+
+        document.getElementById('btn-import').addEventListener('click', () => {
+            pendingAction = 'import';
+            document.getElementById('choice-modal-title').textContent = 'Importar Diagrama';
+            document.getElementById('choice-modal').style.display = 'flex';
+        });
+
+        document.getElementById('btn-choice-cancel').addEventListener('click', () => {
+            document.getElementById('choice-modal').style.display = 'none';
+        });
+
+        document.getElementById('btn-choice-local').addEventListener('click', async () => {
+            document.getElementById('choice-modal').style.display = 'none';
+            
+            if (pendingAction === 'export') {
+                const data = { boxes: state.boxes, arrows: state.arrows, animations: state.animations, camera: state.camera };
+                const dataStr = JSON.stringify(data, null, 2);
+                try {
+                    if ('showSaveFilePicker' in window) {
+                        const fileHandle = await window.showSaveFilePicker({
+                            suggestedName: state.currentFileName,
+                            types: [{ description: 'Archivo JSON de Diagrama', accept: { 'application/json': ['.json'] } }],
+                        });
+                        const writable = await fileHandle.createWritable();
+                        await writable.write(dataStr);
+                        await writable.close();
+                        state.currentFileName = fileHandle.name; 
+                        showToast("Diagrama guardado localmente");
+                    } else {
+                        const blob = new Blob([dataStr], { type: "application/json" });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url; a.download = state.currentFileName;
+                        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        showToast("Diagrama exportado. Revisa tus descargas.");
+                    }
+                } catch (err) {
+                    if (err.name !== 'AbortError') { showToast("Error al intentar guardar el archivo"); }
+                }
+            } else if (pendingAction === 'import') {
+                document.getElementById('file-import').click();
+            }
+        });
+
+        document.getElementById('btn-choice-drive').addEventListener('click', () => {
+            document.getElementById('choice-modal').style.display = 'none';
+            
+            if (pendingAction === 'export') {
+                let name = prompt("Introduce el nombre del archivo para guardar en Drive:", state.currentFileName);
+                if (!name) return;
+                if (!name.endsWith('.json')) name += '.json';
+                const data = { boxes: state.boxes, arrows: state.arrows, animations: state.animations, camera: state.camera };
+                saveToDrive(name, data); // Lanza login de Google y guarda
+            } else if (pendingAction === 'import') {
+                openDriveImportModal(); // Lanza login de Google y abre explorador
+            }
+        });
+
+
+        // --- LÓGICA DE CARGA CENTRALIZADA ---
+        function loadDiagramData(data, filename) {
+            if (data.boxes && Array.isArray(data.boxes)) {
+                state.boxes = data.boxes;
+                
+                state.arrows = (data.arrows || []).map(a => {
+                    if (a.from !== undefined && a.to !== undefined) {
+                        return { ...a, start: { boxId: a.from }, end: { boxId: a.to }, from: undefined, to: undefined };
+                    }
+                    return a;
+                }).filter(a => {
+                    const startValid = !a.start.boxId || state.boxes.some(b => b.id === a.start.boxId);
+                    const endValid = !a.end.boxId || state.boxes.some(b => b.id === a.end.boxId);
+                    return startValid && endValid;
+                });
+
+                state.animations = data.animations || [];
+                
+                if (data.camera) {
+                    state.camera = {
+                        x: data.camera.x || 0,
+                        y: data.camera.y || 0,
+                        zoom: data.camera.zoom !== undefined ? data.camera.zoom : (data.camera.z !== undefined ? data.camera.z : 1)
+                    };
+                } else {
+                    state.camera = { x: 0, y: 0, zoom: 1 };
+                }
+
+                state.selectedIds = [];
+                state.currentFileName = filename;
+                setMode('select');
+                
+                history = [];
+                historyStep = -1;
+                saveHistory();
+
+                showToast("Diagrama importado correctamente");
+                render();
+            } else {
+                showToast("El archivo no tiene el formato de diagrama válido");
+            }
+        }
+
+        // Carga local
+        document.getElementById('file-import').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const data = JSON.parse(event.target.result);
+                    loadDiagramData(data, file.name);
+                } catch (err) { 
+                    showToast("Error al leer el archivo JSON local"); 
+                }
+            };
+            reader.readAsText(file);
+            e.target.value = ''; 
+        });
+
+        // --- Resto de lógicas del Canvas (Mantienen igual) ---
         function saveHistory() {
             if (historyStep < history.length - 1) {
                 history = history.slice(0, historyStep + 1);
@@ -2224,7 +2534,6 @@
             }
             
             if (targetX !== undefined && targetY !== undefined) {
-                // Centrar la cámara visualmente en el elemento
                 state.camera.x = canvas.width / 2 - targetX * state.camera.zoom;
                 state.camera.y = canvas.height / 2 - targetY * state.camera.zoom;
             }
@@ -2758,7 +3067,7 @@
             closeContextMenu();
         });
 
-        // --- Inicialización y Archivos ---
+        // --- Inicialización ---
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
         state.camera.x = canvas.width / 2; state.camera.y = canvas.height / 2;
@@ -2783,94 +3092,6 @@
                 setTimeout(() => toast.style.display = 'none', 300);
             }, 3000);
         }
-
-        document.getElementById('btn-export').addEventListener('click', async () => {
-            const data = {
-                boxes: state.boxes,
-                arrows: state.arrows,
-                animations: state.animations,
-                camera: state.camera
-            };
-            const dataStr = JSON.stringify(data, null, 2);
-            
-            try {
-                if ('showSaveFilePicker' in window) {
-                    const fileHandle = await window.showSaveFilePicker({
-                        suggestedName: state.currentFileName,
-                        types: [{ description: 'Archivo JSON de Diagrama', accept: { 'application/json': ['.json'] } }],
-                    });
-                    const writable = await fileHandle.createWritable();
-                    await writable.write(dataStr);
-                    await writable.close();
-                    state.currentFileName = fileHandle.name; 
-                    showToast("Diagrama guardado correctamente");
-                } else {
-                    const blob = new Blob([dataStr], { type: "application/json" });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url; a.download = state.currentFileName;
-                    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                    showToast("Diagrama exportado. Revisa tus descargas.");
-                }
-            } catch (err) {
-                if (err.name !== 'AbortError') { showToast("Error al intentar guardar el archivo"); }
-            }
-        });
-
-        const fileInput = document.getElementById('file-import');
-        document.getElementById('btn-import').addEventListener('click', () => fileInput.click());
-
-        fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            state.currentFileName = file.name; 
-
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                try {
-                    const data = JSON.parse(event.target.result);
-                    if (data.boxes && Array.isArray(data.boxes)) {
-                        state.boxes = data.boxes;
-                        
-                        state.arrows = (data.arrows || []).map(a => {
-                            if (a.from !== undefined && a.to !== undefined) {
-                                return { ...a, start: { boxId: a.from }, end: { boxId: a.to }, from: undefined, to: undefined };
-                            }
-                            return a;
-                        }).filter(a => {
-                            const startValid = !a.start.boxId || state.boxes.some(b => b.id === a.start.boxId);
-                            const endValid = !a.end.boxId || state.boxes.some(b => b.id === a.end.boxId);
-                            return startValid && endValid;
-                        });
-
-                        state.animations = data.animations || [];
-                        
-                        if (data.camera) {
-                            state.camera = {
-                                x: data.camera.x || 0,
-                                y: data.camera.y || 0,
-                                zoom: data.camera.zoom !== undefined ? data.camera.zoom : (data.camera.z !== undefined ? data.camera.z : 1)
-                            };
-                        } else {
-                            state.camera = { x: 0, y: 0, zoom: 1 };
-                        }
-
-                        state.selectedIds = [];
-                        setMode('select');
-                        
-                        history = [];
-                        historyStep = -1;
-                        saveHistory();
-
-                        showToast("Diagrama importado correctamente");
-                    } else showToast("El archivo no tiene el formato de diagrama válido");
-                } catch (err) { showToast("Error al leer el archivo JSON"); }
-            };
-            reader.readAsText(file);
-            fileInput.value = ''; 
-        });
 
     </script>
 </body>
