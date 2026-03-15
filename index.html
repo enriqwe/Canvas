@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Diagramador de Canvas Infinito</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Librería oficial de Google para Inicio de Sesión y Tokens -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         body, html {
@@ -78,6 +77,7 @@
         .tool-btn.animate-btn.active { background: #f5f3ff; color: #7c3aed; border-color: #ede9fe; }
         .tool-btn.present-btn { color: #059669; }
         .tool-btn.present-btn:hover { background: #ecfdf5; }
+        .tool-btn.capture-btn.active { background: #fffbeb; color: #d97706; border-color: #fde68a; }
 
         .instructions {
             position: absolute;
@@ -277,6 +277,13 @@
         
         <div class="w-px h-6 bg-gray-300 mx-1"></div>
         
+        <button id="btn-capture" class="tool-btn capture-btn" title="Capturar área como SVG">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2v4"/><path d="M2 6h4"/><path d="M18 2v4"/><path d="M22 6h-4"/><path d="M6 22v-4"/><path d="M2 18h4"/><path d="M18 22v-4"/><path d="M22 18h-4"/></svg>
+            Captura
+        </button>
+
+        <div class="w-px h-6 bg-gray-300 mx-1"></div>
+        
         <button id="btn-animate" class="tool-btn animate-btn" title="Modo Animación">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
@@ -298,11 +305,19 @@
         </button>
     </div>
 
-    <!-- Panel de Propiedades Visuales -->
+    <div id="capture-ui" class="hidden absolute z-50 bg-white p-2 rounded-lg shadow-xl border border-gray-200 flex gap-2">
+        <button id="btn-confirm-capture" class="bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700 text-sm font-medium transition flex items-center gap-1.5">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Descargar SVG
+        </button>
+        <button id="btn-cancel-capture" class="text-gray-600 hover:bg-gray-100 px-3 py-1.5 rounded text-sm font-medium transition">
+            Cancelar
+        </button>
+    </div>
+
     <div id="properties-sidebar" class="sidebar">
         <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Propiedades</h2>
         
-        <!-- Flechas (Solo visible al seleccionar flechas) -->
         <div class="mb-5" id="arrow-heads-container" style="display: none;">
             <h3 class="text-sm font-semibold text-gray-600 mb-2">Extremos de flecha</h3>
             <div class="flex gap-2" id="arrow-heads">
@@ -414,7 +429,6 @@
         </div>
     </div>
 
-    <!-- Panel de Animación -->
     <div id="animation-sidebar" class="sidebar">
         <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Animaciones</h2>
         
@@ -434,7 +448,6 @@
         <div id="animation-list" class="flex flex-col gap-2 overflow-y-auto pb-4"></div>
     </div>
 
-    <!-- Cajas flotantes y modales -->
     <div class="instructions" id="main-instructions">
         <div class="instructions-header" id="instructions-toggle">
             <div class="flex items-center gap-2">
@@ -492,7 +505,6 @@
         <button id="btn-search-close" class="search-btn" title="Cerrar (Esc)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
 
-    <!-- MODAL DE ELECCIÓN LOCAL O DRIVE -->
     <div id="choice-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-[100] hidden flex items-center justify-center font-system-ui">
         <div class="bg-white p-6 rounded-xl shadow-2xl w-80 max-w-[90%] flex flex-col gap-4">
             <h3 id="choice-modal-title" class="text-lg font-bold text-gray-800 border-b pb-2">Acción</h3>
@@ -516,7 +528,6 @@
         </div>
     </div>
 
-    <!-- MODAL DE GOOGLE DRIVE PARA IMPORTAR ARCHIVOS -->
     <div id="drive-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-[100] hidden flex items-center justify-center font-system-ui">
         <div class="bg-white p-6 rounded-xl shadow-2xl w-96 max-w-[90%] flex flex-col gap-4">
             <div class="flex justify-between items-center border-b pb-2">
@@ -526,8 +537,7 @@
                 </h3>
             </div>
             <div id="drive-file-list" class="max-h-60 overflow-y-auto border border-gray-200 rounded-lg flex flex-col bg-gray-50">
-                <!-- Los archivos se cargarán aquí -->
-            </div>
+                </div>
             <div class="flex justify-end gap-3 mt-2">
                 <button id="btn-close-drive-modal" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-800 font-medium transition-colors">Cancelar</button>
             </div>
@@ -556,6 +566,7 @@
         const propertiesSidebar = document.getElementById('properties-sidebar');
         const animationSidebar = document.getElementById('animation-sidebar');
         const contextMenu = document.getElementById('context-menu');
+        const captureUI = document.getElementById('capture-ui');
 
         const imageCache = {};
 
@@ -614,7 +625,16 @@
             originalText: null,
 
             currentFileName: 'mi_diagrama.json',
-            pendingPasteTimeout: null
+            pendingPasteTimeout: null,
+
+            // CAPTURE MODE STATE
+            captureBox: null,
+            isDrawingCapture: false,
+            isDraggingCapture: false,
+            isResizingCapture: false,
+            captureResizeHandle: null,
+            captureStartMouse: {x:0, y:0},
+            captureOrigBox: null
         };
 
         let history = [];
@@ -630,12 +650,12 @@
             const minutes = String(now.getMinutes()).padStart(2, '0');
             
             const timestamp = `${year}-${month}-${day}-${hours}${minutes}`;
-            let base = filename.replace(/\.json$/i, '');
+            let base = filename.replace(/\.json$/i, '').replace(/\.svg$/i, '');
             
             // Si el nombre ya tiene un timestamp anterior, lo quitamos para no encadenarlos
             base = base.replace(/_\d{4}-\d{2}-\d{2}-\d{4}$/, '');
             
-            return `${base}_${timestamp}.json`;
+            return `${base}_${timestamp}`;
         }
 
         // --- FUNCIONES API GOOGLE DRIVE ---
@@ -815,7 +835,7 @@
             if (pendingAction === 'export') {
                 const data = { boxes: state.boxes, arrows: state.arrows, animations: state.animations, camera: state.camera };
                 const dataStr = JSON.stringify(data, null, 2);
-                const suggestedName = getTimestampedFilename(state.currentFileName);
+                const suggestedName = getTimestampedFilename(state.currentFileName) + '.json';
                 
                 try {
                     if ('showSaveFilePicker' in window) {
@@ -850,7 +870,7 @@
             document.getElementById('choice-modal').style.display = 'none';
             
             if (pendingAction === 'export') {
-                const suggestedName = getTimestampedFilename(state.currentFileName);
+                const suggestedName = getTimestampedFilename(state.currentFileName) + '.json';
                 let name = prompt("Introduce el nombre del archivo para guardar en Drive:", suggestedName);
                 if (!name) return;
                 if (!name.endsWith('.json')) name += '.json';
@@ -921,6 +941,232 @@
             };
             reader.readAsText(file);
             e.target.value = ''; 
+        });
+
+        // --- LÓGICA SVG CAPTURE ---
+        
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        // Replica el autowrap para el SVG
+        function getWrappedLines(text, maxTextWidth, fontSizeStr, isArrow) {
+            if (isArrow) return text.split('\n');
+
+            let fontSize = 16;
+            if (fontSizeStr === 'S') fontSize = 12; else if (fontSizeStr === 'M') fontSize = 16;
+            else if (fontSizeStr === 'L') fontSize = 24; else if (fontSizeStr === 'XL') fontSize = 32;
+            
+            ctx.save();
+            ctx.font = `${fontSize}px system-ui, -apple-system, sans-serif`;
+
+            const rawLines = text.split('\n');
+            let lines = [];
+            
+            for (let rawLine of rawLines) {
+                if (rawLine === '') { lines.push(''); continue; }
+                const words = rawLine.split(' ');
+                let currentLine = '';
+
+                for (let i = 0; i < words.length; i++) {
+                    let word = words[i];
+                    if (ctx.measureText(word).width > maxTextWidth) {
+                        if (currentLine !== '') { lines.push(currentLine); currentLine = ''; }
+                        let tempWord = '';
+                        for (let char of word) {
+                            if (ctx.measureText(tempWord + char).width > maxTextWidth) {
+                                lines.push(tempWord);
+                                tempWord = char;
+                            } else {
+                                tempWord += char;
+                            }
+                        }
+                        currentLine = tempWord; 
+                    } else {
+                        const testLine = currentLine === '' ? word : currentLine + ' ' + word;
+                        if (ctx.measureText(testLine).width > maxTextWidth) {
+                            lines.push(currentLine);
+                            currentLine = word;
+                        } else {
+                            currentLine = testLine;
+                        }
+                    }
+                }
+                if (currentLine !== '') lines.push(currentLine);
+            }
+            ctx.restore();
+            return lines;
+        }
+
+        function generateSVG(bounds) {
+            // Un poco de margen para que no corte los bordes exteriores de los trazos gruesos
+            const padding = 10;
+            const viewBoxStr = `${bounds.x - padding} ${bounds.y - padding} ${bounds.w + padding*2} ${bounds.h + padding*2}`;
+            
+            let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBoxStr}" width="${bounds.w + padding*2}" height="${bounds.h + padding*2}">`;
+            svg += `\n<style>\n  text { font-family: system-ui, -apple-system, sans-serif; }\n</style>\n`;
+            
+            // Un rectángulo blanco de fondo para que la exportación sea opaca si se desea, 
+            // aunque SVG suele ser transparente. Vamos a omitirlo para aprovechar la transparencia.
+            
+            const getStyle = (obj) => {
+                let s = `fill="${obj.backgroundColor || 'transparent'}" stroke="${obj.strokeColor || '#1f2937'}" stroke-width="${obj.strokeWidth || 2}"`;
+                if (obj.strokeStyle === 'dashed') s += ` stroke-dasharray="8 8"`;
+                if (obj.strokeStyle === 'dotted') s += ` stroke-dasharray="2 4" stroke-linecap="round"`;
+                return s;
+            };
+
+            // Dibujamos las cajas
+            state.boxes.forEach(b => {
+                // Simplificación: renderizamos todo y dejamos que el viewBox de SVG lo recorte
+                let transform = '';
+                if (b.angle) {
+                    const cx = b.x + b.w/2;
+                    const cy = b.y + b.h/2;
+                    transform = `transform="rotate(${b.angle * 180 / Math.PI} ${cx} ${cy})"`;
+                }
+
+                svg += `\n<g ${transform}>`;
+
+                if (b.shapeType === 'circle') {
+                    svg += `\n  <ellipse cx="${b.x + b.w/2}" cy="${b.y + b.h/2}" rx="${b.w/2}" ry="${b.h/2}" ${getStyle(b)} />`;
+                } else if (b.shapeType === 'rhombus') {
+                    const pts = `${b.x + b.w/2},${b.y} ${b.x + b.w},${b.y + b.h/2} ${b.x + b.w/2},${b.y + b.h} ${b.x},${b.y + b.h/2}`;
+                    svg += `\n  <polygon points="${pts}" ${getStyle(b)} />`;
+                } else {
+                    svg += `\n  <rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="8" ry="8" ${getStyle(b)} />`;
+                }
+
+                if (b.imageUrl) {
+                    svg += `\n  <image href="${b.imageUrl}" x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" preserveAspectRatio="none" />`;
+                }
+
+                if (b.text) {
+                    const paddingBox = 10;
+                    const lines = getWrappedLines(b.text, Math.max(20, b.w - paddingBox * 2), b.fontSize, false);
+                    let fontSize = 16;
+                    if (b.fontSize === 'S') fontSize = 12; else if (b.fontSize === 'L') fontSize = 24; else if (b.fontSize === 'XL') fontSize = 32;
+
+                    let textAnchor = 'middle';
+                    let xPos = b.x + b.w/2;
+                    if (b.textAlignH === 'left') { textAnchor = 'start'; xPos = b.x + paddingBox; }
+                    else if (b.textAlignH === 'right') { textAnchor = 'end'; xPos = b.x + b.w - paddingBox; }
+
+                    const lineHeight = fontSize * 1.2;
+                    const totalHeight = lines.length * lineHeight;
+                    let startY = b.y + paddingBox;
+                    if (b.textAlignV === 'middle') startY = b.y + (b.h - totalHeight) / 2;
+                    else if (b.textAlignV === 'bottom') startY = b.y + b.h - paddingBox - totalHeight;
+
+                    svg += `\n  <text x="${xPos}" y="${startY}" font-size="${fontSize}" fill="#1f2937" text-anchor="${textAnchor}" dominant-baseline="hanging">`;
+                    lines.forEach((l, i) => {
+                        svg += `\n    <tspan x="${xPos}" dy="${i===0?0:lineHeight}">${escapeHTML(l)}</tspan>`;
+                    });
+                    svg += `\n  </text>`;
+                }
+                svg += `\n</g>`;
+            });
+
+            // Dibujamos las flechas
+            state.arrows.forEach(a => {
+                const curve = getArrowCurve(a);
+                if (!curve) return;
+
+                let strokeStyle = `stroke="${a.strokeColor || '#9ca3af'}" stroke-width="${a.strokeWidth || 2}" fill="none"`;
+                if (a.strokeStyle === 'dashed') strokeStyle += ` stroke-dasharray="8 8"`;
+                if (a.strokeStyle === 'dotted') strokeStyle += ` stroke-dasharray="2 4" stroke-linecap="round"`;
+
+                let d = `M ${curve.S.x} ${curve.S.y} `;
+                curve.segments.forEach(seg => {
+                    d += `Q ${seg.p1.x} ${seg.p1.y} ${seg.p2.x} ${seg.p2.y} `;
+                });
+                svg += `\n<path d="${d}" ${strokeStyle} />`;
+
+                // Puntas
+                const drawHead = (tip, angleObj, isEnd) => {
+                    const headlen = 10 + (parseInt(a.strokeWidth)||2);
+                    let angle = isEnd
+                        ? Math.atan2(angleObj.p2.y - angleObj.p1.y, angleObj.p2.x - angleObj.p1.x)
+                        : Math.atan2(angleObj.p0.y - angleObj.p1.y, angleObj.p0.x - angleObj.p1.x);
+
+                    const p1x = tip.x - headlen * Math.cos(angle - Math.PI/6);
+                    const p1y = tip.y - headlen * Math.sin(angle - Math.PI/6);
+                    const p2x = tip.x - headlen * Math.cos(angle + Math.PI/6);
+                    const p2y = tip.y - headlen * Math.sin(angle + Math.PI/6);
+
+                    const pts = `${tip.x},${tip.y} ${p1x},${p1y} ${p2x},${p2y}`;
+                    return `\n<polygon points="${pts}" fill="${a.strokeColor || '#9ca3af'}" />`;
+                };
+
+                const headType = a.arrowhead || 'end';
+                if (headType === 'end' || headType === 'both') svg += drawHead(curve.E, curve.segments[curve.segments.length-1], true);
+                if (headType === 'both') svg += drawHead(curve.S, curve.segments[0], false);
+
+                if (a.text) {
+                    const lines = a.text.split('\n');
+                    let fontSize = 16;
+                    if (a.fontSize === 'S') fontSize = 12; else if (a.fontSize === 'L') fontSize = 24; else if (a.fontSize === 'XL') fontSize = 32;
+                    const lineHeight = fontSize * 1.2;
+                    const totalHeight = lines.length * lineHeight;
+                    let startY = curve.T.y - totalHeight/2;
+
+                    // Fondo de texto para flechas
+                    ctx.font = `${fontSize}px system-ui, -apple-system, sans-serif`;
+                    const maxW = Math.max(...lines.map(l => ctx.measureText(l).width));
+                    
+                    svg += `\n<rect x="${curve.T.x - maxW/2 - 6}" y="${startY - 4}" width="${maxW + 12}" height="${totalHeight + 8}" rx="4" ry="4" fill="rgba(255, 255, 255, 0.85)" />`;
+
+                    svg += `\n<text x="${curve.T.x}" y="${startY}" font-size="${fontSize}" fill="#1f2937" text-anchor="middle" dominant-baseline="hanging">`;
+                    lines.forEach((l, i) => {
+                        svg += `\n  <tspan x="${curve.T.x}" dy="${i===0?0:lineHeight}">${escapeHTML(l)}</tspan>`;
+                    });
+                    svg += `\n</text>`;
+                }
+            });
+
+            svg += `\n</svg>`;
+            return svg;
+        }
+
+        async function downloadSVG(bounds) {
+            const svgString = generateSVG(bounds);
+            // CAMBIO: Le pasamos 'Captura' como nombre base en lugar de state.currentFileName
+            const suggestedName = getTimestampedFilename('Captura') + '.svg';
+
+            try {
+                if ('showSaveFilePicker' in window) {
+                    const fileHandle = await window.showSaveFilePicker({
+                        suggestedName: suggestedName,
+                        types: [{ description: 'Imagen SVG', accept: { 'image/svg+xml': ['.svg'] } }],
+                    });
+                    const writable = await fileHandle.createWritable();
+                    await writable.write(svgString);
+                    await writable.close();
+                    showToast("Captura guardada exitosamente");
+                } else {
+                    const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url; a.download = suggestedName;
+                    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    showToast("Captura exportada. Revisa tus descargas.");
+                }
+                setMode('select'); // Volver a modo normal al terminar
+            } catch (err) {
+                if (err.name !== 'AbortError') { showToast("Error al exportar la captura SVG"); }
+            }
+        }
+
+        document.getElementById('btn-confirm-capture').addEventListener('click', () => {
+            if (state.captureBox && state.captureBox.w > 0 && state.captureBox.h > 0) {
+                downloadSVG(state.captureBox);
+            }
+        });
+
+        document.getElementById('btn-cancel-capture').addEventListener('click', () => {
+            setMode('select');
         });
 
         // --- Resto de lógicas del Canvas ---
@@ -1005,6 +1251,7 @@
         }
 
         function isPointInBox(x, y, box) {
+            if (!box) return false;
             const cx = box.x + box.w / 2;
             const cy = box.y + box.h / 2;
             const p = rotatePoint({x, y}, cx, cy, -(box.angle || 0));
@@ -1613,6 +1860,19 @@
             ctx.fillText(str, x, y);
         }
 
+        function updateCaptureUI() {
+            if (state.mode === 'capture' && state.captureBox && state.captureBox.w > 0 && state.captureBox.h > 0 && !state.isDrawingCapture && !state.isDraggingCapture && !state.isResizingCapture) {
+                const screenPos = worldToScreen(state.captureBox.x + state.captureBox.w / 2, state.captureBox.y + state.captureBox.h);
+                captureUI.style.display = 'flex';
+                // Posicionar justo debajo del recuadro
+                captureUI.style.left = `${screenPos.x}px`;
+                captureUI.style.top = `${screenPos.y + 16}px`;
+                captureUI.style.transform = 'translateX(-50%)';
+            } else {
+                captureUI.style.display = 'none';
+            }
+        }
+
         function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; render(); }
 
         function render() {
@@ -1664,7 +1924,7 @@
                 } else if (box.id === state.hoveredBoxId && (state.mode === 'arrow' || state.mode === 'select' || state.isDraggingArrowHandle)) {
                     ctx.shadowColor = 'rgba(59, 130, 246, 0.3)'; ctx.shadowBlur = 10;
                     ctx.strokeStyle = '#3b82f6';
-                } else if (box.id === state.hoveredBoxId && state.mode !== 'box' && state.mode !== 'circle' && state.mode !== 'rhombus') {
+                } else if (box.id === state.hoveredBoxId && state.mode !== 'box' && state.mode !== 'circle' && state.mode !== 'rhombus' && state.mode !== 'capture') {
                     ctx.shadowColor = 'rgba(0, 0, 0, 0.1)'; ctx.shadowBlur = 10;
                     ctx.strokeStyle = '#4b5563';
                 } else {
@@ -1777,7 +2037,7 @@
                 
                 ctx.setLineDash([]); 
                 
-                const headType = arrow.arrowhead || 'end'; // 'none', 'end', 'both'
+                const headType = arrow.arrowhead || 'end'; 
 
                 if (headType === 'end' || headType === 'both') {
                     const headlenE = 10 + (parseInt(arrow.strokeWidth)||2);
@@ -1871,10 +2131,46 @@
                 }
             }
 
+            // MODO CAPTURA
+            if (state.mode === 'capture' && state.captureBox) {
+                ctx.save();
+                // Fondo oscurecido con cutout
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+                ctx.beginPath();
+                // Rectángulo exterior cubriendo todo
+                const startScreen = screenToWorld(0, 0);
+                const endScreen = screenToWorld(canvas.width, canvas.height);
+                ctx.rect(startScreen.x, startScreen.y, endScreen.x - startScreen.x, endScreen.y - startScreen.y);
+                // Rectángulo interior (el recorte)
+                ctx.rect(state.captureBox.x, state.captureBox.y, state.captureBox.w, state.captureBox.h);
+                // Rellenar con evenodd para dejar el recorte
+                ctx.fill('evenodd');
+
+                // Borde de la selección y tiradores
+                ctx.strokeStyle = '#d97706';
+                ctx.lineWidth = 2 / state.camera.zoom;
+                ctx.setLineDash([6 / state.camera.zoom, 6 / state.camera.zoom]);
+                ctx.strokeRect(state.captureBox.x, state.captureBox.y, state.captureBox.w, state.captureBox.h);
+                ctx.setLineDash([]);
+
+                const handles = getResizeHandles(state.captureBox);
+                ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#d97706';
+                for (const pos in handles) {
+                    const rect = handles[pos];
+                    ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+                    ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
+                }
+                ctx.restore();
+            }
+
             // Acciones temporales selección o dibujar
-            if (state.isDrawingBox || state.isSelecting) {
+            if (state.isDrawingBox || state.isSelecting || state.isDrawingCapture) {
                 const mouseWorld = screenToWorld(state.mouseX, state.mouseY);
-                const start = state.isDrawingBox ? state.newBoxStart : state.selectionStart;
+                let start;
+                if (state.isDrawingBox) start = state.newBoxStart;
+                else if (state.isDrawingCapture) start = state.captureStartMouse;
+                else start = state.selectionStart;
+
                 const x = Math.min(start.x, mouseWorld.x);
                 const y = Math.min(start.y, mouseWorld.y);
                 const w = Math.abs(mouseWorld.x - start.x);
@@ -1883,10 +2179,14 @@
                 if (state.isDrawingBox) {
                     ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
                     ctx.strokeStyle = '#1f2937';
+                } else if (state.isDrawingCapture) {
+                    ctx.fillStyle = 'rgba(217, 119, 6, 0.1)'; 
+                    ctx.strokeStyle = '#d97706';
                 } else { 
                     ctx.fillStyle = state.mode === 'animate' ? 'rgba(139, 92, 246, 0.1)' : 'rgba(59, 130, 246, 0.1)'; 
                     ctx.strokeStyle = state.mode === 'animate' ? '#8b5cf6' : '#3b82f6';
                 }
+                
                 ctx.lineWidth = 1 / state.camera.zoom; ctx.setLineDash([5, 5]);
                 ctx.beginPath();
                 
@@ -1922,6 +2222,7 @@
             }
 
             ctx.restore();
+            updateCaptureUI();
         }
 
         canvas.addEventListener('wheel', (e) => {
@@ -2103,6 +2404,30 @@
 
             if (e.button !== 0 || state.mode === 'presentation') return;
 
+            // Gestión del MODO CAPTURA
+            if (state.mode === 'capture') {
+                if (state.captureBox) {
+                    const handle = getHitResizeHandle(mouseWorld.x, mouseWorld.y, state.captureBox, true);
+                    if (handle) {
+                        state.isResizingCapture = true;
+                        state.captureResizeHandle = handle;
+                        state.captureOrigBox = {...state.captureBox};
+                        return;
+                    } else if (mouseWorld.x >= state.captureBox.x && mouseWorld.x <= state.captureBox.x + state.captureBox.w && 
+                               mouseWorld.y >= state.captureBox.y && mouseWorld.y <= state.captureBox.y + state.captureBox.h) {
+                        state.isDraggingCapture = true;
+                        state.captureStartMouse = mouseWorld;
+                        state.captureOrigBox = {...state.captureBox};
+                        return;
+                    }
+                }
+                state.isDrawingCapture = true;
+                state.captureStartMouse = mouseWorld;
+                state.captureBox = {x: mouseWorld.x, y: mouseWorld.y, w: 0, h: 0};
+                render();
+                return;
+            }
+
             let clickedArrow = getArrowAt(mouseWorld.x, mouseWorld.y);
             let clickedBox = !clickedArrow ? state.boxes.slice().reverse().find(b => isPointInBox(mouseWorld.x, mouseWorld.y, b)) : null;
             const isMultiSelect = e.shiftKey || e.ctrlKey || e.metaKey;
@@ -2113,7 +2438,6 @@
                 
                 if (state.mode === 'select') {
                     
-                    // Comprobar Group Resize PRIMERO
                     if (state.selectedIds.length > 1) {
                         const bounds = getSelectionBounds();
                         if (bounds) {
@@ -2130,7 +2454,6 @@
                         }
                     }
 
-                    // Interacción directa con el control visual actual (Individual)
                     if (state.selectedIds.length === 1) {
                         const box = state.boxes.find(b => b.id === state.selectedIds[0]);
                         if (box) {
@@ -2245,8 +2568,28 @@
             if (state.hoveredBoxId !== newHovered) { state.hoveredBoxId = newHovered; render(); }
 
             container.className = '';
-            if (state.mode === 'box' || state.mode === 'circle' || state.mode === 'rhombus') container.classList.add('cursor-crosshair');
-            else if (state.mode === 'arrow') {
+            
+            // CURSORES MODO CAPTURA
+            if (state.mode === 'capture') {
+                if (state.isDrawingCapture) {
+                    container.classList.add('cursor-crosshair');
+                } else if (state.captureBox) {
+                    const handle = getHitResizeHandle(mouseWorld.x, mouseWorld.y, state.captureBox, true);
+                    if (handle === 'nw' || handle === 'se') container.classList.add('cursor-nwse-resize');
+                    else if (handle === 'ne' || handle === 'sw') container.classList.add('cursor-nesw-resize');
+                    else if (mouseWorld.x >= state.captureBox.x && mouseWorld.x <= state.captureBox.x + state.captureBox.w && 
+                             mouseWorld.y >= state.captureBox.y && mouseWorld.y <= state.captureBox.y + state.captureBox.h) {
+                        container.classList.add('cursor-pan');
+                    } else {
+                        container.classList.add('cursor-crosshair');
+                    }
+                } else {
+                    container.classList.add('cursor-crosshair');
+                }
+            } 
+            else if (state.mode === 'box' || state.mode === 'circle' || state.mode === 'rhombus') {
+                container.classList.add('cursor-crosshair');
+            } else if (state.mode === 'arrow') {
                 container.classList.add('cursor-crosshair');
                 if (state.hoveredBoxId) container.classList.add('cursor-pointer');
             } else if (state.mode === 'select' || state.mode === 'animate') {
@@ -2462,6 +2805,46 @@
                 }
                 render();
             }
+            // MODIFICACIONES DE MOUSEMOVE PARA CAPTURA
+            else if (state.isDrawingCapture) {
+                const x = Math.min(state.captureStartMouse.x, mouseWorld.x);
+                const y = Math.min(state.captureStartMouse.y, mouseWorld.y);
+                const w = Math.abs(mouseWorld.x - state.captureStartMouse.x);
+                const h = Math.abs(mouseWorld.y - state.captureStartMouse.y);
+                state.captureBox = {x, y, w, h};
+                render();
+            }
+            else if (state.isDraggingCapture && state.captureOrigBox) {
+                const dx = mouseWorld.x - state.captureStartMouse.x;
+                const dy = mouseWorld.y - state.captureStartMouse.y;
+                state.captureBox.x = state.captureOrigBox.x + dx;
+                state.captureBox.y = state.captureOrigBox.y + dy;
+                render();
+            }
+            else if (state.isResizingCapture && state.captureOrigBox) {
+                const orig = state.captureOrigBox;
+                let newX = orig.x, newY = orig.y, newW = orig.w, newH = orig.h;
+
+                let fixedX, fixedY;
+                if (state.captureResizeHandle === 'se') { fixedX = orig.x; fixedY = orig.y; }
+                else if (state.captureResizeHandle === 'sw') { fixedX = orig.x + orig.w; fixedY = orig.y; }
+                else if (state.captureResizeHandle === 'ne') { fixedX = orig.x; fixedY = orig.y + orig.h; }
+                else if (state.captureResizeHandle === 'nw') { fixedX = orig.x + orig.w; fixedY = orig.y + orig.h; }
+
+                if (state.captureResizeHandle === 'se') { newW = mouseWorld.x - fixedX; newH = mouseWorld.y - fixedY; }
+                else if (state.captureResizeHandle === 'sw') { newW = fixedX - mouseWorld.x; newH = mouseWorld.y - fixedY; }
+                else if (state.captureResizeHandle === 'ne') { newW = mouseWorld.x - fixedX; newH = fixedY - mouseWorld.y; }
+                else if (state.captureResizeHandle === 'nw') { newW = fixedX - mouseWorld.x; newH = fixedY - mouseWorld.y; }
+
+                newW = Math.max(10, newW);
+                newH = Math.max(10, newH);
+
+                if (state.captureResizeHandle === 'sw' || state.captureResizeHandle === 'nw') newX = fixedX - newW;
+                if (state.captureResizeHandle === 'ne' || state.captureResizeHandle === 'nw') newY = fixedY - newH;
+
+                state.captureBox = { x: newX, y: newY, w: newW, h: newH };
+                render();
+            }
             else if (state.isDrawingBox || state.isDrawingArrow || state.isSelecting) {
                 render();
             }
@@ -2577,6 +2960,12 @@
             state.dragOriginalBoxes = []; state.dragOriginalArrows = [];
             state.isDraggingArrowHandle = false; state.activeArrowId = null; state.activeArrowHandleType = null;
             state.hasDraggedThisClick = false;
+
+            // Flags captura
+            state.isDrawingCapture = false;
+            state.isDraggingCapture = false;
+            state.isResizingCapture = false;
+            state.captureResizeHandle = null;
 
             updateSidebar(); render();
         });
@@ -2772,6 +3161,12 @@
                 }
                 return; 
             }
+            
+            // Cancelar captura con escape
+            if (state.mode === 'capture' && e.key === 'Escape') {
+                setMode('select');
+                return;
+            }
 
             if (e.key === 'Delete' || e.key === 'Backspace') {
                 deleteSelected();
@@ -2845,6 +3240,13 @@
                 }
             }
 
+            if (newMode === 'capture') {
+                state.captureBox = null;
+                showToast("Dibuja un recuadro para seleccionar el área a capturar");
+            } else {
+                captureUI.style.display = 'none';
+            }
+
             state.isDrawingBox = false; state.isDrawingArrow = false; state.isSelecting = false;
             updateSidebar();
             render();
@@ -2855,6 +3257,7 @@
         document.getElementById('btn-circle').addEventListener('click', () => setMode('circle'));
         document.getElementById('btn-rhombus').addEventListener('click', () => setMode('rhombus'));
         document.getElementById('btn-arrow').addEventListener('click', () => setMode('arrow'));
+        document.getElementById('btn-capture').addEventListener('click', () => setMode('capture'));
         
         document.getElementById('btn-image').addEventListener('click', () => {
             document.getElementById('image-import').click();
