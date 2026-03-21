@@ -303,6 +303,20 @@
         <button id="btn-export" class="tool-btn !text-red-600 hover:!bg-red-50" title="Exportar Diagrama">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         </button>
+
+        <div class="w-px h-6 bg-gray-300 mx-1"></div>
+
+        <div style="position:relative">
+            <button id="btn-more" class="tool-btn" title="Más opciones">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+            </button>
+            <div id="more-menu" style="display:none;position:absolute;top:calc(100% + 6px);right:0;background:white;border-radius:10px;box-shadow:0 10px 25px -3px rgba(0,0,0,0.15),0 4px 6px -2px rgba(0,0,0,0.08);border:1px solid #e5e7eb;min-width:220px;z-index:50;overflow:hidden;">
+                <button id="btn-convert-excalidraw" style="width:100%;padding:10px 14px;text-align:left;background:transparent;border:none;cursor:pointer;font-size:13px;font-weight:500;color:#374151;display:flex;align-items:center;gap:8px;transition:background 0.15s;font-family:system-ui,-apple-system,sans-serif;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="M9 15l3-3 3 3"/></svg>
+                    Convertir diagrama (.excalidraw)
+                </button>
+            </div>
+        </div>
     </div>
 
     <div id="capture-ui" class="hidden absolute z-50 bg-white p-2 rounded-lg shadow-xl border border-gray-200 flex gap-2">
@@ -563,6 +577,7 @@
 
     <input type="file" id="file-import" accept=".json" style="display: none;">
     <input type="file" id="image-import" accept="image/*" style="display: none;">
+    <input type="file" id="excalidraw-import" accept=".excalidraw" style="display: none;">
     <div id="toast"></div>
 
     <script>
@@ -1047,8 +1062,297 @@
             e.target.value = ''; 
         });
 
+        // --- MENÚ KEBAB (MÁS OPCIONES) ---
+        document.getElementById('btn-more').addEventListener('click', (e) => {
+            e.stopPropagation();
+            const menu = document.getElementById('more-menu');
+            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+        });
+
+        document.addEventListener('click', () => {
+            document.getElementById('more-menu').style.display = 'none';
+        });
+
+        document.getElementById('btn-convert-excalidraw').addEventListener('click', () => {
+            document.getElementById('more-menu').style.display = 'none';
+            document.getElementById('excalidraw-import').click();
+        });
+
+        // --- CONVERSIÓN EXCALIDRAW → CANVAS ---
+        function convertExcalidraw(excData, filename) {
+            const elements = (excData.elements || []).filter(el => !el.isDeleted);
+            const filesMap = excData.files || {};
+
+            // Build lookup maps
+            const elById = {};
+            elements.forEach(el => { elById[el.id] = el; });
+
+            // Find bound text for a given element id
+            const boundTextFor = {};
+            elements.forEach(el => {
+                if (el.type === 'text' && el.containerId) {
+                    boundTextFor[el.containerId] = el;
+                }
+            });
+
+            // ID mapping: excalidraw id → canvas id
+            const idMap = {};
+            elements.forEach(el => {
+                idMap[el.id] = generateId();
+            });
+
+            function mapStrokeWidth(sw) {
+                if (sw <= 3) return 2;
+                if (sw <= 5) return 4;
+                return 7;
+            }
+
+            function mapFontSize(px) {
+                if (px <= 14) return 'S';
+                if (px <= 20) return 'M';
+                if (px <= 28) return 'L';
+                return 'XL';
+            }
+
+            function mapTextAlign(ta) {
+                if (ta === 'left' || ta === 'right' || ta === 'center') return ta;
+                return 'center';
+            }
+
+            function mapVerticalAlign(va) {
+                if (va === 'top') return 'top';
+                if (va === 'bottom') return 'bottom';
+                return 'middle';
+            }
+
+            function getSideFromFixedPoint(fp) {
+                if (!fp || !Array.isArray(fp)) return 'right';
+                const [xr, yr] = fp;
+                const dLeft = xr, dRight = 1 - xr, dTop = yr, dBottom = 1 - yr;
+                const min = Math.min(dLeft, dRight, dTop, dBottom);
+                if (min === dLeft) return 'left';
+                if (min === dRight) return 'right';
+                if (min === dTop) return 'top';
+                return 'bottom';
+            }
+
+            const boxes = [];
+            const arrows = [];
+
+            // Convert shapes (rectangle, ellipse, diamond)
+            const shapeTypes = { 'rectangle': 'rect', 'ellipse': 'circle', 'diamond': 'rhombus' };
+
+            elements.forEach(el => {
+                if (!shapeTypes[el.type]) return;
+
+                const boundText = boundTextFor[el.id];
+                const box = {
+                    id: idMap[el.id],
+                    x: el.x,
+                    y: el.y,
+                    w: el.width,
+                    h: el.height,
+                    angle: el.angle || 0,
+                    shapeType: shapeTypes[el.type],
+                    backgroundColor: el.backgroundColor === 'transparent' ? 'transparent' : (el.backgroundColor || '#ffffff'),
+                    strokeColor: el.strokeColor === 'transparent' ? 'transparent' : (el.strokeColor || '#1f2937'),
+                    strokeWidth: mapStrokeWidth(el.strokeWidth || 2),
+                    strokeStyle: el.strokeStyle || 'solid',
+                    text: boundText ? boundText.text : '',
+                    fontSize: boundText ? mapFontSize(boundText.fontSize || 16) : 'M',
+                    textAlignH: boundText ? mapTextAlign(boundText.textAlign) : 'center',
+                    textAlignV: boundText ? mapVerticalAlign(boundText.verticalAlign) : 'middle'
+                };
+                boxes.push(box);
+            });
+
+            // Convert standalone text (no containerId)
+            elements.forEach(el => {
+                if (el.type !== 'text' || el.containerId) return;
+
+                const fs = el.fontSize || 16;
+                const lines = (el.text || '').split('\n');
+                const maxLineLen = Math.max(...lines.map(l => l.length), 1);
+                const estW = Math.max(el.width || (maxLineLen * fs * 0.6), 50);
+                const estH = Math.max(el.height || (lines.length * fs * 1.4), 30);
+
+                boxes.push({
+                    id: idMap[el.id],
+                    x: el.x,
+                    y: el.y,
+                    w: estW,
+                    h: estH,
+                    angle: el.angle || 0,
+                    shapeType: 'rect',
+                    backgroundColor: 'transparent',
+                    strokeColor: 'transparent',
+                    strokeWidth: 0,
+                    strokeStyle: 'solid',
+                    text: el.text || '',
+                    fontSize: mapFontSize(fs),
+                    textAlignH: mapTextAlign(el.textAlign),
+                    textAlignV: 'middle'
+                });
+            });
+
+            // Convert images
+            elements.forEach(el => {
+                if (el.type !== 'image') return;
+
+                let imageUrl = '';
+                if (el.fileId && filesMap[el.fileId] && filesMap[el.fileId].dataURL) {
+                    imageUrl = filesMap[el.fileId].dataURL;
+                }
+
+                boxes.push({
+                    id: idMap[el.id],
+                    x: el.x,
+                    y: el.y,
+                    w: el.width,
+                    h: el.height,
+                    angle: el.angle || 0,
+                    shapeType: 'rect',
+                    backgroundColor: '#ffffff',
+                    strokeColor: '#1f2937',
+                    strokeWidth: 2,
+                    strokeStyle: 'solid',
+                    text: '',
+                    fontSize: 'M',
+                    textAlignH: 'center',
+                    textAlignV: 'middle',
+                    imageUrl: imageUrl
+                });
+            });
+
+            // Convert arrows
+            elements.forEach(el => {
+                if (el.type !== 'arrow') return;
+
+                const pts = el.points || [[0, 0], [100, 0]];
+                const firstPt = pts[0];
+                const lastPt = pts[pts.length - 1];
+
+                // Determine start
+                let start;
+                if (el.startBinding && el.startBinding.elementId && idMap[el.startBinding.elementId]) {
+                    start = {
+                        boxId: idMap[el.startBinding.elementId],
+                        side: getSideFromFixedPoint(el.startBinding.fixedPoint)
+                    };
+                } else {
+                    start = { x: el.x + firstPt[0], y: el.y + firstPt[1] };
+                }
+
+                // Determine end
+                let end;
+                if (el.endBinding && el.endBinding.elementId && idMap[el.endBinding.elementId]) {
+                    end = {
+                        boxId: idMap[el.endBinding.elementId],
+                        side: getSideFromFixedPoint(el.endBinding.fixedPoint)
+                    };
+                } else {
+                    end = { x: el.x + lastPt[0], y: el.y + lastPt[1] };
+                }
+
+                // Arrowhead logic
+                const hasStartHead = !!el.startArrowhead;
+                const hasEndHead = !!el.endArrowhead;
+                let arrowhead = 'none';
+                if (hasStartHead && hasEndHead) {
+                    arrowhead = 'both';
+                } else if (hasEndHead) {
+                    arrowhead = 'end';
+                } else if (hasStartHead) {
+                    // Swap start/end so arrowhead is at end
+                    arrowhead = 'end';
+                    const tmp = start;
+                    start = end;
+                    end = tmp;
+                }
+
+                // Control points from intermediate points
+                let cps = [{ dx: 0, dy: 0 }];
+                if (pts.length >= 3) {
+                    // Use the middle point(s) as control point offsets
+                    const sx = el.x + firstPt[0], sy = el.y + firstPt[1];
+                    const ex = el.x + lastPt[0], ey = el.y + lastPt[1];
+                    const mx = (sx + ex) / 2, my = (sy + ey) / 2;
+
+                    const midIdx = Math.floor(pts.length / 2);
+                    const midPt = pts[midIdx];
+                    const absMidX = el.x + midPt[0], absMidY = el.y + midPt[1];
+                    cps = [{ dx: absMidX - mx, dy: absMidY - my }];
+                }
+
+                // Bound text on arrow
+                const boundText = boundTextFor[el.id];
+
+                arrows.push({
+                    id: idMap[el.id],
+                    start: start,
+                    end: end,
+                    cps: cps,
+                    strokeColor: el.strokeColor || '#1f2937',
+                    strokeWidth: mapStrokeWidth(el.strokeWidth || 2),
+                    strokeStyle: el.strokeStyle || 'solid',
+                    fontSize: boundText ? mapFontSize(boundText.fontSize || 16) : 'M',
+                    text: boundText ? boundText.text : '',
+                    arrowhead: arrowhead
+                });
+            });
+
+            // Calculate camera to center the diagram
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            boxes.forEach(b => {
+                minX = Math.min(minX, b.x);
+                minY = Math.min(minY, b.y);
+                maxX = Math.max(maxX, b.x + b.w);
+                maxY = Math.max(maxY, b.y + b.h);
+            });
+
+            if (!isFinite(minX)) { minX = 0; minY = 0; maxX = 100; maxY = 100; }
+
+            const cw = canvas.width / window.devicePixelRatio;
+            const ch = canvas.height / window.devicePixelRatio;
+            const centerX = (minX + maxX) / 2;
+            const centerY = (minY + maxY) / 2;
+
+            const camera = {
+                x: cw / 2 - centerX,
+                y: ch / 2 - centerY,
+                zoom: 1
+            };
+
+            return { boxes, arrows, animations: [], camera };
+        }
+
+        document.getElementById('excalidraw-import').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const excData = JSON.parse(event.target.result);
+                    if (excData.type !== 'excalidraw') {
+                        showToast("El archivo no parece ser un diagrama de Excalidraw");
+                        return;
+                    }
+                    const converted = convertExcalidraw(excData, file.name);
+                    const canvasFilename = file.name.replace(/\.excalidraw$/i, '.json');
+                    loadDiagramData(converted, canvasFilename);
+                    showToast(`Diagrama Excalidraw convertido: ${converted.boxes.length} elementos, ${converted.arrows.length} flechas`);
+                } catch (err) {
+                    console.error('Error converting Excalidraw:', err);
+                    showToast("Error al convertir el archivo Excalidraw");
+                }
+            };
+            reader.readAsText(file);
+            e.target.value = '';
+        });
+
         // --- LÓGICA SVG CAPTURE ---
-        
+
         function escapeHTML(str) {
             if (!str) return '';
             return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
