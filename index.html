@@ -1125,15 +1125,24 @@
                 return 'middle';
             }
 
-            function getSideFromFixedPoint(fp) {
-                if (!fp || !Array.isArray(fp)) return 'right';
-                const [xr, yr] = fp;
-                const dLeft = xr, dRight = 1 - xr, dTop = yr, dBottom = 1 - yr;
-                const min = Math.min(dLeft, dRight, dTop, dBottom);
-                if (min === dLeft) return 'left';
-                if (min === dRight) return 'right';
-                if (min === dTop) return 'top';
-                return 'bottom';
+            // Determine which side of a box the arrow connects to,
+            // based on the arrow point's position relative to the element center
+            function getSideForBinding(binding, arrowX, arrowY, pt) {
+                const target = elById[binding.elementId];
+                if (!target) return 'right';
+                const cx = target.x + target.width / 2;
+                const cy = target.y + target.height / 2;
+                const px = arrowX + pt[0];
+                const py = arrowY + pt[1];
+                const dx = px - cx;
+                const dy = py - cy;
+                // Normalize by element dimensions to handle non-square shapes
+                const ndx = target.width > 0 ? Math.abs(dx) / (target.width / 2) : 0;
+                const ndy = target.height > 0 ? Math.abs(dy) / (target.height / 2) : 0;
+                if (ndx >= ndy) {
+                    return dx >= 0 ? 'right' : 'left';
+                }
+                return dy >= 0 ? 'bottom' : 'top';
             }
 
             const boxes = [];
@@ -1237,7 +1246,7 @@
                 if (el.startBinding && el.startBinding.elementId && idMap[el.startBinding.elementId]) {
                     start = {
                         boxId: idMap[el.startBinding.elementId],
-                        side: getSideFromFixedPoint(el.startBinding.fixedPoint)
+                        side: getSideForBinding(el.startBinding, el.x, el.y, firstPt)
                     };
                 } else {
                     start = { x: el.x + firstPt[0], y: el.y + firstPt[1] };
@@ -1248,7 +1257,7 @@
                 if (el.endBinding && el.endBinding.elementId && idMap[el.endBinding.elementId]) {
                     end = {
                         boxId: idMap[el.endBinding.elementId],
-                        side: getSideFromFixedPoint(el.endBinding.fixedPoint)
+                        side: getSideForBinding(el.endBinding, el.x, el.y, lastPt)
                     };
                 } else {
                     end = { x: el.x + lastPt[0], y: el.y + lastPt[1] };
@@ -1270,10 +1279,10 @@
                     end = tmp;
                 }
 
-                // Control points from intermediate points
+                // Control points: calculate offset of intermediate point
+                // relative to the midpoint between the Excalidraw start/end
                 let cps = [{ dx: 0, dy: 0 }];
                 if (pts.length >= 3) {
-                    // Use the middle point(s) as control point offsets
                     const sx = el.x + firstPt[0], sy = el.y + firstPt[1];
                     const ex = el.x + lastPt[0], ey = el.y + lastPt[1];
                     const mx = (sx + ex) / 2, my = (sy + ey) / 2;
@@ -1281,7 +1290,11 @@
                     const midIdx = Math.floor(pts.length / 2);
                     const midPt = pts[midIdx];
                     const absMidX = el.x + midPt[0], absMidY = el.y + midPt[1];
-                    cps = [{ dx: absMidX - mx, dy: absMidY - my }];
+                    const dx = absMidX - mx, dy = absMidY - my;
+                    // Only apply control point if offset is significant (> 5px)
+                    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+                        cps = [{ dx, dy }];
+                    }
                 }
 
                 // Bound text on arrow
