@@ -531,18 +531,30 @@
     <div id="drive-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-[100] hidden flex items-center justify-center font-system-ui">
         <div class="bg-white p-6 rounded-xl shadow-2xl w-96 max-w-[90%] flex flex-col gap-4">
             <div class="flex justify-between items-center border-b pb-2">
-                <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
-                    Archivos en Drive
-                </h3>
+                <div class="flex items-center gap-2">
+                    <button id="btn-drive-back" class="p-1 hover:bg-gray-100 rounded transition-colors hidden" title="Volver atrás">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                    </button>
+                    <h3 id="drive-modal-title" class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+                        <span id="drive-modal-title-text">Archivos en Drive</span>
+                    </h3>
+                </div>
             </div>
             <div id="drive-file-list" class="max-h-60 overflow-y-auto border border-gray-200 rounded-lg flex flex-col bg-gray-50">
                 </div>
+            <div id="drive-save-section" class="hidden flex-col gap-2">
+                <label class="text-sm font-medium text-gray-600">Nombre del archivo:</label>
+                <input id="drive-save-name" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent" placeholder="mi_diagrama.json">
+                <button id="btn-drive-save-here" class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors text-sm">Guardar aquí</button>
+            </div>
             <div class="flex justify-end gap-3 mt-2">
                 <button id="btn-close-drive-modal" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-800 font-medium transition-colors">Cancelar</button>
             </div>
         </div>
     </div>
+
+    <div id="filename-indicator" style="position:absolute;top:24px;left:20px;z-index:15;font-size:12px;color:#9ca3af;font-family:system-ui,-apple-system,sans-serif;pointer-events:none;opacity:0;transition:opacity 0.3s;white-space:nowrap;"></div>
 
     <div id="canvas-container">
         <canvas id="app-canvas"></canvas>
@@ -557,7 +569,10 @@
         // --- CONFIGURACIÓN GOOGLE DRIVE ---
         const GOOGLE_CLIENT_ID = '518861919052-640hsq2e2j4vvpuip0ii7tuo3b7soern.apps.googleusercontent.com';
         const DRIVE_FOLDER_ID = '10Qehzr_cWVMLGxaKFmQmXp-oECI4nGvb';
-        let gapiToken = null; 
+        let gapiToken = null;
+        let driveFolderStack = [];
+        let driveCurrentFolderId = DRIVE_FOLDER_ID;
+        let driveModalMode = 'import';
 
         const canvas = document.getElementById('app-canvas');
         const ctx = canvas.getContext('2d');
@@ -686,15 +701,16 @@
             });
         }
 
-        async function saveToDrive(filename, dataObj) {
+        async function saveToDrive(filename, dataObj, folderId) {
+            folderId = folderId || DRIVE_FOLDER_ID;
             showToast("Verificando cuenta de Google...");
             try {
                 const token = await getDriveToken();
                 showToast("Buscando en Drive...");
-                
+
                 const jsonStr = JSON.stringify(dataObj, null, 2);
 
-                const query = encodeURIComponent(`name='${filename}' and '${DRIVE_FOLDER_ID}' in parents and trashed=false`);
+                const query = encodeURIComponent(`name='${filename}' and '${folderId}' in parents and trashed=false`);
                 const searchRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${query}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
@@ -713,20 +729,21 @@
                     if (updateRes.ok) {
                         showToast("¡Diagrama actualizado en Drive exitosamente!");
                         state.currentFileName = filename;
+                        updateFilenameIndicator();
                     } else throw new Error("No se pudo actualizar");
                 } else {
                     const boundary = '-------314159265358979323846';
                     const delimiter = "\r\n--" + boundary + "\r\n";
                     const close_delim = "\r\n--" + boundary + "--";
-                    
-                    const metadata = { name: filename, parents: [DRIVE_FOLDER_ID], mimeType: 'application/json' };
-                    const multipartBody = 
-                        delimiter + 
-                        'Content-Type: application/json\r\n\r\n' + 
-                        JSON.stringify(metadata) + 
-                        delimiter + 
-                        'Content-Type: application/json\r\n\r\n' + 
-                        jsonStr + 
+
+                    const metadata = { name: filename, parents: [folderId], mimeType: 'application/json' };
+                    const multipartBody =
+                        delimiter +
+                        'Content-Type: application/json\r\n\r\n' +
+                        JSON.stringify(metadata) +
+                        delimiter +
+                        'Content-Type: application/json\r\n\r\n' +
+                        jsonStr +
                         close_delim;
 
                     const createRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
@@ -740,6 +757,7 @@
                     if (createRes.ok) {
                         showToast("¡Diagrama guardado en Drive exitosamente!");
                         state.currentFileName = filename;
+                        updateFilenameIndicator();
                     } else throw new Error("No se pudo crear");
                 }
             } catch(err) {
@@ -749,44 +767,94 @@
             }
         }
 
-        async function openDriveImportModal() {
-            showToast("Verificando cuenta de Google...");
+        async function loadDriveFolder(folderId, folderName) {
+            const listEl = document.getElementById('drive-file-list');
+            listEl.innerHTML = '<div class="p-4 text-sm text-gray-500 text-center font-medium">Cargando...</div>';
+
             try {
                 const token = await getDriveToken();
-                showToast("Cargando archivos de la carpeta compartida...");
-                
-                const query = encodeURIComponent(`'${DRIVE_FOLDER_ID}' in parents and trashed=false and mimeType='application/json'`);
-                const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name)`, {
+
+                const query = encodeURIComponent(`'${folderId}' in parents and trashed=false and (mimeType='application/json' or mimeType='application/vnd.google-apps.folder')`);
+                const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name,mimeType)&orderBy=folder,name`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                
-                if(!res.ok) throw new Error("No se pudo leer la carpeta");
+
+                if (!res.ok) throw new Error("No se pudo leer la carpeta");
                 const data = await res.json();
-                
-                const listEl = document.getElementById('drive-file-list');
+
+                driveCurrentFolderId = folderId;
+
+                // Update title
+                document.getElementById('drive-modal-title-text').textContent = folderName === 'Drive' ? 'Archivos en Drive' : folderName;
+
+                // Show/hide back button
+                const backBtn = document.getElementById('btn-drive-back');
+                backBtn.classList.toggle('hidden', driveFolderStack.length === 0);
+
                 listEl.innerHTML = '';
-                
-                if (!data.files || data.files.length === 0) {
-                    listEl.innerHTML = '<div class="p-4 text-sm text-gray-500 text-center font-medium">No hay diagramas en esta carpeta de Drive.</div>';
-                } else {
-                    data.files.forEach(file => {
-                        const btn = document.createElement('button');
-                        btn.className = "p-3 text-left hover:bg-blue-50 border-b border-gray-200 last:border-0 text-sm text-gray-700 font-medium transition-colors flex items-center gap-2";
-                        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> ${file.name}`;
+
+                const folders = (data.files || []).filter(f => f.mimeType === 'application/vnd.google-apps.folder');
+                const files = (data.files || []).filter(f => f.mimeType !== 'application/vnd.google-apps.folder');
+
+                if (folders.length === 0 && files.length === 0) {
+                    listEl.innerHTML = '<div class="p-4 text-sm text-gray-500 text-center font-medium">Esta carpeta está vacía.</div>';
+                    return;
+                }
+
+                // Render folders first
+                folders.forEach(folder => {
+                    const btn = document.createElement('button');
+                    btn.className = "p-3 text-left hover:bg-yellow-50 border-b border-gray-200 last:border-0 text-sm text-gray-700 font-medium transition-colors flex items-center gap-2";
+                    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg> ${folder.name}`;
+                    btn.onclick = () => {
+                        driveFolderStack.push({ id: folderId, name: folderName });
+                        loadDriveFolder(folder.id, folder.name);
+                    };
+                    listEl.appendChild(btn);
+                });
+
+                // Render files
+                files.forEach(file => {
+                    const btn = document.createElement('button');
+                    btn.className = "p-3 text-left hover:bg-blue-50 border-b border-gray-200 last:border-0 text-sm text-gray-700 font-medium transition-colors flex items-center gap-2";
+                    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> ${file.name}`;
+                    if (driveModalMode === 'import') {
                         btn.onclick = () => {
                             document.getElementById('drive-modal').style.display = 'none';
                             loadFromDrive(file.id, file.name);
                         };
-                        listEl.appendChild(btn);
-                    });
-                }
-                
-                document.getElementById('drive-modal').style.display = 'flex';
+                    } else {
+                        // In export mode, clicking a file pre-fills the name input
+                        btn.onclick = () => {
+                            document.getElementById('drive-save-name').value = file.name;
+                        };
+                    }
+                    listEl.appendChild(btn);
+                });
             } catch (err) {
                 console.error(err);
-                if(err.message) showToast(err.message);
+                listEl.innerHTML = '<div class="p-4 text-sm text-red-500 text-center font-medium">Error al cargar la carpeta.</div>';
+                if (err.message) showToast(err.message);
                 else showToast("Error al leer el Google Drive");
             }
+        }
+
+        function openDriveModal(mode) {
+            driveModalMode = mode;
+            driveFolderStack = [];
+            driveCurrentFolderId = DRIVE_FOLDER_ID;
+
+            const saveSection = document.getElementById('drive-save-section');
+            if (mode === 'export') {
+                saveSection.style.display = 'flex';
+                const suggestedName = getTimestampedFilename(state.currentFileName) + '.json';
+                document.getElementById('drive-save-name').value = suggestedName;
+            } else {
+                saveSection.style.display = 'none';
+            }
+
+            document.getElementById('drive-modal').style.display = 'flex';
+            loadDriveFolder(DRIVE_FOLDER_ID, 'Drive');
         }
 
         async function loadFromDrive(fileId, filename) {
@@ -797,7 +865,7 @@
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (!res.ok) throw new Error("No se pudo descargar el archivo");
-                
+
                 const data = await res.json();
                 loadDiagramData(data, filename);
             } catch(err) {
@@ -808,6 +876,22 @@
 
         document.getElementById('btn-close-drive-modal').addEventListener('click', () => {
             document.getElementById('drive-modal').style.display = 'none';
+        });
+
+        document.getElementById('btn-drive-back').addEventListener('click', () => {
+            if (driveFolderStack.length > 0) {
+                const parent = driveFolderStack.pop();
+                loadDriveFolder(parent.id, parent.name);
+            }
+        });
+
+        document.getElementById('btn-drive-save-here').addEventListener('click', async () => {
+            let name = document.getElementById('drive-save-name').value.trim();
+            if (!name) { showToast("Introduce un nombre de archivo"); return; }
+            if (!name.endsWith('.json')) name += '.json';
+            document.getElementById('drive-modal').style.display = 'none';
+            const data = { boxes: state.boxes, arrows: state.arrows, animations: state.animations, camera: state.camera };
+            await saveToDrive(name, data, driveCurrentFolderId);
         });
 
         // --- SISTEMA DE ELECCIÓN MODAL (Local vs Drive) ---
@@ -846,7 +930,8 @@
                         const writable = await fileHandle.createWritable();
                         await writable.write(dataStr);
                         await writable.close();
-                        state.currentFileName = fileHandle.name; 
+                        state.currentFileName = fileHandle.name;
+                        updateFilenameIndicator();
                         showToast("Diagrama guardado localmente");
                     } else {
                         const blob = new Blob([dataStr], { type: "application/json" });
@@ -856,6 +941,7 @@
                         document.body.appendChild(a); a.click(); document.body.removeChild(a);
                         URL.revokeObjectURL(url);
                         state.currentFileName = suggestedName;
+                        updateFilenameIndicator();
                         showToast("Diagrama exportado. Revisa tus descargas.");
                     }
                 } catch (err) {
@@ -866,21 +952,38 @@
             }
         });
 
-        document.getElementById('btn-choice-drive').addEventListener('click', () => {
+        document.getElementById('btn-choice-drive').addEventListener('click', async () => {
             document.getElementById('choice-modal').style.display = 'none';
-            
+
+            showToast("Verificando cuenta de Google...");
+            try {
+                await getDriveToken();
+            } catch (err) {
+                console.error(err);
+                if (err.message) showToast(err.message);
+                else showToast("Error al conectar con Google Drive");
+                return;
+            }
+
             if (pendingAction === 'export') {
-                const suggestedName = getTimestampedFilename(state.currentFileName) + '.json';
-                let name = prompt("Introduce el nombre del archivo para guardar en Drive:", suggestedName);
-                if (!name) return;
-                if (!name.endsWith('.json')) name += '.json';
-                const data = { boxes: state.boxes, arrows: state.arrows, animations: state.animations, camera: state.camera };
-                saveToDrive(name, data);
+                openDriveModal('export');
             } else if (pendingAction === 'import') {
-                openDriveImportModal();
+                openDriveModal('import');
             }
         });
 
+
+        // --- INDICADOR DE NOMBRE DE ARCHIVO ---
+        function updateFilenameIndicator() {
+            const el = document.getElementById('filename-indicator');
+            const name = state.currentFileName;
+            if (name && name !== 'mi_diagrama.json') {
+                el.textContent = name;
+                el.style.opacity = '1';
+            } else {
+                el.style.opacity = '0';
+            }
+        }
 
         // --- LÓGICA DE CARGA CENTRALIZADA ---
         function loadDiagramData(data, filename) {
@@ -912,8 +1015,9 @@
 
                 state.selectedIds = [];
                 state.currentFileName = filename;
+                updateFilenameIndicator();
                 setMode('select');
-                
+
                 history = [];
                 historyStep = -1;
                 saveHistory();
@@ -3222,7 +3326,8 @@
                 document.getElementById('main-toolbar').style.opacity = '0';
                 setTimeout(() => document.getElementById('main-toolbar').style.display = 'none', 300);
                 document.getElementById('main-instructions').style.opacity = '0';
-                
+                document.getElementById('filename-indicator').style.opacity = '0';
+
                 document.getElementById('presentation-controls').style.display = 'flex';
                 state.selectedIds = [];
                 state.presentationStep = 0;
@@ -3232,6 +3337,7 @@
                 setTimeout(() => document.getElementById('main-toolbar').style.opacity = '1', 10);
                 document.getElementById('main-instructions').style.opacity = '1';
                 document.getElementById('presentation-controls').style.display = 'none';
+                updateFilenameIndicator();
                 
                 document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
                 if (newMode !== 'presentation') {
