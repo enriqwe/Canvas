@@ -1125,24 +1125,20 @@
                 return 'middle';
             }
 
-            // Determine which side of a box the arrow connects to,
-            // based on the arrow point's position relative to the element center
-            function getSideForBinding(binding, arrowX, arrowY, pt) {
-                const target = elById[binding.elementId];
-                if (!target) return 'right';
-                const cx = target.x + target.width / 2;
-                const cy = target.y + target.height / 2;
-                const px = arrowX + pt[0];
-                const py = arrowY + pt[1];
-                const dx = px - cx;
-                const dy = py - cy;
-                // Normalize by element dimensions to handle non-square shapes
-                const ndx = target.width > 0 ? Math.abs(dx) / (target.width / 2) : 0;
-                const ndy = target.height > 0 ? Math.abs(dy) / (target.height / 2) : 0;
-                if (ndx >= ndy) {
-                    return dx >= 0 ? 'right' : 'left';
-                }
+            // Determine arrow sides from the overall travel direction
+            // (more reliable than fixedPoint or position-vs-center approaches)
+            function getStartSideFromDir(pts) {
+                const dx = pts[pts.length - 1][0] - pts[0][0];
+                const dy = pts[pts.length - 1][1] - pts[0][1];
+                if (Math.abs(dx) >= Math.abs(dy)) return dx >= 0 ? 'right' : 'left';
                 return dy >= 0 ? 'bottom' : 'top';
+            }
+            function getEndSideFromDir(pts) {
+                const dx = pts[pts.length - 1][0] - pts[0][0];
+                const dy = pts[pts.length - 1][1] - pts[0][1];
+                // Arrow arrives from this direction -> enters the opposite side
+                if (Math.abs(dx) >= Math.abs(dy)) return dx >= 0 ? 'left' : 'right';
+                return dy >= 0 ? 'top' : 'bottom';
             }
 
             // Get center of a side of an Excalidraw element (for control point calc)
@@ -1254,13 +1250,14 @@
                 const firstPt = pts[0];
                 const lastPt = pts[pts.length - 1];
 
+                // Determine sides from arrow direction
+                const startSide = getStartSideFromDir(pts);
+                const endSide = getEndSideFromDir(pts);
+
                 // Determine start
                 let start;
                 if (el.startBinding && el.startBinding.elementId && idMap[el.startBinding.elementId]) {
-                    start = {
-                        boxId: idMap[el.startBinding.elementId],
-                        side: getSideForBinding(el.startBinding, el.x, el.y, firstPt)
-                    };
+                    start = { boxId: idMap[el.startBinding.elementId], side: startSide };
                 } else {
                     start = { x: el.x + firstPt[0], y: el.y + firstPt[1] };
                 }
@@ -1268,10 +1265,7 @@
                 // Determine end
                 let end;
                 if (el.endBinding && el.endBinding.elementId && idMap[el.endBinding.elementId]) {
-                    end = {
-                        boxId: idMap[el.endBinding.elementId],
-                        side: getSideForBinding(el.endBinding, el.x, el.y, lastPt)
-                    };
+                    end = { boxId: idMap[el.endBinding.elementId], side: endSide };
                 } else {
                     end = { x: el.x + lastPt[0], y: el.y + lastPt[1] };
                 }
@@ -1297,9 +1291,6 @@
                 // Uses original bindings (before any arrowhead swap) since M = (S+E)/2 is swap-invariant
                 let cps = [{ dx: 0, dy: 0 }];
                 if (pts.length >= 3) {
-                    const startSide = el.startBinding ? getSideForBinding(el.startBinding, el.x, el.y, firstPt) : null;
-                    const endSide = el.endBinding ? getSideForBinding(el.endBinding, el.x, el.y, lastPt) : null;
-
                     const canvasStart = (el.startBinding && el.startBinding.elementId)
                         ? getExcElSideCenter(el.startBinding.elementId, startSide)
                         : null;
