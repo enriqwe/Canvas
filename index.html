@@ -1145,6 +1145,19 @@
                 return dy >= 0 ? 'bottom' : 'top';
             }
 
+            // Get center of a side of an Excalidraw element (for control point calc)
+            function getExcElSideCenter(elId, side) {
+                const target = elById[elId];
+                if (!target) return null;
+                switch (side) {
+                    case 'top':    return { x: target.x + target.width / 2, y: target.y };
+                    case 'bottom': return { x: target.x + target.width / 2, y: target.y + target.height };
+                    case 'left':   return { x: target.x, y: target.y + target.height / 2 };
+                    case 'right':  return { x: target.x + target.width, y: target.y + target.height / 2 };
+                }
+                return null;
+            }
+
             const boxes = [];
             const arrows = [];
 
@@ -1280,18 +1293,30 @@
                 }
 
                 // Control points: calculate offset of intermediate point
-                // relative to the midpoint between the Excalidraw start/end
+                // relative to where Canvas will place start/end (box side centers)
+                // Uses original bindings (before any arrowhead swap) since M = (S+E)/2 is swap-invariant
                 let cps = [{ dx: 0, dy: 0 }];
                 if (pts.length >= 3) {
-                    const sx = el.x + firstPt[0], sy = el.y + firstPt[1];
-                    const ex = el.x + lastPt[0], ey = el.y + lastPt[1];
-                    const mx = (sx + ex) / 2, my = (sy + ey) / 2;
+                    const startSide = el.startBinding ? getSideForBinding(el.startBinding, el.x, el.y, firstPt) : null;
+                    const endSide = el.endBinding ? getSideForBinding(el.endBinding, el.x, el.y, lastPt) : null;
+
+                    const canvasStart = (el.startBinding && el.startBinding.elementId)
+                        ? getExcElSideCenter(el.startBinding.elementId, startSide)
+                        : null;
+                    const canvasEnd = (el.endBinding && el.endBinding.elementId)
+                        ? getExcElSideCenter(el.endBinding.elementId, endSide)
+                        : null;
+
+                    const sx = canvasStart ? canvasStart.x : (el.x + firstPt[0]);
+                    const sy = canvasStart ? canvasStart.y : (el.y + firstPt[1]);
+                    const ex = canvasEnd ? canvasEnd.x : (el.x + lastPt[0]);
+                    const ey = canvasEnd ? canvasEnd.y : (el.y + lastPt[1]);
+                    const cmx = (sx + ex) / 2, cmy = (sy + ey) / 2;
 
                     const midIdx = Math.floor(pts.length / 2);
                     const midPt = pts[midIdx];
                     const absMidX = el.x + midPt[0], absMidY = el.y + midPt[1];
-                    const dx = absMidX - mx, dy = absMidY - my;
-                    // Only apply control point if offset is significant (> 5px)
+                    const dx = absMidX - cmx, dy = absMidY - cmy;
                     if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
                         cps = [{ dx, dy }];
                     }
