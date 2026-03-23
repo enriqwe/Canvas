@@ -585,6 +585,7 @@
         const GOOGLE_CLIENT_ID = '518861919052-640hsq2e2j4vvpuip0ii7tuo3b7soern.apps.googleusercontent.com';
         const DRIVE_FOLDER_ID = '10Qehzr_cWVMLGxaKFmQmXp-oECI4nGvb';
         let gapiToken = null;
+        let gapiTokenExpiry = 0; // timestamp (ms) when token expires
         let driveFolderStack = [];
         let driveCurrentFolderId = DRIVE_FOLDER_ID;
         let driveModalMode = 'import';
@@ -694,18 +695,24 @@
                 if (!window.google) {
                     return reject(new Error("La librería de Google aún se está cargando. Inténtalo en unos segundos."));
                 }
-                if (gapiToken) {
+                // If token exists and hasn't expired (with 60s margin), reuse it
+                if (gapiToken && Date.now() < gapiTokenExpiry - 60000) {
                     return resolve(gapiToken);
                 }
+                // Token expired or doesn't exist — request a new one
+                gapiToken = null;
+                gapiTokenExpiry = 0;
                 try {
                     const tokenClient = google.accounts.oauth2.initTokenClient({
                         client_id: GOOGLE_CLIENT_ID,
                         scope: 'https://www.googleapis.com/auth/drive',
                         callback: (response) => {
                             if (response.error !== undefined) {
-                                reject(response.error);
+                                return reject(response.error);
                             }
                             gapiToken = response.access_token;
+                            // Google tokens typically expire in 3600s
+                            gapiTokenExpiry = Date.now() + (response.expires_in || 3600) * 1000;
                             resolve(gapiToken);
                         }
                     });
@@ -716,29 +723,44 @@
             });
         }
 
+        // Wrapper: fetch with auth, retry once on 401 (re-requesting token)
+        async function driveApiFetch(url, options = {}) {
+            let token = await getDriveToken();
+            options.headers = { ...options.headers, 'Authorization': `Bearer ${token}` };
+
+            let res = await fetch(url, options);
+
+            if (res.status === 401) {
+                // Token was rejected — clear and get a fresh one
+                gapiToken = null;
+                gapiTokenExpiry = 0;
+                showToast("Sesión expirada. Reconectando...");
+                token = await getDriveToken();
+                options.headers['Authorization'] = `Bearer ${token}`;
+                res = await fetch(url, options);
+            }
+
+            return res;
+        }
+
         async function saveToDrive(filename, dataObj, folderId) {
             folderId = folderId || DRIVE_FOLDER_ID;
             showToast("Verificando cuenta de Google...");
             try {
-                const token = await getDriveToken();
                 showToast("Buscando en Drive...");
 
                 const jsonStr = JSON.stringify(dataObj, null, 2);
 
                 const query = encodeURIComponent(`name='${filename}' and '${folderId}' in parents and trashed=false`);
-                const searchRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${query}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                const searchRes = await driveApiFetch(`https://www.googleapis.com/drive/v3/files?q=${query}`);
+                if (!searchRes.ok) throw new Error("No se pudo buscar en Drive");
                 const searchData = await searchRes.json();
 
                 if (searchData.files && searchData.files.length > 0) {
                     const fileId = searchData.files[0].id;
-                    const updateRes = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
+                    const updateRes = await driveApiFetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
                         method: 'PATCH',
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         body: jsonStr
                     });
                     if (updateRes.ok) {
@@ -761,12 +783,9 @@
                         jsonStr +
                         close_delim;
 
-                    const createRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+                    const createRes = await driveApiFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
                         method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': `multipart/related; boundary=${boundary}`
-                        },
+                        headers: { 'Content-Type': `multipart/related; boundary=${boundary}` },
                         body: multipartBody
                     });
                     if (createRes.ok) {
@@ -787,12 +806,8 @@
             listEl.innerHTML = '<div class="p-4 text-sm text-gray-500 text-center font-medium">Cargando...</div>';
 
             try {
-                const token = await getDriveToken();
-
                 const query = encodeURIComponent(`'${folderId}' in parents and trashed=false and (mimeType='application/json' or mimeType='application/vnd.google-apps.folder')`);
-                const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name,mimeType)&orderBy=folder,name`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                const res = await driveApiFetch(`https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name,mimeType)&orderBy=folder,name`);
 
                 if (!res.ok) throw new Error("No se pudo leer la carpeta");
                 const data = await res.json();
@@ -875,10 +890,7 @@
         async function loadFromDrive(fileId, filename) {
             showToast(`Descargando ${filename}...`);
             try {
-                const token = await getDriveToken();
-                const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                const res = await driveApiFetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`);
                 if (!res.ok) throw new Error("No se pudo descargar el archivo");
 
                 const data = await res.json();
