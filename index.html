@@ -2223,14 +2223,19 @@
             });
             cleanEmptyAnimations();
 
-            // Clean up orphaned mind map references
+            // Clean up orphaned mind map references and relayout affected trees
+            const affectedRoots = new Set();
             state.boxes.forEach(b => {
                 if (b.mindmapParentId && !state.boxes.some(p => p.id === b.mindmapParentId)) {
                     b.mindmapParentId = null;
                     b.mindmapType = null;
                     b.mindmapArrowId = null;
                 }
+                if (b.mindmapType === 'subtema' && b.mindmapParentId) {
+                    affectedRoots.add(getMindmapRoot(b.id));
+                }
             });
+            affectedRoots.forEach(rootId => relayoutSubtemas(rootId));
 
             state.selectedIds = [];
             updateSidebar();
@@ -2336,9 +2341,15 @@
 
         // --- MAPA DE IDEAS: FUNCIONES ---
         const MINDMAP_TEMA_COLORS = ['#ef4444','#f59e0b','#3b82f6','#10b981','#8b5cf6','#ec4899','#06b6d4','#f97316'];
+        const SUBTEMA_W = 150, SUBTEMA_H = 35;
+        const SUBTEMA_GAP_X = 30, SUBTEMA_GAP_Y = 10, SUBTEMA_TRUNK_START = 20;
 
         function getNextTemaColor() {
             return MINDMAP_TEMA_COLORS[state.mindmapTemaCounter % MINDMAP_TEMA_COLORS.length];
+        }
+
+        function getDirectSubtemas(parentId) {
+            return state.boxes.filter(b => b.mindmapParentId === parentId && b.mindmapType === 'subtema');
         }
 
         function hasSubtemas(boxId) {
@@ -2346,15 +2357,14 @@
         }
 
         function getCollapsedSubtemaCount(parentBoxId) {
-            return state.boxes.filter(b => b.mindmapParentId === parentBoxId && b.mindmapType === 'subtema').length;
+            return getDirectSubtemas(parentBoxId).length;
         }
 
         function getSubtemaDescendants(parentBoxId) {
             const result = [];
-            const subtemas = state.boxes.filter(b => b.mindmapParentId === parentBoxId && b.mindmapType === 'subtema');
+            const subtemas = getDirectSubtemas(parentBoxId);
             for (const sub of subtemas) {
                 result.push(sub.id);
-                if (sub.mindmapArrowId) result.push(sub.mindmapArrowId);
                 result.push(...getSubtemaDescendants(sub.id));
             }
             return result;
@@ -2382,6 +2392,100 @@
             render();
         }
 
+        // --- TREE LAYOUT ENGINE ---
+        function getSubtreeHeight(parentId) {
+            const children = getDirectSubtemas(parentId);
+            if (children.length === 0) return 0;
+            let h = 0;
+            children.forEach((child, i) => {
+                h += SUBTEMA_H + getSubtreeHeight(child.id);
+                if (i < children.length - 1) h += SUBTEMA_GAP_Y;
+            });
+            return h;
+        }
+
+        function relayoutSubtemas(parentId) {
+            const parent = state.boxes.find(b => b.id === parentId);
+            if (!parent) return;
+            const children = getDirectSubtemas(parentId);
+            if (children.length === 0) return;
+
+            const trunkX = parent.x + parent.w / 2;
+            const totalH = getSubtreeHeight(parentId);
+            let currentY = parent.y - SUBTEMA_TRUNK_START - totalH;
+
+            children.forEach(child => {
+                const childSubH = getSubtreeHeight(child.id);
+                // Child's own subtree space is ABOVE it, child box sits below that space
+                child.x = trunkX + SUBTEMA_GAP_X;
+                child.y = currentY + childSubH;
+                child.w = SUBTEMA_W;
+                child.h = SUBTEMA_H;
+                currentY += childSubH + SUBTEMA_H + SUBTEMA_GAP_Y;
+                // Recursively layout this child's own subtemas
+                relayoutSubtemas(child.id);
+            });
+        }
+
+        // Find the root ancestor of a mind map subtema tree
+        function getMindmapRoot(boxId) {
+            const box = state.boxes.find(b => b.id === boxId);
+            if (!box || !box.mindmapParentId || box.mindmapType !== 'subtema') return boxId;
+            const parent = state.boxes.find(b => b.id === box.mindmapParentId);
+            if (!parent) return boxId;
+            if (parent.mindmapType === 'subtema') return getMindmapRoot(parent.id);
+            return parent.id; // parent is a tema or regular box — it's the root
+        }
+
+        // --- ORTHOGONAL CONNECTOR DRAWING ---
+        function drawMindmapConnectors(parentId) {
+            const parent = state.boxes.find(b => b.id === parentId);
+            if (!parent) return;
+            if (parent.subtemaCollapsed) return;
+            if (isCollapsedByAncestor(parent.id)) return;
+
+            const children = getDirectSubtemas(parentId).filter(c => !isCollapsedByAncestor(c.id));
+            if (children.length === 0) return;
+
+            const trunkX = parent.x + parent.w / 2;
+            const connColor = parent.strokeColor || '#1f2937';
+
+            ctx.strokeStyle = connColor;
+            ctx.lineWidth = 1.5 / state.camera.zoom;
+            ctx.setLineDash([]);
+
+            // Vertical trunk: from parent top down to lowest child center, up to highest child center
+            const childCentersY = children.map(c => c.y + c.h / 2);
+            const topY = Math.min(...childCentersY);
+            const bottomY = Math.max(...childCentersY);
+
+            ctx.beginPath();
+            ctx.moveTo(trunkX, parent.y);
+            ctx.lineTo(trunkX, topY);
+            ctx.stroke();
+
+            // If multiple children, draw the vertical span between them
+            if (children.length > 1) {
+                ctx.beginPath();
+                ctx.moveTo(trunkX, topY);
+                ctx.lineTo(trunkX, bottomY);
+                ctx.stroke();
+            }
+
+            // Horizontal branches to each child
+            children.forEach(child => {
+                const branchY = child.y + child.h / 2;
+                ctx.beginPath();
+                ctx.moveTo(trunkX, branchY);
+                ctx.lineTo(child.x, branchY);
+                ctx.stroke();
+            });
+
+            // Recurse for each child's own subtemas
+            children.forEach(child => drawMindmapConnectors(child.id));
+        }
+
+        // --- TEMA / SUBTEMA CREATION ---
         function createTema() {
             if (state.selectedIds.length !== 1) {
                 showToast("Selecciona un elemento para crear un Tema");
@@ -2415,7 +2519,6 @@
                 strokeColor: temaColor, strokeWidth: 2, strokeStyle: 'solid',
                 fontSize: 'M', text: '', arrowhead: 'end'
             };
-            newBox.mindmapArrowId = newArrow.id;
             state.boxes.push(newBox);
             state.arrows.push(newArrow);
             state.selectedIds = [newBox.id];
@@ -2435,19 +2538,9 @@
                 return;
             }
             state.mindmapSubtemaCounter++;
-            const existingSubtemas = state.boxes.filter(
-                b => b.mindmapParentId === parentBox.id && b.mindmapType === 'subtema'
-            );
-            const offsetIndex = existingSubtemas.length;
-            const newW = 150;
-            const newH = 40;
-            const gapY = 10;
-            // Center subtemas above parent in a clean vertical column
-            const newX = parentBox.x + (parentBox.w / 2) - (newW / 2);
-            const newY = parentBox.y - 50 - (offsetIndex * (newH + gapY));
             const parentColor = parentBox.strokeColor || '#1f2937';
             const newBox = {
-                id: generateId(), x: newX, y: newY, w: newW, h: newH,
+                id: generateId(), x: 0, y: 0, w: SUBTEMA_W, h: SUBTEMA_H,
                 angle: 0, shapeType: 'rect',
                 backgroundColor: '#ffffff', strokeColor: parentColor,
                 strokeWidth: 1, strokeStyle: 'solid',
@@ -2457,19 +2550,10 @@
                 mindmapType: 'subtema',
                 subtemaCollapsed: false
             };
-            const newArrow = {
-                id: generateId(),
-                start: { boxId: parentBox.id, side: 'top' },
-                end: { boxId: newBox.id, side: 'bottom' },
-                cps: [{dx: 0, dy: 0}],
-                strokeColor: parentColor, strokeWidth: 1, strokeStyle: 'solid',
-                fontSize: 'M', text: '', arrowhead: 'end'
-            };
-            newBox.mindmapArrowId = newArrow.id;
-            // Expand parent if collapsed so the new subtema is visible
             if (parentBox.subtemaCollapsed) parentBox.subtemaCollapsed = false;
             state.boxes.push(newBox);
-            state.arrows.push(newArrow);
+            // Relayout the entire subtema tree from the root
+            relayoutSubtemas(getMindmapRoot(parentBox.id));
             state.selectedIds = [newBox.id];
             saveHistory();
             updateSidebar();
@@ -3021,13 +3105,25 @@
                 });
             }
 
+            // Mind map: draw orthogonal tree connectors (only from roots to avoid double-drawing)
+            state.boxes.forEach(box => {
+                if (isCollapsedByAncestor(box.id)) return;
+                if (!isElementVisible(box.id, state.presentationStep)) return;
+                if (!hasSubtemas(box.id)) return;
+                // Only start drawing from boxes that are NOT subtemas themselves (root of tree)
+                // OR subtemas whose parent is collapsed (they become visual roots)
+                if (box.mindmapType === 'subtema') return;
+                drawMindmapConnectors(box.id);
+            });
+
             // Collapse/Expand badges for mind map subtemas
             state.boxes.forEach(box => {
                 if (!hasSubtemas(box.id)) return;
                 if (isCollapsedByAncestor(box.id)) return;
                 if (!isElementVisible(box.id, state.presentationStep)) return;
+                // Badge sits on the trunk, just above the parent box
                 const badgeX = box.x + box.w / 2;
-                const badgeY = box.y - 12 / state.camera.zoom;
+                const badgeY = box.y - SUBTEMA_TRUNK_START / 2;
                 drawCollapseToggle(badgeX, badgeY, box.subtemaCollapsed || false, getCollapsedSubtemaCount(box.id));
             });
 
@@ -3246,8 +3342,8 @@
                     if (isCollapsedByAncestor(box.id)) continue;
                     if (!isElementVisible(box.id, state.presentationStep)) continue;
                     const badgeX = box.x + box.w / 2;
-                    const badgeY = box.y - 12 / state.camera.zoom;
-                    if (Math.hypot(mouseWorld.x - badgeX, mouseWorld.y - badgeY) < 12 / state.camera.zoom) {
+                    const badgeY = box.y - SUBTEMA_TRUNK_START / 2;
+                    if (Math.hypot(mouseWorld.x - badgeX, mouseWorld.y - badgeY) < 14 / state.camera.zoom) {
                         toggleSubtemaCollapse(box.id);
                         hitCollapseToggle = true;
                         break;
