@@ -315,8 +315,24 @@
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="M9 15l3-3 3 3"/></svg>
                     Convertir diagrama (.excalidraw)
                 </button>
+                <button id="btn-mindmap-toggle" style="width:100%;padding:10px 14px;text-align:left;background:transparent;border:none;cursor:pointer;font-size:13px;font-weight:500;color:#374151;display:flex;align-items:center;gap:8px;transition:background 0.15s;font-family:system-ui,-apple-system,sans-serif;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="3"/><circle cx="19" cy="6" r="2"/><circle cx="19" cy="18" r="2"/><line x1="8" y1="12" x2="17" y2="6"/><line x1="8" y1="12" x2="17" y2="18"/></svg>
+                    Mapa de ideas
+                </button>
             </div>
         </div>
+    </div>
+
+    <!-- Mind Map Secondary Toolbar -->
+    <div id="mindmap-bar" style="display:none;position:absolute;top:68px;left:50%;transform:translateX(-50%);background:#1f2937;padding:6px 12px;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:10;font-family:system-ui,-apple-system,sans-serif;gap:8px;align-items:center;">
+        <button id="btn-add-tema" style="padding:6px 14px;border-radius:8px;border:none;background:rgba(255,255,255,0.1);color:#ffffff;font-weight:500;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            Tema
+        </button>
+        <button id="btn-add-subtema" style="padding:6px 14px;border-radius:8px;border:none;background:rgba(255,255,255,0.1);color:#ffffff;font-weight:500;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            Subtema
+        </button>
     </div>
 
     <div id="capture-ui" class="hidden absolute z-50 bg-white p-2 rounded-lg shadow-xl border border-gray-200 flex gap-2">
@@ -665,7 +681,12 @@
             isResizingCapture: false,
             captureResizeHandle: null,
             captureStartMouse: {x:0, y:0},
-            captureOrigBox: null
+            captureOrigBox: null,
+
+            // MIND MAP STATE
+            mindmapBarVisible: false,
+            mindmapTemaCounter: 0,
+            mindmapSubtemaCounter: 0
         };
 
         let history = [];
@@ -1029,7 +1050,11 @@
                 });
 
                 state.animations = data.animations || [];
-                
+
+                // Recalculate mind map counters from loaded data
+                state.mindmapTemaCounter = state.boxes.filter(b => b.mindmapType === 'tema').length;
+                state.mindmapSubtemaCounter = state.boxes.filter(b => b.mindmapType === 'subtema').length;
+
                 if (data.camera) {
                     state.camera = {
                         x: data.camera.x || 0,
@@ -1089,6 +1114,16 @@
             document.getElementById('more-menu').style.display = 'none';
             document.getElementById('excalidraw-import').click();
         });
+
+        // --- MAPA DE IDEAS: TOGGLE BARRA ---
+        document.getElementById('btn-mindmap-toggle').addEventListener('click', () => {
+            document.getElementById('more-menu').style.display = 'none';
+            state.mindmapBarVisible = !state.mindmapBarVisible;
+            document.getElementById('mindmap-bar').style.display = state.mindmapBarVisible ? 'flex' : 'none';
+        });
+
+        document.getElementById('btn-add-tema').addEventListener('click', () => createTema());
+        document.getElementById('btn-add-subtema').addEventListener('click', () => createSubtema());
 
         // --- CONVERSIÓN EXCALIDRAW → CANVAS ---
         function convertExcalidraw(excData, filename) {
@@ -2187,8 +2222,17 @@
             });
             cleanEmptyAnimations();
 
+            // Clean up orphaned mind map references
+            state.boxes.forEach(b => {
+                if (b.mindmapParentId && !state.boxes.some(p => p.id === b.mindmapParentId)) {
+                    b.mindmapParentId = null;
+                    b.mindmapType = null;
+                    b.mindmapArrowId = null;
+                }
+            });
+
             state.selectedIds = [];
-            updateSidebar(); 
+            updateSidebar();
             if (state.isSearching) updateSearch();
             saveHistory();
             render();
@@ -2226,6 +2270,16 @@
                 if (b.groupId) {
                     if (!groupMap[b.groupId]) groupMap[b.groupId] = generateId();
                     newBox.groupId = groupMap[b.groupId];
+                }
+                // Update mind map references for pasted boxes
+                if (newBox.mindmapParentId) {
+                    if (idMap[newBox.mindmapParentId]) {
+                        newBox.mindmapParentId = idMap[newBox.mindmapParentId];
+                    } else {
+                        newBox.mindmapParentId = null;
+                        newBox.mindmapType = null;
+                        newBox.mindmapArrowId = null;
+                    }
                 }
                 state.boxes.push(newBox);
                 newSelectedIds.push(newId);
@@ -2276,6 +2330,146 @@
             updateSidebar(); 
             if (state.isSearching) updateSearch(); 
             saveHistory();
+            render();
+        }
+
+        // --- MAPA DE IDEAS: FUNCIONES ---
+        const MINDMAP_TEMA_COLORS = ['#ef4444','#f59e0b','#3b82f6','#10b981','#8b5cf6','#ec4899','#06b6d4','#f97316'];
+
+        function getNextTemaColor() {
+            return MINDMAP_TEMA_COLORS[state.mindmapTemaCounter % MINDMAP_TEMA_COLORS.length];
+        }
+
+        function hasSubtemas(boxId) {
+            return state.boxes.some(b => b.mindmapParentId === boxId && b.mindmapType === 'subtema');
+        }
+
+        function getCollapsedSubtemaCount(parentBoxId) {
+            return state.boxes.filter(b => b.mindmapParentId === parentBoxId && b.mindmapType === 'subtema').length;
+        }
+
+        function getSubtemaDescendants(parentBoxId) {
+            const result = [];
+            const subtemas = state.boxes.filter(b => b.mindmapParentId === parentBoxId && b.mindmapType === 'subtema');
+            for (const sub of subtemas) {
+                result.push(sub.id);
+                if (sub.mindmapArrowId) result.push(sub.mindmapArrowId);
+                result.push(...getSubtemaDescendants(sub.id));
+            }
+            return result;
+        }
+
+        function isCollapsedByAncestor(boxId) {
+            const box = state.boxes.find(b => b.id === boxId);
+            if (!box || !box.mindmapParentId) return false;
+            const parent = state.boxes.find(b => b.id === box.mindmapParentId);
+            if (!parent) return false;
+            if (box.mindmapType === 'subtema' && parent.subtemaCollapsed) return true;
+            return isCollapsedByAncestor(parent.id);
+        }
+
+        function toggleSubtemaCollapse(parentBoxId) {
+            const parentBox = state.boxes.find(b => b.id === parentBoxId);
+            if (!parentBox) return;
+            parentBox.subtemaCollapsed = !parentBox.subtemaCollapsed;
+            if (parentBox.subtemaCollapsed) {
+                const childIds = getSubtemaDescendants(parentBoxId);
+                state.selectedIds = state.selectedIds.filter(id => !childIds.includes(id));
+            }
+            saveHistory();
+            updateSidebar();
+            render();
+        }
+
+        function createTema() {
+            if (state.selectedIds.length !== 1) {
+                showToast("Selecciona un elemento para crear un Tema");
+                return;
+            }
+            const parentBox = state.boxes.find(b => b.id === state.selectedIds[0]);
+            if (!parentBox) {
+                showToast("Selecciona una forma para crear un Tema");
+                return;
+            }
+            state.mindmapTemaCounter++;
+            const temaColor = getNextTemaColor();
+            const newX = parentBox.x + parentBox.w + 80;
+            const newY = parentBox.y + (parentBox.h / 2) - 30;
+            const newBox = {
+                id: generateId(), x: newX, y: newY, w: 180, h: 60,
+                angle: 0, shapeType: 'rect',
+                backgroundColor: '#ffffff', strokeColor: temaColor,
+                strokeWidth: 2, strokeStyle: 'solid',
+                fontSize: 'M', textAlignH: 'center', textAlignV: 'middle',
+                text: 'Tema principal ' + state.mindmapTemaCounter,
+                mindmapParentId: parentBox.id,
+                mindmapType: 'tema',
+                subtemaCollapsed: false
+            };
+            const newArrow = {
+                id: generateId(),
+                start: { boxId: parentBox.id, side: 'right' },
+                end: { boxId: newBox.id, side: 'left' },
+                cps: [{dx: 0, dy: 0}],
+                strokeColor: temaColor, strokeWidth: 2, strokeStyle: 'solid',
+                fontSize: 'M', text: '', arrowhead: 'end'
+            };
+            newBox.mindmapArrowId = newArrow.id;
+            state.boxes.push(newBox);
+            state.arrows.push(newArrow);
+            state.selectedIds = [newBox.id];
+            saveHistory();
+            updateSidebar();
+            render();
+        }
+
+        function createSubtema() {
+            if (state.selectedIds.length !== 1) {
+                showToast("Selecciona un elemento para crear un Subtema");
+                return;
+            }
+            const parentBox = state.boxes.find(b => b.id === state.selectedIds[0]);
+            if (!parentBox) {
+                showToast("Selecciona una forma para crear un Subtema");
+                return;
+            }
+            state.mindmapSubtemaCounter++;
+            const existingSubtemas = state.boxes.filter(
+                b => b.mindmapParentId === parentBox.id && b.mindmapType === 'subtema'
+            );
+            const offsetIndex = existingSubtemas.length;
+            const newW = 150;
+            const newH = 40;
+            const newX = parentBox.x + 40 + (offsetIndex * 30);
+            const newY = parentBox.y - 60 - (offsetIndex * 50);
+            const parentColor = parentBox.strokeColor || '#1f2937';
+            const newBox = {
+                id: generateId(), x: newX, y: newY, w: newW, h: newH,
+                angle: 0, shapeType: 'rect',
+                backgroundColor: '#ffffff', strokeColor: parentColor,
+                strokeWidth: 1, strokeStyle: 'solid',
+                fontSize: 'S', textAlignH: 'center', textAlignV: 'middle',
+                text: 'Subtema ' + state.mindmapSubtemaCounter,
+                mindmapParentId: parentBox.id,
+                mindmapType: 'subtema',
+                subtemaCollapsed: false
+            };
+            const newArrow = {
+                id: generateId(),
+                start: { boxId: parentBox.id, side: 'top' },
+                end: { boxId: newBox.id, side: 'bottom' },
+                cps: [{dx: 0, dy: 0}],
+                strokeColor: parentColor, strokeWidth: 1, strokeStyle: 'solid',
+                fontSize: 'M', text: '', arrowhead: 'end'
+            };
+            newBox.mindmapArrowId = newArrow.id;
+            // Expand parent if collapsed so the new subtema is visible
+            if (parentBox.subtemaCollapsed) parentBox.subtemaCollapsed = false;
+            state.boxes.push(newBox);
+            state.arrows.push(newArrow);
+            state.selectedIds = [newBox.id];
+            saveHistory();
+            updateSidebar();
             render();
         }
 
@@ -2429,6 +2623,36 @@
             ctx.fillText(str, x, y);
         }
 
+        function drawCollapseToggle(x, y, isCollapsed, count) {
+            const r = 10 / state.camera.zoom;
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, 2 * Math.PI);
+            if (isCollapsed) {
+                ctx.fillStyle = '#f59e0b';
+                ctx.fill();
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 1.5 / state.camera.zoom;
+                ctx.stroke();
+                ctx.fillStyle = '#ffffff';
+                ctx.font = `bold ${10 / state.camera.zoom}px system-ui`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(String(count), x, y);
+            } else {
+                ctx.fillStyle = '#6b7280';
+                ctx.fill();
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 1.5 / state.camera.zoom;
+                ctx.stroke();
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2 / state.camera.zoom;
+                ctx.beginPath();
+                ctx.moveTo(x - 4 / state.camera.zoom, y);
+                ctx.lineTo(x + 4 / state.camera.zoom, y);
+                ctx.stroke();
+            }
+        }
+
         function updateCaptureUI() {
             if (state.mode === 'capture' && state.captureBox && state.captureBox.w > 0 && state.captureBox.h > 0 && !state.isDrawingCapture && !state.isDraggingCapture && !state.isResizingCapture) {
                 const screenPos = worldToScreen(state.captureBox.x + state.captureBox.w / 2, state.captureBox.y + state.captureBox.h);
@@ -2458,6 +2682,7 @@
             // 1. Dibujar Cajas y Formas
             state.boxes.forEach(box => {
                 if (!isElementVisible(box.id, state.presentationStep)) return;
+                if (isCollapsedByAncestor(box.id)) return;
 
                 const bgColor = box.backgroundColor || '#ffffff';
                 const strokeColor = box.strokeColor || '#1f2937';
@@ -2573,6 +2798,9 @@
             // 2. Dibujar Flechas
             state.arrows.forEach(arrow => {
                 if (!isElementVisible(arrow.id, state.presentationStep)) return;
+                // Hide arrows connected to collapsed subtemas
+                if (arrow.start.boxId && isCollapsedByAncestor(arrow.start.boxId)) return;
+                if (arrow.end.boxId && isCollapsedByAncestor(arrow.end.boxId)) return;
 
                 const curve = getArrowCurve(arrow);
                 if (!curve) return;
@@ -2790,6 +3018,16 @@
                 });
             }
 
+            // Collapse/Expand badges for mind map subtemas
+            state.boxes.forEach(box => {
+                if (!hasSubtemas(box.id)) return;
+                if (isCollapsedByAncestor(box.id)) return;
+                if (!isElementVisible(box.id, state.presentationStep)) return;
+                const badgeX = box.x + box.w / 2;
+                const badgeY = box.y - 12 / state.camera.zoom;
+                drawCollapseToggle(badgeX, badgeY, box.subtemaCollapsed || false, getCollapsedSubtemaCount(box.id));
+            });
+
             ctx.restore();
             updateCaptureUI();
         }
@@ -2995,6 +3233,24 @@
                 state.captureBox = {x: mouseWorld.x, y: mouseWorld.y, w: 0, h: 0};
                 render();
                 return;
+            }
+
+            // Mind map collapse toggle hit test (before normal click detection)
+            if (state.mode === 'select' && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
+                let hitCollapseToggle = false;
+                for (const box of state.boxes) {
+                    if (!hasSubtemas(box.id)) continue;
+                    if (isCollapsedByAncestor(box.id)) continue;
+                    if (!isElementVisible(box.id, state.presentationStep)) continue;
+                    const badgeX = box.x + box.w / 2;
+                    const badgeY = box.y - 12 / state.camera.zoom;
+                    if (Math.hypot(mouseWorld.x - badgeX, mouseWorld.y - badgeY) < 12 / state.camera.zoom) {
+                        toggleSubtemaCollapse(box.id);
+                        hitCollapseToggle = true;
+                        break;
+                    }
+                }
+                if (hitCollapseToggle) return;
             }
 
             let clickedArrow = getArrowAt(mouseWorld.x, mouseWorld.y);
@@ -3794,6 +4050,7 @@
                 document.getElementById('filename-indicator').style.opacity = '0';
 
                 document.getElementById('presentation-controls').style.display = 'flex';
+                document.getElementById('mindmap-bar').style.display = 'none';
                 state.selectedIds = [];
                 state.presentationStep = 0;
                 updatePresentationUI();
@@ -3803,7 +4060,8 @@
                 document.getElementById('main-instructions').style.opacity = '1';
                 document.getElementById('presentation-controls').style.display = 'none';
                 updateFilenameIndicator();
-                
+                if (state.mindmapBarVisible) document.getElementById('mindmap-bar').style.display = 'flex';
+
                 document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
                 if (newMode !== 'presentation') {
                     const btn = document.getElementById(`btn-${newMode}`);
