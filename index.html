@@ -2406,7 +2406,12 @@
         // --- TREE LAYOUT ENGINE ---
         function getSubtemaDirection(boxId) {
             const box = state.boxes.find(b => b.id === boxId);
-            return (box && box.subtemaDirection) || 'up';
+            if (!box) return 'up';
+            // Explicit direction on this box takes priority
+            if (box.subtemaDirection) return box.subtemaDirection;
+            // Inherit from parent up the chain
+            if (box.mindmapParentId) return getSubtemaDirection(box.mindmapParentId);
+            return 'up';
         }
 
         function getSubtreeHeight(parentId) {
@@ -2604,7 +2609,8 @@
                 text: 'Tema principal ' + state.mindmapTemaCounter,
                 mindmapParentId: parentBox.id,
                 mindmapType: 'tema',
-                subtemaCollapsed: false
+                subtemaCollapsed: false,
+                subtemaDirection: state.mindmapTemaCounter % 2 === 1 ? 'up' : 'down'
             };
             const newArrow = {
                 id: generateId(),
