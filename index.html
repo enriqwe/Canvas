@@ -2554,6 +2554,16 @@
                         dropTarget.subtemaDirection = newDir;
                     }
                     treesToRelayout.add(getMindmapRoot(dropTarget.id));
+                } else if (box.mindmapType === 'tema' && box.mindmapParentId && state.mindmapGraphType === 'mindmap') {
+                    // Tema dragged in mindmap mode — detect direction relative to central box
+                    const central = state.boxes.find(b => b.id === box.mindmapParentId);
+                    if (central) {
+                        const newDir = detectTemaDirection(box, central);
+                        if (box.mindmapTreeDir !== newDir) {
+                            box.mindmapTreeDir = newDir;
+                            treesToRelayout.add(central.id);
+                        }
+                    }
                 } else if (box.mindmapType === 'subtema' && box.mindmapParentId) {
                     // Not dropped on a new parent — allow free repositioning
                     // Only flip direction if dragged across the parent center (no relayout)
@@ -2644,8 +2654,37 @@
         }
 
         // --- MIND MAP (HORIZONTAL) LAYOUT ENGINE ---
-        const MINDMAP_H_GAP = 40;  // horizontal gap between parent right edge and children
-        const MINDMAP_V_GAP = 8;   // vertical gap between sibling nodes
+        const MINDMAP_H_GAP = 40;  // gap between parent edge and children
+        const MINDMAP_V_GAP = 8;   // gap between sibling nodes
+
+        // Get the tree direction for a tema in mindmap mode
+        function getTemaDirection(boxId) {
+            const box = state.boxes.find(b => b.id === boxId);
+            if (!box) return 'right';
+            if (box.mindmapTreeDir) return box.mindmapTreeDir;
+            // Subtemas inherit from their tema ancestor
+            if (box.mindmapParentId) {
+                const parent = state.boxes.find(b => b.id === box.mindmapParentId);
+                if (parent && parent.mindmapType === 'tema') return getTemaDirection(parent.id);
+                if (parent && parent.mindmapType === 'subtema') return getTemaDirection(parent.id);
+            }
+            return 'right';
+        }
+
+        // Detect which quadrant a box is relative to its central parent
+        function detectTemaDirection(tema, central) {
+            const tcx = tema.x + tema.w / 2;
+            const tcy = tema.y + tema.h / 2;
+            const ccx = central.x + central.w / 2;
+            const ccy = central.y + central.h / 2;
+            const dx = tcx - ccx;
+            const dy = tcy - ccy;
+            if (Math.abs(dx) >= Math.abs(dy)) {
+                return dx >= 0 ? 'right' : 'left';
+            } else {
+                return dy >= 0 ? 'down' : 'up';
+            }
+        }
 
         function getSubtreeWidth(parentId) {
             const children = getDirectSubtemas(parentId);
@@ -2670,30 +2709,45 @@
             return h;
         }
 
-        function relayoutMindmap(parentId) {
+        function relayoutMindmap(parentId, dir) {
             const parent = state.boxes.find(b => b.id === parentId);
             if (!parent) return;
             const children = getDirectSubtemas(parentId);
             if (children.length === 0) return;
+            if (!dir) dir = getTemaDirection(parentId);
 
-            const startX = parent.x + parent.w + MINDMAP_H_GAP;
-            const childHeights = children.map(c => getFullSubtreeHeight(c.id));
-            let totalH = 0;
-            childHeights.forEach((h, i) => {
-                totalH += h;
-                if (i < childHeights.length - 1) totalH += MINDMAP_V_GAP;
-            });
-            const parentCY = parent.y + parent.h / 2;
-            let currentY = parentCY - totalH / 2;
+            if (dir === 'right' || dir === 'left') {
+                const childHeights = children.map(c => getFullSubtreeHeight(c.id));
+                let totalH = 0;
+                childHeights.forEach((h, i) => { totalH += h; if (i < children.length - 1) totalH += MINDMAP_V_GAP; });
+                const parentCY = parent.y + parent.h / 2;
+                let currentY = parentCY - totalH / 2;
+                const startX = dir === 'right' ? parent.x + parent.w + MINDMAP_H_GAP : parent.x - MINDMAP_H_GAP - SUBTEMA_W;
 
-            children.forEach((child, i) => {
-                child.x = startX;
-                child.y = currentY + childHeights[i] / 2 - child.h / 2;
-                child.w = SUBTEMA_W;
-                child.h = SUBTEMA_H;
-                currentY += childHeights[i] + MINDMAP_V_GAP;
-                relayoutMindmap(child.id);
-            });
+                children.forEach((child, i) => {
+                    child.x = startX;
+                    child.y = currentY + childHeights[i] / 2 - child.h / 2;
+                    child.w = SUBTEMA_W; child.h = SUBTEMA_H;
+                    currentY += childHeights[i] + MINDMAP_V_GAP;
+                    relayoutMindmap(child.id, dir);
+                });
+            } else {
+                // up or down
+                const childWidths = children.map(c => getFullSubtreeWidth(c.id));
+                let totalW = 0;
+                childWidths.forEach((w, i) => { totalW += w; if (i < children.length - 1) totalW += MINDMAP_V_GAP; });
+                const parentCX = parent.x + parent.w / 2;
+                let currentX = parentCX - totalW / 2;
+                const startY = dir === 'down' ? parent.y + parent.h + MINDMAP_H_GAP : parent.y - MINDMAP_H_GAP - SUBTEMA_H;
+
+                children.forEach((child, i) => {
+                    child.x = currentX + childWidths[i] / 2 - SUBTEMA_W / 2;
+                    child.y = startY;
+                    child.w = SUBTEMA_W; child.h = SUBTEMA_H;
+                    currentX += childWidths[i] + MINDMAP_V_GAP;
+                    relayoutMindmap(child.id, dir);
+                });
+            }
         }
 
         // Also relayout temas horizontally in mindmap mode
@@ -2710,33 +2764,111 @@
             return Math.max(box.h, childrenH);
         }
 
+        // Width of subtree for vertical (up/down) layouts
+        function getFullSubtreeWidth(boxId) {
+            const box = state.boxes.find(b => b.id === boxId);
+            if (!box) return 0;
+            const children = getDirectSubtemas(boxId);
+            if (children.length === 0) return box.w;
+            let childrenW = 0;
+            children.forEach((child, i) => {
+                childrenW += getFullSubtreeWidth(child.id);
+                if (i < children.length - 1) childrenW += MINDMAP_V_GAP;
+            });
+            return Math.max(box.w, childrenW);
+        }
+
         function relayoutMindmapTemas(centralBoxId) {
             const central = state.boxes.find(b => b.id === centralBoxId);
             if (!central) return;
             const temas = state.boxes.filter(b => b.mindmapParentId === centralBoxId && b.mindmapType === 'tema');
             if (temas.length === 0) return;
 
-            // Calculate full height of each tema tree
-            const temaHeights = temas.map(t => getFullSubtreeHeight(t.id));
-            let totalH = 0;
-            temaHeights.forEach((h, i) => {
-                totalH += h;
-                if (i < temaHeights.length - 1) totalH += MINDMAP_V_GAP * 3;
-            });
+            const ccx = central.x + central.w / 2;
+            const ccy = central.y + central.h / 2;
+            const GAP = 80;
+            const TEMA_GAP = MINDMAP_V_GAP * 3;
 
-            const centralCY = central.y + central.h / 2;
-            const startX = central.x + central.w + 80;
-            let currentY = centralCY - totalH / 2;
+            // Group temas by direction
+            const groups = { right: [], left: [], up: [], down: [] };
+            temas.forEach(t => { groups[getTemaDirection(t.id)].push(t); });
 
-            temas.forEach((tema, i) => {
-                tema.x = startX;
-                tema.y = currentY + temaHeights[i] / 2 - tema.h / 2;
-                currentY += temaHeights[i] + MINDMAP_V_GAP * 3;
-                relayoutMindmap(tema.id);
-            });
+            // Layout right group (stack vertically, to the right)
+            if (groups.right.length > 0) {
+                const heights = groups.right.map(t => getFullSubtreeHeight(t.id));
+                let totalH = heights.reduce((a, b) => a + b, 0) + (heights.length - 1) * TEMA_GAP;
+                let curY = ccy - totalH / 2;
+                groups.right.forEach((tema, i) => {
+                    tema.x = central.x + central.w + GAP;
+                    tema.y = curY + heights[i] / 2 - tema.h / 2;
+                    curY += heights[i] + TEMA_GAP;
+                    relayoutMindmap(tema.id, 'right');
+                });
+            }
+            // Layout left group (stack vertically, to the left)
+            if (groups.left.length > 0) {
+                const heights = groups.left.map(t => getFullSubtreeHeight(t.id));
+                let totalH = heights.reduce((a, b) => a + b, 0) + (heights.length - 1) * TEMA_GAP;
+                let curY = ccy - totalH / 2;
+                groups.left.forEach((tema, i) => {
+                    tema.x = central.x - GAP - tema.w;
+                    tema.y = curY + heights[i] / 2 - tema.h / 2;
+                    curY += heights[i] + TEMA_GAP;
+                    relayoutMindmap(tema.id, 'left');
+                });
+            }
+            // Layout down group (stack horizontally, below)
+            if (groups.down.length > 0) {
+                const widths = groups.down.map(t => getFullSubtreeWidth(t.id));
+                let totalW = widths.reduce((a, b) => a + b, 0) + (widths.length - 1) * TEMA_GAP;
+                let curX = ccx - totalW / 2;
+                groups.down.forEach((tema, i) => {
+                    tema.x = curX + widths[i] / 2 - tema.w / 2;
+                    tema.y = central.y + central.h + GAP;
+                    curX += widths[i] + TEMA_GAP;
+                    relayoutMindmap(tema.id, 'down');
+                });
+            }
+            // Layout up group (stack horizontally, above)
+            if (groups.up.length > 0) {
+                const widths = groups.up.map(t => getFullSubtreeWidth(t.id));
+                let totalW = widths.reduce((a, b) => a + b, 0) + (widths.length - 1) * TEMA_GAP;
+                let curX = ccx - totalW / 2;
+                groups.up.forEach((tema, i) => {
+                    tema.x = curX + widths[i] / 2 - tema.w / 2;
+                    tema.y = central.y - GAP - tema.h;
+                    curX += widths[i] + TEMA_GAP;
+                    relayoutMindmap(tema.id, 'up');
+                });
+            }
         }
 
         // --- CURVED CONNECTOR DRAWING (MINDMAP MODE) ---
+        function getConnectorEndpoints(parent, child, dir) {
+            if (dir === 'right') {
+                return { sx: parent.x + parent.w, sy: parent.y + parent.h / 2, ex: child.x, ey: child.y + child.h / 2 };
+            } else if (dir === 'left') {
+                return { sx: parent.x, sy: parent.y + parent.h / 2, ex: child.x + child.w, ey: child.y + child.h / 2 };
+            } else if (dir === 'down') {
+                return { sx: parent.x + parent.w / 2, sy: parent.y + parent.h, ex: child.x + child.w / 2, ey: child.y };
+            } else {
+                return { sx: parent.x + parent.w / 2, sy: parent.y, ex: child.x + child.w / 2, ey: child.y + child.h };
+            }
+        }
+
+        function drawCurvedConnector(sx, sy, ex, ey, dir) {
+            ctx.beginPath();
+            ctx.moveTo(sx, sy);
+            if (dir === 'right' || dir === 'left') {
+                const cpOffset = (ex - sx) * 0.5;
+                ctx.bezierCurveTo(sx + cpOffset, sy, ex - cpOffset, ey, ex, ey);
+            } else {
+                const cpOffset = (ey - sy) * 0.5;
+                ctx.bezierCurveTo(sx, sy + cpOffset, ex, ey - cpOffset, ex, ey);
+            }
+            ctx.stroke();
+        }
+
         function drawMindmapCurvedConnectors(parentId) {
             const parent = state.boxes.find(b => b.id === parentId);
             if (!parent) return;
@@ -2746,23 +2878,15 @@
             const children = getDirectSubtemas(parentId).filter(c => !isCollapsedByAncestor(c.id));
             if (children.length === 0) return;
 
+            const dir = getTemaDirection(parentId);
             const connColor = parent.strokeColor || '#1f2937';
             ctx.strokeStyle = connColor;
             ctx.lineWidth = 2 / state.camera.zoom;
             ctx.setLineDash([]);
 
-            const startX = parent.x + parent.w;
-            const startY = parent.y + parent.h / 2;
-
             children.forEach(child => {
-                const endX = child.x;
-                const endY = child.y + child.h / 2;
-                const cpOffset = (endX - startX) * 0.5;
-
-                ctx.beginPath();
-                ctx.moveTo(startX, startY);
-                ctx.bezierCurveTo(startX + cpOffset, startY, endX - cpOffset, endY, endX, endY);
-                ctx.stroke();
+                const p = getConnectorEndpoints(parent, child, dir);
+                drawCurvedConnector(p.sx, p.sy, p.ex, p.ey, dir);
             });
 
             children.forEach(child => drawMindmapCurvedConnectors(child.id));
@@ -3492,19 +3616,13 @@
                     if (temas.length > 0 && !box.mindmapType) {
                         temas.forEach(tema => {
                             if (isCollapsedByAncestor(tema.id)) return;
+                            const dir = getTemaDirection(tema.id);
                             const connColor = tema.strokeColor || '#1f2937';
                             ctx.strokeStyle = connColor;
                             ctx.lineWidth = 2 / state.camera.zoom;
                             ctx.setLineDash([]);
-                            const startX = box.x + box.w;
-                            const startY = box.y + box.h / 2;
-                            const endX = tema.x;
-                            const endY = tema.y + tema.h / 2;
-                            const cpOffset = (endX - startX) * 0.5;
-                            ctx.beginPath();
-                            ctx.moveTo(startX, startY);
-                            ctx.bezierCurveTo(startX + cpOffset, startY, endX - cpOffset, endY, endX, endY);
-                            ctx.stroke();
+                            const p = getConnectorEndpoints(box, tema, dir);
+                            drawCurvedConnector(p.sx, p.sy, p.ex, p.ey, dir);
                         });
                     }
                     // Draw subtema curved connectors
@@ -3528,11 +3646,12 @@
                 if (isCollapsedByAncestor(box.id)) return;
                 if (!isElementVisible(box.id, state.presentationStep)) return;
                 if (state.mindmapGraphType === 'mindmap') {
-                    // Badge on the branch (right edge of box, midway to first child)
-                    const children = getDirectSubtemas(box.id);
-                    const firstChild = children[0];
-                    const badgeX = box.x + box.w + MINDMAP_H_GAP / 2;
-                    const badgeY = box.y + box.h / 2;
+                    const dir = getTemaDirection(box.id);
+                    let badgeX, badgeY;
+                    if (dir === 'right') { badgeX = box.x + box.w + MINDMAP_H_GAP / 2; badgeY = box.y + box.h / 2; }
+                    else if (dir === 'left') { badgeX = box.x - MINDMAP_H_GAP / 2; badgeY = box.y + box.h / 2; }
+                    else if (dir === 'down') { badgeX = box.x + box.w / 2; badgeY = box.y + box.h + MINDMAP_H_GAP / 2; }
+                    else { badgeX = box.x + box.w / 2; badgeY = box.y - MINDMAP_H_GAP / 2; }
                     drawCollapseToggle(badgeX, badgeY, box.subtemaCollapsed || false, getCollapsedSubtemaCount(box.id));
                 } else {
                     const dir = getSubtemaDirection(box.id);
@@ -3758,8 +3877,11 @@
                     if (!isElementVisible(box.id, state.presentationStep)) continue;
                     let badgeX, badgeY;
                     if (state.mindmapGraphType === 'mindmap') {
-                        badgeX = box.x + box.w + MINDMAP_H_GAP / 2;
-                        badgeY = box.y + box.h / 2;
+                        const dir = getTemaDirection(box.id);
+                        if (dir === 'right') { badgeX = box.x + box.w + MINDMAP_H_GAP / 2; badgeY = box.y + box.h / 2; }
+                        else if (dir === 'left') { badgeX = box.x - MINDMAP_H_GAP / 2; badgeY = box.y + box.h / 2; }
+                        else if (dir === 'down') { badgeX = box.x + box.w / 2; badgeY = box.y + box.h + MINDMAP_H_GAP / 2; }
+                        else { badgeX = box.x + box.w / 2; badgeY = box.y - MINDMAP_H_GAP / 2; }
                     } else {
                         const dir = getSubtemaDirection(box.id);
                         badgeX = box.x + box.w / 2;
