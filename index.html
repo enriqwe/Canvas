@@ -334,13 +334,13 @@
                 Subtema
             </button>
             <div style="position:relative;">
-                <button id="btn-graph-type" class="tool-btn" title="Tipo de gráfico" style="font-size:11px;padding:2px 6px;gap:2px;min-width:0;">
+                <button id="btn-graph-type" class="tool-btn" title="Tipo de gráfico" style="background:#1f2937;color:#fff;border-color:#1f2937;font-size:11px;padding:2px 6px;gap:2px;min-width:0;">
                     <span id="graph-type-label">Temporal</span>
                     <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>
                 </button>
-                <div id="graph-type-menu" style="display:none;position:absolute;top:calc(100% + 4px);left:0;background:white;border-radius:6px;box-shadow:0 6px 16px rgba(0,0,0,0.12);border:1px solid #e5e7eb;min-width:100px;z-index:50;overflow:hidden;">
-                    <button data-graph-type="timeline" style="width:100%;padding:6px 10px;text-align:left;background:transparent;border:none;cursor:pointer;font-size:12px;font-weight:500;color:#374151;transition:background 0.15s;font-family:system-ui,-apple-system,sans-serif;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">Temporal</button>
-                    <button data-graph-type="mindmap" style="width:100%;padding:6px 10px;text-align:left;background:transparent;border:none;cursor:pointer;font-size:12px;font-weight:500;color:#374151;transition:background 0.15s;font-family:system-ui,-apple-system,sans-serif;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">Ideas</button>
+                <div id="graph-type-menu" style="display:none;position:absolute;top:calc(100% + 4px);left:0;background:white;border-radius:6px;box-shadow:0 6px 16px rgba(0,0,0,0.12);border:1px solid #e5e7eb;min-width:130px;z-index:50;overflow:hidden;">
+                    <button data-graph-type="timeline" style="width:100%;padding:6px 10px;text-align:left;background:transparent;border:none;cursor:pointer;font-size:12px;font-weight:500;color:#374151;transition:background 0.15s;font-family:system-ui,-apple-system,sans-serif;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">Línea Temporal</button>
+                    <button data-graph-type="mindmap" style="width:100%;padding:6px 10px;text-align:left;background:transparent;border:none;cursor:pointer;font-size:12px;font-weight:500;color:#374151;transition:background 0.15s;font-family:system-ui,-apple-system,sans-serif;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">Mapa de Ideas</button>
                 </div>
             </div>
         </div>
@@ -2769,23 +2769,71 @@
         }
 
         // --- SWITCH LAYOUT ---
+        // Find the ultimate non-tema/non-subtema ancestor of a box
+        function getCentralBox(boxId) {
+            const box = state.boxes.find(b => b.id === boxId);
+            if (!box || !box.mindmapParentId) return boxId;
+            if (!box.mindmapType) return boxId;
+            return getCentralBox(box.mindmapParentId);
+        }
+
         function switchMindmapLayout() {
             if (state.mindmapGraphType === 'mindmap') {
-                // Find all central boxes (boxes that have temas attached)
+                // TIMELINE → IDEAS: Reparent all temas to their central box
+                const temas = state.boxes.filter(b => b.mindmapType === 'tema');
+                temas.forEach(tema => {
+                    const centralId = getCentralBox(tema.id);
+                    if (tema.mindmapParentId !== centralId) {
+                        // Update the arrow to point from the central box
+                        const temaArrow = state.arrows.find(a =>
+                            a.end && a.end.boxId === tema.id && a.start && a.start.boxId === tema.mindmapParentId);
+                        if (temaArrow) {
+                            temaArrow.start = { boxId: centralId, side: 'right' };
+                        }
+                        tema.mindmapParentId = centralId;
+                    }
+                });
+                // Relayout all temas around their central boxes
+                const centralIds = new Set(temas.map(t => t.mindmapParentId));
+                centralIds.forEach(cid => relayoutMindmapTemas(cid));
+            } else {
+                // IDEAS → TIMELINE: Chain temas horizontally
                 const centralIds = new Set();
                 state.boxes.forEach(b => {
                     if (b.mindmapType === 'tema' && b.mindmapParentId) {
-                        centralIds.add(b.mindmapParentId);
+                        centralIds.add(getCentralBox(b.id));
                     }
                 });
-                // Relayout temas around each central box (this also relayouts subtrees)
-                centralIds.forEach(cid => relayoutMindmapTemas(cid));
-            } else {
-                // Timeline mode — relayout using vertical tree engine
-                state.boxes.forEach(b => {
-                    if (b.mindmapType === 'tema' && hasSubtemas(b.id)) {
-                        relayoutSubtemas(b.id);
+                centralIds.forEach(centralId => {
+                    const temas = state.boxes.filter(b =>
+                        b.mindmapType === 'tema' && getCentralBox(b.id) === centralId);
+                    if (temas.length <= 1) {
+                        // Single tema — just relayout its subtemas
+                        temas.forEach(t => { if (hasSubtemas(t.id)) relayoutSubtemas(t.id); });
+                        return;
                     }
+                    // Chain temas: Tema[0] parent = central, Tema[i] parent = Tema[i-1]
+                    const central = state.boxes.find(b => b.id === centralId);
+                    if (!central) return;
+                    let prevBox = central;
+                    temas.forEach((tema, i) => {
+                        const expectedParent = i === 0 ? centralId : temas[i - 1].id;
+                        if (tema.mindmapParentId !== expectedParent) {
+                            // Update arrow
+                            const temaArrow = state.arrows.find(a =>
+                                a.end && a.end.boxId === tema.id && a.start && a.start.boxId === tema.mindmapParentId);
+                            if (temaArrow) {
+                                temaArrow.start = { boxId: expectedParent, side: 'right' };
+                            }
+                            tema.mindmapParentId = expectedParent;
+                        }
+                        // Position chained to the right
+                        tema.x = prevBox.x + prevBox.w + 80;
+                        tema.y = prevBox.y + prevBox.h / 2 - tema.h / 2;
+                        prevBox = tema;
+                        // Relayout subtemas vertically
+                        if (hasSubtemas(tema.id)) relayoutSubtemas(tema.id);
+                    });
                 });
             }
             saveHistory();
