@@ -325,23 +325,6 @@
         <!-- Mind Map Buttons (right of kebab) -->
         <div id="mindmap-bar" style="display:none;gap:4px;align-items:center;">
             <div class="w-px h-6 bg-gray-300 mx-1"></div>
-            <div style="position:relative;">
-                <button id="btn-graph-type" class="tool-btn" title="Tipo de gráfico" style="background:#1f2937;color:#fff;border-color:#1f2937;gap:4px;padding-right:6px;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                    <span id="graph-type-label">Línea Temporal</span>
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>
-                </button>
-                <div id="graph-type-menu" style="display:none;position:absolute;top:calc(100% + 4px);left:0;background:white;border-radius:8px;box-shadow:0 10px 25px -3px rgba(0,0,0,0.15);border:1px solid #e5e7eb;min-width:180px;z-index:50;overflow:hidden;">
-                    <button data-graph-type="timeline" style="width:100%;padding:8px 12px;text-align:left;background:transparent;border:none;cursor:pointer;font-size:13px;font-weight:500;color:#374151;display:flex;align-items:center;gap:8px;transition:background 0.15s;font-family:system-ui,-apple-system,sans-serif;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                        Línea Temporal
-                    </button>
-                    <button data-graph-type="mindmap" style="width:100%;padding:8px 12px;text-align:left;background:transparent;border:none;cursor:pointer;font-size:13px;font-weight:500;color:#374151;display:flex;align-items:center;gap:8px;transition:background 0.15s;font-family:system-ui,-apple-system,sans-serif;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="3"/><circle cx="19" cy="6" r="2"/><circle cx="19" cy="18" r="2"/><line x1="8" y1="12" x2="17" y2="6"/><line x1="8" y1="12" x2="17" y2="18"/></svg>
-                        Mapa de ideas
-                    </button>
-                </div>
-            </div>
             <button id="btn-add-tema" class="tool-btn" title="Crear Tema conectado" style="background:#1f2937;color:#fff;border-color:#1f2937;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
                 Tema
@@ -350,6 +333,16 @@
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
                 Subtema
             </button>
+            <div style="position:relative;">
+                <button id="btn-graph-type" class="tool-btn" title="Tipo de gráfico" style="font-size:11px;padding:2px 6px;gap:2px;min-width:0;">
+                    <span id="graph-type-label">Temporal</span>
+                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div id="graph-type-menu" style="display:none;position:absolute;top:calc(100% + 4px);left:0;background:white;border-radius:6px;box-shadow:0 6px 16px rgba(0,0,0,0.12);border:1px solid #e5e7eb;min-width:100px;z-index:50;overflow:hidden;">
+                    <button data-graph-type="timeline" style="width:100%;padding:6px 10px;text-align:left;background:transparent;border:none;cursor:pointer;font-size:12px;font-weight:500;color:#374151;transition:background 0.15s;font-family:system-ui,-apple-system,sans-serif;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">Temporal</button>
+                    <button data-graph-type="mindmap" style="width:100%;padding:6px 10px;text-align:left;background:transparent;border:none;cursor:pointer;font-size:12px;font-weight:500;color:#374151;transition:background 0.15s;font-family:system-ui,-apple-system,sans-serif;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">Ideas</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1077,7 +1070,7 @@
                 if (data.mindmapGraphType) {
                     state.mindmapGraphType = data.mindmapGraphType;
                     const label = document.getElementById('graph-type-label');
-                    if (label) label.textContent = data.mindmapGraphType === 'mindmap' ? 'Mapa de ideas' : 'Línea Temporal';
+                    if (label) label.textContent = data.mindmapGraphType === 'mindmap' ? 'Ideas' : 'Temporal';
                 }
 
                 if (data.camera) {
@@ -1162,7 +1155,7 @@
                 document.getElementById('graph-type-menu').style.display = 'none';
                 if (newType === state.mindmapGraphType) return;
                 state.mindmapGraphType = newType;
-                document.getElementById('graph-type-label').textContent = newType === 'timeline' ? 'Línea Temporal' : 'Mapa de ideas';
+                document.getElementById('graph-type-label').textContent = newType === 'timeline' ? 'Temporal' : 'Ideas';
                 switchMindmapLayout();
             });
         });
@@ -2684,34 +2677,48 @@
             if (children.length === 0) return;
 
             const startX = parent.x + parent.w + MINDMAP_H_GAP;
-            const totalH = getMindmapSubtreeHeight(parentId);
+            const childHeights = children.map(c => getFullSubtreeHeight(c.id));
+            let totalH = 0;
+            childHeights.forEach((h, i) => {
+                totalH += h;
+                if (i < childHeights.length - 1) totalH += MINDMAP_V_GAP;
+            });
             const parentCY = parent.y + parent.h / 2;
             let currentY = parentCY - totalH / 2;
 
-            children.forEach(child => {
-                const childTreeH = Math.max(child.h, getMindmapSubtreeHeight(child.id));
+            children.forEach((child, i) => {
                 child.x = startX;
-                child.y = currentY + childTreeH / 2 - child.h / 2;
+                child.y = currentY + childHeights[i] / 2 - child.h / 2;
                 child.w = SUBTEMA_W;
                 child.h = SUBTEMA_H;
-                currentY += childTreeH + MINDMAP_V_GAP;
+                currentY += childHeights[i] + MINDMAP_V_GAP;
                 relayoutMindmap(child.id);
             });
         }
 
         // Also relayout temas horizontally in mindmap mode
+        function getFullSubtreeHeight(boxId) {
+            const box = state.boxes.find(b => b.id === boxId);
+            if (!box) return 0;
+            const children = getDirectSubtemas(boxId);
+            if (children.length === 0) return box.h;
+            let childrenH = 0;
+            children.forEach((child, i) => {
+                childrenH += getFullSubtreeHeight(child.id);
+                if (i < children.length - 1) childrenH += MINDMAP_V_GAP;
+            });
+            return Math.max(box.h, childrenH);
+        }
+
         function relayoutMindmapTemas(centralBoxId) {
             const central = state.boxes.find(b => b.id === centralBoxId);
             if (!central) return;
             const temas = state.boxes.filter(b => b.mindmapParentId === centralBoxId && b.mindmapType === 'tema');
             if (temas.length === 0) return;
 
-            // Stack temas vertically, centered on the central box
+            // Calculate full height of each tema tree
+            const temaHeights = temas.map(t => getFullSubtreeHeight(t.id));
             let totalH = 0;
-            const temaHeights = temas.map(t => {
-                const subtreeH = getMindmapSubtreeHeight(t.id);
-                return Math.max(t.h, subtreeH);
-            });
             temaHeights.forEach((h, i) => {
                 totalH += h;
                 if (i < temaHeights.length - 1) totalH += MINDMAP_V_GAP * 3;
@@ -2771,14 +2778,8 @@
                         centralIds.add(b.mindmapParentId);
                     }
                 });
-                // Relayout each tema's subtree, then relayout temas around central
+                // Relayout temas around each central box (this also relayouts subtrees)
                 centralIds.forEach(cid => relayoutMindmapTemas(cid));
-                // Also relayout standalone subtema trees (temas that have subtemas)
-                state.boxes.forEach(b => {
-                    if (b.mindmapType === 'tema' && hasSubtemas(b.id)) {
-                        relayoutMindmap(b.id);
-                    }
-                });
             } else {
                 // Timeline mode — relayout using vertical tree engine
                 state.boxes.forEach(b => {
