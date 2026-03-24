@@ -325,6 +325,23 @@
         <!-- Mind Map Buttons (right of kebab) -->
         <div id="mindmap-bar" style="display:none;gap:4px;align-items:center;">
             <div class="w-px h-6 bg-gray-300 mx-1"></div>
+            <div style="position:relative;">
+                <button id="btn-graph-type" class="tool-btn" title="Tipo de gráfico" style="background:#1f2937;color:#fff;border-color:#1f2937;gap:4px;padding-right:6px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    <span id="graph-type-label">Línea Temporal</span>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div id="graph-type-menu" style="display:none;position:absolute;top:calc(100% + 4px);left:0;background:white;border-radius:8px;box-shadow:0 10px 25px -3px rgba(0,0,0,0.15);border:1px solid #e5e7eb;min-width:180px;z-index:50;overflow:hidden;">
+                    <button data-graph-type="timeline" style="width:100%;padding:8px 12px;text-align:left;background:transparent;border:none;cursor:pointer;font-size:13px;font-weight:500;color:#374151;display:flex;align-items:center;gap:8px;transition:background 0.15s;font-family:system-ui,-apple-system,sans-serif;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                        Línea Temporal
+                    </button>
+                    <button data-graph-type="mindmap" style="width:100%;padding:8px 12px;text-align:left;background:transparent;border:none;cursor:pointer;font-size:13px;font-weight:500;color:#374151;display:flex;align-items:center;gap:8px;transition:background 0.15s;font-family:system-ui,-apple-system,sans-serif;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="3"/><circle cx="19" cy="6" r="2"/><circle cx="19" cy="18" r="2"/><line x1="8" y1="12" x2="17" y2="6"/><line x1="8" y1="12" x2="17" y2="18"/></svg>
+                        Mapa de ideas
+                    </button>
+                </div>
+            </div>
             <button id="btn-add-tema" class="tool-btn" title="Crear Tema conectado" style="background:#1f2937;color:#fff;border-color:#1f2937;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
                 Tema
@@ -688,7 +705,8 @@
             mindmapBarVisible: false,
             mindmapTemaCounter: 0,
             mindmapSubtemaCounter: 0,
-            mindmapDropTargetId: null
+            mindmapDropTargetId: null,
+            mindmapGraphType: 'timeline'
         };
 
         let history = [];
@@ -940,7 +958,7 @@
             if (!name) { showToast("Introduce un nombre de archivo"); return; }
             if (!name.endsWith('.json')) name += '.json';
             document.getElementById('drive-modal').style.display = 'none';
-            const data = { boxes: state.boxes, arrows: state.arrows, animations: state.animations, camera: state.camera };
+            const data = { boxes: state.boxes, arrows: state.arrows, animations: state.animations, camera: state.camera, mindmapGraphType: state.mindmapGraphType };
             await saveToDrive(name, data, driveCurrentFolderId);
         });
 
@@ -967,7 +985,7 @@
             document.getElementById('choice-modal').style.display = 'none';
             
             if (pendingAction === 'export') {
-                const data = { boxes: state.boxes, arrows: state.arrows, animations: state.animations, camera: state.camera };
+                const data = { boxes: state.boxes, arrows: state.arrows, animations: state.animations, camera: state.camera, mindmapGraphType: state.mindmapGraphType };
                 const dataStr = JSON.stringify(data, null, 2);
                 const suggestedName = getTimestampedFilename(state.currentFileName) + '.json';
                 
@@ -1056,6 +1074,11 @@
                 // Recalculate mind map counters from loaded data
                 state.mindmapTemaCounter = state.boxes.filter(b => b.mindmapType === 'tema').length;
                 state.mindmapSubtemaCounter = state.boxes.filter(b => b.mindmapType === 'subtema').length;
+                if (data.mindmapGraphType) {
+                    state.mindmapGraphType = data.mindmapGraphType;
+                    const label = document.getElementById('graph-type-label');
+                    if (label) label.textContent = data.mindmapGraphType === 'mindmap' ? 'Mapa de ideas' : 'Línea Temporal';
+                }
 
                 if (data.camera) {
                     state.camera = {
@@ -1121,6 +1144,27 @@
         document.getElementById('btn-mindmap-toggle').addEventListener('click', () => {
             state.mindmapBarVisible = !state.mindmapBarVisible;
             document.getElementById('mindmap-bar').style.display = state.mindmapBarVisible ? 'flex' : 'none';
+        });
+
+        // --- GRAPH TYPE DROPDOWN ---
+        document.getElementById('btn-graph-type').addEventListener('click', (e) => {
+            e.stopPropagation();
+            const menu = document.getElementById('graph-type-menu');
+            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+        });
+        document.addEventListener('click', () => {
+            document.getElementById('graph-type-menu').style.display = 'none';
+        });
+        document.querySelectorAll('[data-graph-type]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const newType = btn.dataset.graphType;
+                document.getElementById('graph-type-menu').style.display = 'none';
+                if (newType === state.mindmapGraphType) return;
+                state.mindmapGraphType = newType;
+                document.getElementById('graph-type-label').textContent = newType === 'timeline' ? 'Línea Temporal' : 'Mapa de ideas';
+                switchMindmapLayout();
+            });
         });
 
         document.getElementById('btn-add-tema').addEventListener('click', () => createTema());
@@ -2246,7 +2290,15 @@
                     affectedRoots.add(getMindmapRoot(b.id));
                 }
             });
-            affectedRoots.forEach(rootId => relayoutSubtemas(rootId));
+            affectedRoots.forEach(rootId => {
+                if (state.mindmapGraphType === 'mindmap') {
+                    const root = state.boxes.find(b => b.id === rootId);
+                    if (root && !root.mindmapType) relayoutMindmapTemas(rootId);
+                    else relayoutMindmap(rootId);
+                } else {
+                    relayoutSubtemas(rootId);
+                }
+            });
 
             state.selectedIds = [];
             updateSidebar();
@@ -2532,7 +2584,17 @@
             });
 
             treesToRelayout.forEach(rootId => {
-                if (state.boxes.some(b => b.id === rootId)) relayoutSubtemas(rootId);
+                if (!state.boxes.some(b => b.id === rootId)) return;
+                if (state.mindmapGraphType === 'mindmap') {
+                    const root = state.boxes.find(b => b.id === rootId);
+                    if (root && !root.mindmapType) {
+                        relayoutMindmapTemas(rootId);
+                    } else {
+                        relayoutMindmap(rootId);
+                    }
+                } else {
+                    relayoutSubtemas(rootId);
+                }
             });
         }
 
@@ -2588,6 +2650,147 @@
             children.forEach(child => drawMindmapConnectors(child.id));
         }
 
+        // --- MIND MAP (HORIZONTAL) LAYOUT ENGINE ---
+        const MINDMAP_H_GAP = 40;  // horizontal gap between parent right edge and children
+        const MINDMAP_V_GAP = 8;   // vertical gap between sibling nodes
+
+        function getSubtreeWidth(parentId) {
+            const children = getDirectSubtemas(parentId);
+            if (children.length === 0) return 0;
+            let maxW = 0;
+            children.forEach(child => {
+                const childW = child.w + getSubtreeWidth(child.id);
+                if (childW > maxW) maxW = childW;
+            });
+            return MINDMAP_H_GAP + maxW;
+        }
+
+        function getMindmapSubtreeHeight(parentId) {
+            const children = getDirectSubtemas(parentId);
+            if (children.length === 0) return 0;
+            let h = 0;
+            children.forEach((child, i) => {
+                const childH = Math.max(child.h, getMindmapSubtreeHeight(child.id));
+                h += childH;
+                if (i < children.length - 1) h += MINDMAP_V_GAP;
+            });
+            return h;
+        }
+
+        function relayoutMindmap(parentId) {
+            const parent = state.boxes.find(b => b.id === parentId);
+            if (!parent) return;
+            const children = getDirectSubtemas(parentId);
+            if (children.length === 0) return;
+
+            const startX = parent.x + parent.w + MINDMAP_H_GAP;
+            const totalH = getMindmapSubtreeHeight(parentId);
+            const parentCY = parent.y + parent.h / 2;
+            let currentY = parentCY - totalH / 2;
+
+            children.forEach(child => {
+                const childTreeH = Math.max(child.h, getMindmapSubtreeHeight(child.id));
+                child.x = startX;
+                child.y = currentY + childTreeH / 2 - child.h / 2;
+                child.w = SUBTEMA_W;
+                child.h = SUBTEMA_H;
+                currentY += childTreeH + MINDMAP_V_GAP;
+                relayoutMindmap(child.id);
+            });
+        }
+
+        // Also relayout temas horizontally in mindmap mode
+        function relayoutMindmapTemas(centralBoxId) {
+            const central = state.boxes.find(b => b.id === centralBoxId);
+            if (!central) return;
+            const temas = state.boxes.filter(b => b.mindmapParentId === centralBoxId && b.mindmapType === 'tema');
+            if (temas.length === 0) return;
+
+            // Stack temas vertically, centered on the central box
+            let totalH = 0;
+            const temaHeights = temas.map(t => {
+                const subtreeH = getMindmapSubtreeHeight(t.id);
+                return Math.max(t.h, subtreeH);
+            });
+            temaHeights.forEach((h, i) => {
+                totalH += h;
+                if (i < temaHeights.length - 1) totalH += MINDMAP_V_GAP * 3;
+            });
+
+            const centralCY = central.y + central.h / 2;
+            const startX = central.x + central.w + 80;
+            let currentY = centralCY - totalH / 2;
+
+            temas.forEach((tema, i) => {
+                tema.x = startX;
+                tema.y = currentY + temaHeights[i] / 2 - tema.h / 2;
+                currentY += temaHeights[i] + MINDMAP_V_GAP * 3;
+                relayoutMindmap(tema.id);
+            });
+        }
+
+        // --- CURVED CONNECTOR DRAWING (MINDMAP MODE) ---
+        function drawMindmapCurvedConnectors(parentId) {
+            const parent = state.boxes.find(b => b.id === parentId);
+            if (!parent) return;
+            if (parent.subtemaCollapsed) return;
+            if (isCollapsedByAncestor(parent.id)) return;
+
+            const children = getDirectSubtemas(parentId).filter(c => !isCollapsedByAncestor(c.id));
+            if (children.length === 0) return;
+
+            const connColor = parent.strokeColor || '#1f2937';
+            ctx.strokeStyle = connColor;
+            ctx.lineWidth = 2 / state.camera.zoom;
+            ctx.setLineDash([]);
+
+            const startX = parent.x + parent.w;
+            const startY = parent.y + parent.h / 2;
+
+            children.forEach(child => {
+                const endX = child.x;
+                const endY = child.y + child.h / 2;
+                const cpOffset = (endX - startX) * 0.5;
+
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+                ctx.bezierCurveTo(startX + cpOffset, startY, endX - cpOffset, endY, endX, endY);
+                ctx.stroke();
+            });
+
+            children.forEach(child => drawMindmapCurvedConnectors(child.id));
+        }
+
+        // --- SWITCH LAYOUT ---
+        function switchMindmapLayout() {
+            if (state.mindmapGraphType === 'mindmap') {
+                // Find all central boxes (boxes that have temas attached)
+                const centralIds = new Set();
+                state.boxes.forEach(b => {
+                    if (b.mindmapType === 'tema' && b.mindmapParentId) {
+                        centralIds.add(b.mindmapParentId);
+                    }
+                });
+                // Relayout each tema's subtree, then relayout temas around central
+                centralIds.forEach(cid => relayoutMindmapTemas(cid));
+                // Also relayout standalone subtema trees (temas that have subtemas)
+                state.boxes.forEach(b => {
+                    if (b.mindmapType === 'tema' && hasSubtemas(b.id)) {
+                        relayoutMindmap(b.id);
+                    }
+                });
+            } else {
+                // Timeline mode — relayout using vertical tree engine
+                state.boxes.forEach(b => {
+                    if (b.mindmapType === 'tema' && hasSubtemas(b.id)) {
+                        relayoutSubtemas(b.id);
+                    }
+                });
+            }
+            saveHistory();
+            render();
+        }
+
         // --- TEMA / SUBTEMA CREATION ---
         function createTema() {
             if (state.selectedIds.length !== 1) {
@@ -2626,6 +2829,10 @@
             state.boxes.push(newBox);
             state.arrows.push(newArrow);
             state.selectedIds = [newBox.id];
+            // In mindmap mode, relayout all temas for this central box
+            if (state.mindmapGraphType === 'mindmap') {
+                relayoutMindmapTemas(parentBox.id);
+            }
             saveHistory();
             updateSidebar();
             render();
@@ -2656,8 +2863,16 @@
             };
             if (parentBox.subtemaCollapsed) parentBox.subtemaCollapsed = false;
             state.boxes.push(newBox);
-            // Relayout the entire subtema tree from the root
-            relayoutSubtemas(getMindmapRoot(parentBox.id));
+            // Relayout using the active graph type engine
+            const rootId = getMindmapRoot(parentBox.id);
+            if (state.mindmapGraphType === 'mindmap') {
+                relayoutMindmap(rootId);
+                // Also rebalance temas if the root is a central box
+                const central = state.boxes.find(b => b.id === rootId);
+                if (central && !central.mindmapType) relayoutMindmapTemas(rootId);
+            } else {
+                relayoutSubtemas(rootId);
+            }
             saveHistory();
             updateSidebar();
             render();
@@ -2995,6 +3210,11 @@
                 // Hide arrows connected to collapsed subtemas
                 if (arrow.start.boxId && isCollapsedByAncestor(arrow.start.boxId)) return;
                 if (arrow.end.boxId && isCollapsedByAncestor(arrow.end.boxId)) return;
+                // In mindmap mode, hide tema arrows (drawn as curved connectors instead)
+                if (state.mindmapGraphType === 'mindmap' && arrow.end.boxId) {
+                    const endBox = state.boxes.find(b => b.id === arrow.end.boxId);
+                    if (endBox && endBox.mindmapType === 'tema') return;
+                }
 
                 const curve = getArrowCurve(arrow);
                 if (!curve) return;
@@ -3212,26 +3432,65 @@
                 });
             }
 
-            // Mind map: draw orthogonal tree connectors (only from roots to avoid double-drawing)
-            state.boxes.forEach(box => {
-                if (isCollapsedByAncestor(box.id)) return;
-                if (!isElementVisible(box.id, state.presentationStep)) return;
-                if (!hasSubtemas(box.id)) return;
-                // Only start drawing from boxes that are NOT subtemas themselves (root of tree)
-                // OR subtemas whose parent is collapsed (they become visual roots)
-                if (box.mindmapType === 'subtema') return;
-                drawMindmapConnectors(box.id);
-            });
+            // Mind map: draw connectors (type depends on graph mode)
+            if (state.mindmapGraphType === 'mindmap') {
+                // Draw curved connectors from central boxes to temas, and from temas to subtemas
+                state.boxes.forEach(box => {
+                    if (isCollapsedByAncestor(box.id)) return;
+                    if (!isElementVisible(box.id, state.presentationStep)) return;
+                    // Draw central→tema curves
+                    const temas = state.boxes.filter(b => b.mindmapParentId === box.id && b.mindmapType === 'tema');
+                    if (temas.length > 0 && !box.mindmapType) {
+                        temas.forEach(tema => {
+                            if (isCollapsedByAncestor(tema.id)) return;
+                            const connColor = tema.strokeColor || '#1f2937';
+                            ctx.strokeStyle = connColor;
+                            ctx.lineWidth = 2 / state.camera.zoom;
+                            ctx.setLineDash([]);
+                            const startX = box.x + box.w;
+                            const startY = box.y + box.h / 2;
+                            const endX = tema.x;
+                            const endY = tema.y + tema.h / 2;
+                            const cpOffset = (endX - startX) * 0.5;
+                            ctx.beginPath();
+                            ctx.moveTo(startX, startY);
+                            ctx.bezierCurveTo(startX + cpOffset, startY, endX - cpOffset, endY, endX, endY);
+                            ctx.stroke();
+                        });
+                    }
+                    // Draw subtema curved connectors
+                    if (hasSubtemas(box.id) && box.mindmapType !== 'subtema') {
+                        drawMindmapCurvedConnectors(box.id);
+                    }
+                });
+            } else {
+                state.boxes.forEach(box => {
+                    if (isCollapsedByAncestor(box.id)) return;
+                    if (!isElementVisible(box.id, state.presentationStep)) return;
+                    if (!hasSubtemas(box.id)) return;
+                    if (box.mindmapType === 'subtema') return;
+                    drawMindmapConnectors(box.id);
+                });
+            }
 
             // Collapse/Expand badges for mind map subtemas
             state.boxes.forEach(box => {
                 if (!hasSubtemas(box.id)) return;
                 if (isCollapsedByAncestor(box.id)) return;
                 if (!isElementVisible(box.id, state.presentationStep)) return;
-                const dir = getSubtemaDirection(box.id);
-                const badgeX = box.x + box.w / 2;
-                const badgeY = dir === 'down' ? box.y + box.h + SUBTEMA_TRUNK_START / 2 : box.y - SUBTEMA_TRUNK_START / 2;
-                drawCollapseToggle(badgeX, badgeY, box.subtemaCollapsed || false, getCollapsedSubtemaCount(box.id));
+                if (state.mindmapGraphType === 'mindmap') {
+                    // Badge on the branch (right edge of box, midway to first child)
+                    const children = getDirectSubtemas(box.id);
+                    const firstChild = children[0];
+                    const badgeX = box.x + box.w + MINDMAP_H_GAP / 2;
+                    const badgeY = box.y + box.h / 2;
+                    drawCollapseToggle(badgeX, badgeY, box.subtemaCollapsed || false, getCollapsedSubtemaCount(box.id));
+                } else {
+                    const dir = getSubtemaDirection(box.id);
+                    const badgeX = box.x + box.w / 2;
+                    const badgeY = dir === 'down' ? box.y + box.h + SUBTEMA_TRUNK_START / 2 : box.y - SUBTEMA_TRUNK_START / 2;
+                    drawCollapseToggle(badgeX, badgeY, box.subtemaCollapsed || false, getCollapsedSubtemaCount(box.id));
+                }
             });
 
             ctx.restore();
@@ -3448,9 +3707,15 @@
                     if (!hasSubtemas(box.id)) continue;
                     if (isCollapsedByAncestor(box.id)) continue;
                     if (!isElementVisible(box.id, state.presentationStep)) continue;
-                    const dir = getSubtemaDirection(box.id);
-                    const badgeX = box.x + box.w / 2;
-                    const badgeY = dir === 'down' ? box.y + box.h + SUBTEMA_TRUNK_START / 2 : box.y - SUBTEMA_TRUNK_START / 2;
+                    let badgeX, badgeY;
+                    if (state.mindmapGraphType === 'mindmap') {
+                        badgeX = box.x + box.w + MINDMAP_H_GAP / 2;
+                        badgeY = box.y + box.h / 2;
+                    } else {
+                        const dir = getSubtemaDirection(box.id);
+                        badgeX = box.x + box.w / 2;
+                        badgeY = dir === 'down' ? box.y + box.h + SUBTEMA_TRUNK_START / 2 : box.y - SUBTEMA_TRUNK_START / 2;
+                    }
                     if (Math.hypot(mouseWorld.x - badgeX, mouseWorld.y - badgeY) < 14 / state.camera.zoom) {
                         toggleSubtemaCollapse(box.id);
                         hitCollapseToggle = true;
