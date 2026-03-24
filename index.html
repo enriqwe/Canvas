@@ -2404,6 +2404,11 @@
         }
 
         // --- TREE LAYOUT ENGINE ---
+        function getSubtemaDirection(boxId) {
+            const box = state.boxes.find(b => b.id === boxId);
+            return (box && box.subtemaDirection) || 'up';
+        }
+
         function getSubtreeHeight(parentId) {
             const children = getDirectSubtemas(parentId);
             if (children.length === 0) return 0;
@@ -2421,20 +2426,58 @@
             const children = getDirectSubtemas(parentId);
             if (children.length === 0) return;
 
+            const dir = getSubtemaDirection(parentId);
             const trunkX = parent.x + parent.w / 2;
             const totalH = getSubtreeHeight(parentId);
-            let currentY = parent.y - SUBTEMA_TRUNK_START - totalH;
 
-            children.forEach(child => {
-                const childSubH = getSubtreeHeight(child.id);
-                // Child's own subtree space is ABOVE it, child box sits below that space
-                child.x = trunkX + SUBTEMA_GAP_X;
-                child.y = currentY + childSubH;
-                child.w = SUBTEMA_W;
-                child.h = SUBTEMA_H;
-                currentY += childSubH + SUBTEMA_H + SUBTEMA_GAP_Y;
-                // Recursively layout this child's own subtemas
-                relayoutSubtemas(child.id);
+            if (dir === 'down') {
+                // Tree grows DOWNWARD from parent bottom
+                let currentY = parent.y + parent.h + SUBTEMA_TRUNK_START;
+                children.forEach(child => {
+                    const childSubH = getSubtreeHeight(child.id);
+                    child.x = trunkX + SUBTEMA_GAP_X;
+                    child.y = currentY;
+                    child.w = SUBTEMA_W;
+                    child.h = SUBTEMA_H;
+                    currentY += SUBTEMA_H + childSubH + SUBTEMA_GAP_Y;
+                    relayoutSubtemas(child.id);
+                });
+            } else {
+                // Tree grows UPWARD from parent top (default)
+                let currentY = parent.y - SUBTEMA_TRUNK_START - totalH;
+                children.forEach(child => {
+                    const childSubH = getSubtreeHeight(child.id);
+                    child.x = trunkX + SUBTEMA_GAP_X;
+                    child.y = currentY + childSubH;
+                    child.w = SUBTEMA_W;
+                    child.h = SUBTEMA_H;
+                    currentY += childSubH + SUBTEMA_H + SUBTEMA_GAP_Y;
+                    relayoutSubtemas(child.id);
+                });
+            }
+        }
+
+        // After drag: detect if subtemas were moved below parent → flip direction
+        function detectSubtemaDirectionAfterDrag() {
+            const checked = new Set();
+            state.selectedIds.forEach(id => {
+                const box = state.boxes.find(b => b.id === id);
+                if (!box || box.mindmapType !== 'subtema' || !box.mindmapParentId) return;
+                const rootId = getMindmapRoot(box.id);
+                if (checked.has(rootId)) return;
+                checked.add(rootId);
+
+                const parent = state.boxes.find(b => b.id === box.mindmapParentId);
+                if (!parent) return;
+
+                const parentCenterY = parent.y + parent.h / 2;
+                const childCenterY = box.y + box.h / 2;
+                const newDir = childCenterY > parentCenterY ? 'down' : 'up';
+
+                if (getSubtemaDirection(parent.id) !== newDir) {
+                    parent.subtemaDirection = newDir;
+                    relayoutSubtemas(rootId);
+                }
             });
         }
 
@@ -2458,30 +2501,24 @@
             const children = getDirectSubtemas(parentId).filter(c => !isCollapsedByAncestor(c.id));
             if (children.length === 0) return;
 
+            const dir = getSubtemaDirection(parentId);
             const trunkX = parent.x + parent.w / 2;
+            const trunkStartY = dir === 'down' ? parent.y + parent.h : parent.y;
             const connColor = parent.strokeColor || '#1f2937';
 
             ctx.strokeStyle = connColor;
             ctx.lineWidth = 1.5 / state.camera.zoom;
             ctx.setLineDash([]);
 
-            // Vertical trunk: from parent top down to lowest child center, up to highest child center
             const childCentersY = children.map(c => c.y + c.h / 2);
-            const topY = Math.min(...childCentersY);
-            const bottomY = Math.max(...childCentersY);
+            const minY = Math.min(trunkStartY, ...childCentersY);
+            const maxY = Math.max(trunkStartY, ...childCentersY);
 
+            // Vertical trunk from parent edge to furthest child
             ctx.beginPath();
-            ctx.moveTo(trunkX, parent.y);
-            ctx.lineTo(trunkX, topY);
+            ctx.moveTo(trunkX, minY);
+            ctx.lineTo(trunkX, maxY);
             ctx.stroke();
-
-            // If multiple children, draw the vertical span between them
-            if (children.length > 1) {
-                ctx.beginPath();
-                ctx.moveTo(trunkX, topY);
-                ctx.lineTo(trunkX, bottomY);
-                ctx.stroke();
-            }
 
             // Horizontal branches to each child
             children.forEach(child => {
@@ -3131,9 +3168,9 @@
                 if (!hasSubtemas(box.id)) return;
                 if (isCollapsedByAncestor(box.id)) return;
                 if (!isElementVisible(box.id, state.presentationStep)) return;
-                // Badge sits on the trunk, just above the parent box
+                const dir = getSubtemaDirection(box.id);
                 const badgeX = box.x + box.w / 2;
-                const badgeY = box.y - SUBTEMA_TRUNK_START / 2;
+                const badgeY = dir === 'down' ? box.y + box.h + SUBTEMA_TRUNK_START / 2 : box.y - SUBTEMA_TRUNK_START / 2;
                 drawCollapseToggle(badgeX, badgeY, box.subtemaCollapsed || false, getCollapsedSubtemaCount(box.id));
             });
 
@@ -3351,8 +3388,9 @@
                     if (!hasSubtemas(box.id)) continue;
                     if (isCollapsedByAncestor(box.id)) continue;
                     if (!isElementVisible(box.id, state.presentationStep)) continue;
+                    const dir = getSubtemaDirection(box.id);
                     const badgeX = box.x + box.w / 2;
-                    const badgeY = box.y - SUBTEMA_TRUNK_START / 2;
+                    const badgeY = dir === 'down' ? box.y + box.h + SUBTEMA_TRUNK_START / 2 : box.y - SUBTEMA_TRUNK_START / 2;
                     if (Math.hypot(mouseWorld.x - badgeX, mouseWorld.y - badgeY) < 14 / state.camera.zoom) {
                         toggleSubtemaCollapse(box.id);
                         hitCollapseToggle = true;
@@ -3881,7 +3919,10 @@
                 setMode('select');
             }
 
-            if (state.isDragging && state.hasDraggedThisClick) madeChange = true;
+            if (state.isDragging && state.hasDraggedThisClick) {
+                madeChange = true;
+                detectSubtemaDirectionAfterDrag();
+            }
             if (state.isResizing && state.hasDraggedThisClick) madeChange = true;
             if (state.isRotating && state.hasDraggedThisClick) madeChange = true;
 
