@@ -321,18 +321,19 @@
                 </button>
             </div>
         </div>
-    </div>
 
-    <!-- Mind Map Secondary Toolbar -->
-    <div id="mindmap-bar" style="display:none;position:absolute;top:68px;left:50%;transform:translateX(-50%);background:#1f2937;padding:6px 12px;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:10;font-family:system-ui,-apple-system,sans-serif;gap:8px;align-items:center;">
-        <button id="btn-add-tema" style="padding:6px 14px;border-radius:8px;border:none;background:rgba(255,255,255,0.1);color:#ffffff;font-weight:500;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-            Tema
-        </button>
-        <button id="btn-add-subtema" style="padding:6px 14px;border-radius:8px;border:none;background:rgba(255,255,255,0.1);color:#ffffff;font-weight:500;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-            Subtema
-        </button>
+        <!-- Mind Map Buttons (right of kebab) -->
+        <div id="mindmap-bar" style="display:none;gap:4px;align-items:center;">
+            <div class="w-px h-6 bg-gray-300 mx-1"></div>
+            <button id="btn-add-tema" class="tool-btn" title="Crear Tema conectado" style="background:#1f2937;color:#fff;border-color:#1f2937;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                Tema
+            </button>
+            <button id="btn-add-subtema" class="tool-btn" title="Crear Subtema colapsable" style="background:#1f2937;color:#fff;border-color:#1f2937;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                Subtema
+            </button>
+        </div>
     </div>
 
     <div id="capture-ui" class="hidden absolute z-50 bg-white p-2 rounded-lg shadow-xl border border-gray-200 flex gap-2">
@@ -2440,8 +2441,10 @@
             const offsetIndex = existingSubtemas.length;
             const newW = 150;
             const newH = 40;
-            const newX = parentBox.x + 40 + (offsetIndex * 30);
-            const newY = parentBox.y - 60 - (offsetIndex * 50);
+            const gapY = 10;
+            // Center subtemas above parent in a clean vertical column
+            const newX = parentBox.x + (parentBox.w / 2) - (newW / 2);
+            const newY = parentBox.y - 50 - (offsetIndex * (newH + gapY));
             const parentColor = parentBox.strokeColor || '#1f2937';
             const newBox = {
                 id: generateId(), x: newX, y: newY, w: newW, h: newH,
