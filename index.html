@@ -2210,7 +2210,18 @@
 
         function deleteSelected() {
             if (state.selectedIds.length === 0) return;
-            state.boxes = state.boxes.filter(b => !state.selectedIds.includes(b.id));
+            // Cascade: collect all mind map descendants of selected boxes
+            const toDelete = new Set(state.selectedIds);
+            state.selectedIds.forEach(id => {
+                getSubtemaDescendants(id).forEach(d => toDelete.add(d));
+                // Also delete tema children
+                state.boxes.filter(b => b.mindmapParentId === id && b.mindmapType === 'tema').forEach(t => {
+                    toDelete.add(t.id);
+                    getSubtemaDescendants(t.id).forEach(d => toDelete.add(d));
+                });
+            });
+            state.selectedIds = [...toDelete];
+            state.boxes = state.boxes.filter(b => !toDelete.has(b.id));
             state.arrows = state.arrows.filter(a => {
                 if (state.selectedIds.includes(a.id)) return false;
                 if (a.start.boxId && !state.boxes.some(b => b.id === a.start.boxId)) return false;
@@ -2554,7 +2565,6 @@
             state.boxes.push(newBox);
             // Relayout the entire subtema tree from the root
             relayoutSubtemas(getMindmapRoot(parentBox.id));
-            state.selectedIds = [newBox.id];
             saveHistory();
             updateSidebar();
             render();
