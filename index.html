@@ -2457,27 +2457,74 @@
             }
         }
 
-        // After drag: detect if subtemas were moved below parent → flip direction
-        function detectSubtemaDirectionAfterDrag() {
-            const checked = new Set();
+        // After drag: reparent mindmap nodes if dropped on another box, then detect direction
+        function handleMindmapAfterDrag() {
+            const treesToRelayout = new Set();
+            const draggedIds = new Set(state.selectedIds);
+            // Collect all descendants of dragged nodes (they move with parent, skip them)
+            const allDraggedWithDescendants = new Set(state.selectedIds);
+            state.selectedIds.forEach(id => {
+                getSubtemaDescendants(id).forEach(d => allDraggedWithDescendants.add(d));
+            });
+
             state.selectedIds.forEach(id => {
                 const box = state.boxes.find(b => b.id === id);
-                if (!box || box.mindmapType !== 'subtema' || !box.mindmapParentId) return;
-                const rootId = getMindmapRoot(box.id);
-                if (checked.has(rootId)) return;
-                checked.add(rootId);
+                if (!box || !box.mindmapType) return;
 
-                const parent = state.boxes.find(b => b.id === box.mindmapParentId);
-                if (!parent) return;
+                // Find the box under the dragged box's center (excluding self and descendants)
+                const cx = box.x + box.w / 2;
+                const cy = box.y + box.h / 2;
+                const descendants = new Set(getSubtemaDescendants(box.id));
+                descendants.add(box.id);
 
-                const parentCenterY = parent.y + parent.h / 2;
-                const childCenterY = box.y + box.h / 2;
-                const newDir = childCenterY > parentCenterY ? 'down' : 'up';
+                const dropTarget = state.boxes.slice().reverse().find(b => {
+                    if (descendants.has(b.id)) return false;
+                    if (allDraggedWithDescendants.has(b.id)) return false;
+                    return isPointInBox(cx, cy, b);
+                });
 
-                if (getSubtemaDirection(parent.id) !== newDir) {
-                    parent.subtemaDirection = newDir;
-                    relayoutSubtemas(rootId);
+                const oldParentId = box.mindmapParentId;
+                const oldRootId = oldParentId ? getMindmapRoot(box.id) : null;
+
+                if (dropTarget && dropTarget.id !== oldParentId) {
+                    // Remove old tema arrow if this was a tema
+                    if (box.mindmapType === 'tema') {
+                        state.arrows = state.arrows.filter(a =>
+                            !(a.end.boxId === box.id && a.start.boxId === oldParentId));
+                    }
+                    // Reparent: make this box a subtema of the drop target
+                    box.mindmapParentId = dropTarget.id;
+                    box.mindmapType = 'subtema';
+                    box.strokeColor = dropTarget.strokeColor || '#1f2937';
+                    box.strokeWidth = 1;
+                    // Detect direction based on where it was dropped
+                    const targetCY = dropTarget.y + dropTarget.h / 2;
+                    const newDir = cy > targetCY ? 'down' : 'up';
+                    if (getSubtemaDirection(dropTarget.id) !== newDir && !hasSubtemas(dropTarget.id)) {
+                        dropTarget.subtemaDirection = newDir;
+                    }
+                    treesToRelayout.add(getMindmapRoot(dropTarget.id));
+                } else if (box.mindmapType === 'subtema' && box.mindmapParentId) {
+                    // Not dropped on anything — check direction relative to current parent
+                    const parent = state.boxes.find(b => b.id === box.mindmapParentId);
+                    if (parent) {
+                        const parentCY = parent.y + parent.h / 2;
+                        const newDir = cy > parentCY ? 'down' : 'up';
+                        if (getSubtemaDirection(parent.id) !== newDir) {
+                            parent.subtemaDirection = newDir;
+                        }
+                        treesToRelayout.add(getMindmapRoot(box.id));
+                    }
                 }
+
+                // Relayout old tree if parent changed
+                if (oldRootId && oldParentId !== box.mindmapParentId) {
+                    treesToRelayout.add(oldRootId);
+                }
+            });
+
+            treesToRelayout.forEach(rootId => {
+                if (state.boxes.some(b => b.id === rootId)) relayoutSubtemas(rootId);
             });
         }
 
@@ -3921,7 +3968,7 @@
 
             if (state.isDragging && state.hasDraggedThisClick) {
                 madeChange = true;
-                detectSubtemaDirectionAfterDrag();
+                handleMindmapAfterDrag();
             }
             if (state.isResizing && state.hasDraggedThisClick) madeChange = true;
             if (state.isRotating && state.hasDraggedThisClick) madeChange = true;
