@@ -2970,15 +2970,19 @@
                 showToast("Selecciona un elemento para crear un Tema");
                 return;
             }
-            const parentBox = state.boxes.find(b => b.id === state.selectedIds[0]);
-            if (!parentBox) {
+            let selectedBox = state.boxes.find(b => b.id === state.selectedIds[0]);
+            if (!selectedBox) {
                 showToast("Selecciona una forma para crear un Tema");
                 return;
             }
+            // Always attach tema to the central box (navigate up if a tema/subtema is selected)
+            const centralId = getCentralBox(selectedBox.id);
+            const centralBox = state.boxes.find(b => b.id === centralId) || selectedBox;
+
             state.mindmapTemaCounter++;
             const temaColor = getNextTemaColor();
-            const newX = parentBox.x + parentBox.w + 80;
-            const newY = parentBox.y + (parentBox.h / 2) - 30;
+            const newX = centralBox.x + centralBox.w + 80;
+            const newY = centralBox.y + (centralBox.h / 2) - 30;
             const newBox = {
                 id: generateId(), x: newX, y: newY, w: 180, h: 60,
                 angle: 0, shapeType: 'rect',
@@ -2986,14 +2990,14 @@
                 strokeWidth: 2, strokeStyle: 'solid',
                 fontSize: 'M', textAlignH: 'center', textAlignV: 'middle',
                 text: 'Tema principal ' + state.mindmapTemaCounter,
-                mindmapParentId: parentBox.id,
+                mindmapParentId: centralBox.id,
                 mindmapType: 'tema',
                 subtemaCollapsed: false,
                 subtemaDirection: state.mindmapTemaCounter % 2 === 1 ? 'up' : 'down'
             };
             const newArrow = {
                 id: generateId(),
-                start: { boxId: parentBox.id, side: 'right' },
+                start: { boxId: centralBox.id, side: 'right' },
                 end: { boxId: newBox.id, side: 'left' },
                 cps: [{dx: 0, dy: 0}],
                 strokeColor: temaColor, strokeWidth: 2, strokeStyle: 'solid',
@@ -3004,7 +3008,7 @@
             state.selectedIds = [newBox.id];
             // In mindmap mode, relayout all temas for this central box
             if (state.mindmapGraphType === 'mindmap') {
-                relayoutMindmapTemas(parentBox.id);
+                relayoutMindmapTemas(centralBox.id);
             }
             saveHistory();
             updateSidebar();
