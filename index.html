@@ -2882,10 +2882,11 @@
             let prevRight = getDescendantExtent(rootId).right;
 
             chain.forEach(tema => {
-                const minX = prevRight + GAP;
-                if (tema.x < minX) tema.x = minX;
+                // Always position: X after previous extent, Y aligned with root
+                tema.x = prevRight + GAP;
+                tema.y = root.y + root.h / 2 - tema.h / 2;
 
-                // Relayout this tema's subtemas at (potentially new) position
+                // Relayout this tema's subtemas at new position
                 relayoutSubtemas(tema.id);
 
                 // Calculate full extent including subtemas/sub-subtemas
