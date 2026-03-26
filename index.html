@@ -2464,7 +2464,9 @@
             if (children.length === 0) return 0;
             let h = 0;
             children.forEach((child, i) => {
-                h += SUBTEMA_H + getSubtreeHeight(child.id);
+                // Sub-subtemas go horizontal, so use their full tree height instead of recursing vertically
+                const childH = hasSubtemas(child.id) ? getFullSubtreeHeight(child.id) : SUBTEMA_H;
+                h += childH;
                 if (i < children.length - 1) h += SUBTEMA_GAP_Y;
             });
             return h;
@@ -2490,7 +2492,8 @@
                     child.w = SUBTEMA_W;
                     child.h = SUBTEMA_H;
                     currentY += SUBTEMA_H + childSubH + SUBTEMA_GAP_Y;
-                    relayoutSubtemas(child.id);
+                    // Sub-subtemas use horizontal layout (like mindmap)
+                    if (hasSubtemas(child.id)) relayoutMindmap(child.id, 'right');
                 });
             } else {
                 // Tree grows UPWARD from parent top (default)
@@ -2502,7 +2505,8 @@
                     child.w = SUBTEMA_W;
                     child.h = SUBTEMA_H;
                     currentY += childSubH + SUBTEMA_H + SUBTEMA_GAP_Y;
-                    relayoutSubtemas(child.id);
+                    // Sub-subtemas use horizontal layout (like mindmap)
+                    if (hasSubtemas(child.id)) relayoutMindmap(child.id, 'right');
                 });
             }
         }
@@ -2649,8 +2653,10 @@
                 ctx.stroke();
             });
 
-            // Recurse for each child's own subtemas
-            children.forEach(child => drawMindmapConnectors(child.id));
+            // Recurse: sub-subtemas use curved horizontal connectors
+            children.forEach(child => {
+                if (hasSubtemas(child.id)) drawMindmapCurvedConnectors(child.id);
+            });
         }
 
         // --- MIND MAP (HORIZONTAL) LAYOUT ENGINE ---
@@ -3665,9 +3671,16 @@
                     else { badgeX = box.x + box.w / 2; badgeY = box.y - MINDMAP_H_GAP / 2; }
                     drawCollapseToggle(badgeX, badgeY, box.subtemaCollapsed || false, getCollapsedSubtemaCount(box.id));
                 } else {
-                    const dir = getSubtemaDirection(box.id);
-                    const badgeX = box.x + box.w / 2;
-                    const badgeY = dir === 'down' ? box.y + box.h + SUBTEMA_TRUNK_START / 2 : box.y - SUBTEMA_TRUNK_START / 2;
+                    let badgeX, badgeY;
+                    if (box.mindmapType === 'subtema') {
+                        // Sub-subtemas use horizontal badge (right edge)
+                        badgeX = box.x + box.w + MINDMAP_H_GAP / 2;
+                        badgeY = box.y + box.h / 2;
+                    } else {
+                        const dir = getSubtemaDirection(box.id);
+                        badgeX = box.x + box.w / 2;
+                        badgeY = dir === 'down' ? box.y + box.h + SUBTEMA_TRUNK_START / 2 : box.y - SUBTEMA_TRUNK_START / 2;
+                    }
                     drawCollapseToggle(badgeX, badgeY, box.subtemaCollapsed || false, getCollapsedSubtemaCount(box.id));
                 }
             });
@@ -3894,9 +3907,15 @@
                         else if (dir === 'down') { badgeX = box.x + box.w / 2; badgeY = box.y + box.h + MINDMAP_H_GAP / 2; }
                         else { badgeX = box.x + box.w / 2; badgeY = box.y - MINDMAP_H_GAP / 2; }
                     } else {
-                        const dir = getSubtemaDirection(box.id);
-                        badgeX = box.x + box.w / 2;
-                        badgeY = dir === 'down' ? box.y + box.h + SUBTEMA_TRUNK_START / 2 : box.y - SUBTEMA_TRUNK_START / 2;
+                        if (box.mindmapType === 'subtema') {
+                            // Sub-subtemas in timeline mode use horizontal badge (right edge)
+                            badgeX = box.x + box.w + MINDMAP_H_GAP / 2;
+                            badgeY = box.y + box.h / 2;
+                        } else {
+                            const dir = getSubtemaDirection(box.id);
+                            badgeX = box.x + box.w / 2;
+                            badgeY = dir === 'down' ? box.y + box.h + SUBTEMA_TRUNK_START / 2 : box.y - SUBTEMA_TRUNK_START / 2;
+                        }
                     }
                     if (Math.hypot(mouseWorld.x - badgeX, mouseWorld.y - badgeY) < 14 / state.camera.zoom) {
                         toggleSubtemaCollapse(box.id);
