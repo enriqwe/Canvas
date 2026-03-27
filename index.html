@@ -2558,18 +2558,20 @@
                         }
                     }
                 } else if (box.mindmapType === 'subtema' && box.mindmapParentId) {
-                    // Not dropped on a new parent — allow free repositioning
-                    // Only flip direction if dragged across the parent center (no relayout)
                     const parent = state.boxes.find(b => b.id === box.mindmapParentId);
                     if (parent) {
-                        const parentCY = parent.y + parent.h / 2;
-                        const newDir = cy > parentCY ? 'down' : 'up';
-                        if (getSubtemaDirection(parent.id) !== newDir) {
-                            parent.subtemaDirection = newDir;
-                            // Direction flipped — relayout to reposition the whole tree
+                        if (state.mindmapGraphType === 'mindmap') {
+                            // Ideas mode: free repositioning, only flip direction
+                            const parentCY = parent.y + parent.h / 2;
+                            const newDir = cy > parentCY ? 'down' : 'up';
+                            if (getSubtemaDirection(parent.id) !== newDir) {
+                                parent.subtemaDirection = newDir;
+                                treesToRelayout.add(getMindmapRoot(box.id));
+                            }
+                        } else {
+                            // Timeline mode: always relayout to snap to correct position
                             treesToRelayout.add(getMindmapRoot(box.id));
                         }
-                        // Otherwise: no relayout, keep user's manual position
                     }
                 }
 
@@ -2997,6 +2999,10 @@
                             }
                         });
                     }
+                    // Reset subtema directions for timeline: alternate up/down per tema
+                    temas.forEach((tema, i) => {
+                        tema.subtemaDirection = (i % 2 === 0) ? 'up' : 'down';
+                    });
                     // Use timeline chain layout for proper spacing
                     relayoutTimelineChain(centralId);
                 });
