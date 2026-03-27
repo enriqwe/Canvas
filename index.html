@@ -699,7 +699,8 @@
             mindmapTemaCounter: 0,
             mindmapSubtemaCounter: 0,
             mindmapDropTargetId: null,
-            mindmapGraphType: 'mindmap'
+            mindmapGraphType: 'mindmap',
+            timelineInsertIndicator: null
         };
 
         let history = [];
@@ -3653,6 +3654,39 @@
                 ctx.restore();
             }
 
+            // Timeline insertion indicator
+            if (state.timelineInsertIndicator) {
+                const ind = state.timelineInsertIndicator;
+                ctx.save();
+                ctx.strokeStyle = '#10b981';
+                ctx.lineWidth = 3 / state.camera.zoom;
+                ctx.setLineDash([8 / state.camera.zoom, 4 / state.camera.zoom]);
+                ctx.shadowColor = 'rgba(16, 185, 129, 0.6)';
+                ctx.shadowBlur = 8 / state.camera.zoom;
+                ctx.beginPath();
+                ctx.moveTo(ind.x, ind.top);
+                ctx.lineTo(ind.x, ind.bottom);
+                ctx.stroke();
+                // Arrow triangle at top
+                ctx.setLineDash([]);
+                ctx.fillStyle = '#10b981';
+                const triSize = 8 / state.camera.zoom;
+                ctx.beginPath();
+                ctx.moveTo(ind.x, ind.top);
+                ctx.lineTo(ind.x - triSize, ind.top - triSize);
+                ctx.lineTo(ind.x + triSize, ind.top - triSize);
+                ctx.closePath();
+                ctx.fill();
+                // Arrow triangle at bottom
+                ctx.beginPath();
+                ctx.moveTo(ind.x, ind.bottom);
+                ctx.lineTo(ind.x - triSize, ind.bottom + triSize);
+                ctx.lineTo(ind.x + triSize, ind.bottom + triSize);
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+            }
+
             // Acciones temporales selección o dibujar
             if (state.isDrawingBox || state.isSelecting || state.isDrawingCapture) {
                 const mouseWorld = screenToWorld(state.mouseX, state.mouseY);
@@ -4299,6 +4333,53 @@
                         return isPointInBox(dcx, dcy, b);
                     });
                     if (target) state.mindmapDropTargetId = target.id;
+
+                    // Timeline mode: show insertion indicator for tema reorder
+                    state.timelineInsertIndicator = null;
+                    if (draggedMindmapBox.mindmapType === 'tema' && state.mindmapGraphType !== 'mindmap' && !target) {
+                        const centralId = getCentralBox(draggedMindmapBox.id);
+                        const root = state.boxes.find(b => b.id === centralId);
+                        const chain = [];
+                        let cid = centralId;
+                        while (true) {
+                            const next = state.boxes.find(b => b.mindmapParentId === cid && b.mindmapType === 'tema');
+                            if (!next) break;
+                            chain.push(next);
+                            cid = next.id;
+                        }
+                        const others = chain.filter(t => t.id !== draggedMindmapBox.id);
+                        if (others.length > 0 && root) {
+                            let insertIdx = others.length;
+                            for (let i = 0; i < others.length; i++) {
+                                if (draggedMindmapBox.x < others[i].x) { insertIdx = i; break; }
+                            }
+                            // Check if order actually changes
+                            const oldIdx = chain.findIndex(t => t.id === draggedMindmapBox.id);
+                            const newIdxInFull = insertIdx <= oldIdx ? insertIdx : insertIdx; // position in others maps directly
+                            const orderChanges = chain.some((t, i) => {
+                                const newOrder = [...others];
+                                newOrder.splice(insertIdx, 0, draggedMindmapBox);
+                                return t.id !== newOrder[i].id;
+                            });
+                            if (orderChanges) {
+                                // Calculate X position for the indicator line
+                                let lineX;
+                                if (insertIdx === 0) {
+                                    lineX = root.x + root.w + 40; // midpoint between root and first tema
+                                } else {
+                                    const prevTema = others[insertIdx - 1];
+                                    const prevExt = getDescendantExtent(prevTema.id);
+                                    lineX = prevExt.right + 40; // midpoint in the gap
+                                }
+                                const rootCY = root.y + root.h / 2;
+                                state.timelineInsertIndicator = {
+                                    x: lineX,
+                                    top: rootCY - 120,
+                                    bottom: rootCY + 120
+                                };
+                            }
+                        }
+                    }
                 }
                 render();
             }
@@ -4555,6 +4636,7 @@
                 handleMindmapAfterDrag();
             }
             state.mindmapDropTargetId = null;
+            state.timelineInsertIndicator = null;
             if (state.isResizing && state.hasDraggedThisClick) madeChange = true;
             if (state.isRotating && state.hasDraggedThisClick) madeChange = true;
 
