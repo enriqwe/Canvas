@@ -3689,41 +3689,19 @@
                 ctx.restore();
             }
 
-            // Insertion indicator (timeline and mindmap reorder)
+            // Insertion indicator (subtle glow line)
             if (state.timelineInsertIndicator) {
                 const ind = state.timelineInsertIndicator;
                 ctx.save();
-                ctx.strokeStyle = '#10b981';
-                ctx.lineWidth = 3 / state.camera.zoom;
-                ctx.setLineDash([8 / state.camera.zoom, 4 / state.camera.zoom]);
-                ctx.shadowColor = 'rgba(16, 185, 129, 0.6)';
-                ctx.shadowBlur = 8 / state.camera.zoom;
+                ctx.strokeStyle = 'rgba(16, 185, 129, 0.5)';
+                ctx.lineWidth = 2 / state.camera.zoom;
+                ctx.shadowColor = 'rgba(16, 185, 129, 0.9)';
+                ctx.shadowBlur = 20 / state.camera.zoom;
                 ctx.beginPath();
                 ctx.moveTo(ind.x1, ind.y1);
                 ctx.lineTo(ind.x2, ind.y2);
                 ctx.stroke();
-                // Arrow triangles at endpoints
-                ctx.setLineDash([]);
-                ctx.fillStyle = '#10b981';
-                const triSize = 8 / state.camera.zoom;
-                const dx = ind.x2 - ind.x1, dy = ind.y2 - ind.y1;
-                const len = Math.hypot(dx, dy) || 1;
-                const nx = dx / len, ny = dy / len; // direction
-                const px = -ny, py = nx; // perpendicular
-                // Triangle at start (pointing outward)
-                ctx.beginPath();
-                ctx.moveTo(ind.x1, ind.y1);
-                ctx.lineTo(ind.x1 - nx * triSize + px * triSize, ind.y1 - ny * triSize + py * triSize);
-                ctx.lineTo(ind.x1 - nx * triSize - px * triSize, ind.y1 - ny * triSize - py * triSize);
-                ctx.closePath();
-                ctx.fill();
-                // Triangle at end (pointing outward)
-                ctx.beginPath();
-                ctx.moveTo(ind.x2, ind.y2);
-                ctx.lineTo(ind.x2 + nx * triSize + px * triSize, ind.y2 + ny * triSize + py * triSize);
-                ctx.lineTo(ind.x2 + nx * triSize - px * triSize, ind.y2 + ny * triSize - py * triSize);
-                ctx.closePath();
-                ctx.fill();
+                ctx.stroke(); // double stroke for stronger glow
                 ctx.restore();
             }
 
