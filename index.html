@@ -2549,14 +2549,15 @@
                     }
                     treesToRelayout.add(getMindmapRoot(dropTarget.id));
                 } else if (box.mindmapType === 'tema' && box.mindmapParentId && state.mindmapGraphType === 'mindmap') {
-                    // Tema dragged in mindmap mode — detect direction relative to central box
+                    // Tema dragged in mindmap mode — detect direction and reorder
                     const central = state.boxes.find(b => b.id === box.mindmapParentId);
                     if (central) {
                         const newDir = detectTemaDirection(box, central);
                         if (box.mindmapTreeDir !== newDir) {
                             box.mindmapTreeDir = newDir;
-                            treesToRelayout.add(central.id);
                         }
+                        reorderMindmapTema(box, central.id);
+                        treesToRelayout.add(central.id);
                     }
                 } else if (box.mindmapType === 'tema' && box.mindmapParentId && state.mindmapGraphType !== 'mindmap') {
                     // Timeline mode: detect reorder by dragged X position
@@ -2941,6 +2942,40 @@
                 }
                 tema.subtemaDirection = (i % 2 === 0) ? 'up' : 'down';
             });
+            return true;
+        }
+
+        // Reorder a tema within its direction group in mindmap mode
+        function reorderMindmapTema(draggedTema, centralId) {
+            const allTemas = state.boxes.filter(b => b.mindmapParentId === centralId && b.mindmapType === 'tema');
+            const dir = getTemaDirection(draggedTema.id);
+            const group = allTemas.filter(t => getTemaDirection(t.id) === dir);
+            if (group.length <= 1) return false;
+
+            const others = group.filter(t => t.id !== draggedTema.id);
+            let insertIdx = others.length;
+
+            if (dir === 'right' || dir === 'left') {
+                // Vertical stacking: compare Y
+                for (let i = 0; i < others.length; i++) {
+                    if (draggedTema.y < others[i].y) { insertIdx = i; break; }
+                }
+            } else {
+                // Horizontal stacking: compare X
+                for (let i = 0; i < others.length; i++) {
+                    if (draggedTema.x < others[i].x) { insertIdx = i; break; }
+                }
+            }
+
+            const newOrder = [...others];
+            newOrder.splice(insertIdx, 0, draggedTema);
+            if (newOrder.every((t, i) => t.id === group[i].id)) return false;
+
+            // Reorder in state.boxes: remove group temas, re-insert in new order
+            const groupIds = new Set(group.map(t => t.id));
+            const firstIdx = state.boxes.findIndex(b => groupIds.has(b.id));
+            state.boxes = state.boxes.filter(b => !groupIds.has(b.id));
+            state.boxes.splice(firstIdx, 0, ...newOrder);
             return true;
         }
 
@@ -3654,7 +3689,7 @@
                 ctx.restore();
             }
 
-            // Timeline insertion indicator
+            // Insertion indicator (timeline and mindmap reorder)
             if (state.timelineInsertIndicator) {
                 const ind = state.timelineInsertIndicator;
                 ctx.save();
@@ -3664,24 +3699,29 @@
                 ctx.shadowColor = 'rgba(16, 185, 129, 0.6)';
                 ctx.shadowBlur = 8 / state.camera.zoom;
                 ctx.beginPath();
-                ctx.moveTo(ind.x, ind.top);
-                ctx.lineTo(ind.x, ind.bottom);
+                ctx.moveTo(ind.x1, ind.y1);
+                ctx.lineTo(ind.x2, ind.y2);
                 ctx.stroke();
-                // Arrow triangle at top
+                // Arrow triangles at endpoints
                 ctx.setLineDash([]);
                 ctx.fillStyle = '#10b981';
                 const triSize = 8 / state.camera.zoom;
+                const dx = ind.x2 - ind.x1, dy = ind.y2 - ind.y1;
+                const len = Math.hypot(dx, dy) || 1;
+                const nx = dx / len, ny = dy / len; // direction
+                const px = -ny, py = nx; // perpendicular
+                // Triangle at start (pointing outward)
                 ctx.beginPath();
-                ctx.moveTo(ind.x, ind.top);
-                ctx.lineTo(ind.x - triSize, ind.top - triSize);
-                ctx.lineTo(ind.x + triSize, ind.top - triSize);
+                ctx.moveTo(ind.x1, ind.y1);
+                ctx.lineTo(ind.x1 - nx * triSize + px * triSize, ind.y1 - ny * triSize + py * triSize);
+                ctx.lineTo(ind.x1 - nx * triSize - px * triSize, ind.y1 - ny * triSize - py * triSize);
                 ctx.closePath();
                 ctx.fill();
-                // Arrow triangle at bottom
+                // Triangle at end (pointing outward)
                 ctx.beginPath();
-                ctx.moveTo(ind.x, ind.bottom);
-                ctx.lineTo(ind.x - triSize, ind.bottom + triSize);
-                ctx.lineTo(ind.x + triSize, ind.bottom + triSize);
+                ctx.moveTo(ind.x2, ind.y2);
+                ctx.lineTo(ind.x2 + nx * triSize + px * triSize, ind.y2 + ny * triSize + py * triSize);
+                ctx.lineTo(ind.x2 + nx * triSize - px * triSize, ind.y2 + ny * triSize - py * triSize);
                 ctx.closePath();
                 ctx.fill();
                 ctx.restore();
@@ -4334,49 +4374,88 @@
                     });
                     if (target) state.mindmapDropTargetId = target.id;
 
-                    // Timeline mode: show insertion indicator for tema reorder
+                    // Show insertion indicator for tema reorder
                     state.timelineInsertIndicator = null;
-                    if (draggedMindmapBox.mindmapType === 'tema' && state.mindmapGraphType !== 'mindmap' && !target) {
+                    if (draggedMindmapBox.mindmapType === 'tema' && !target) {
                         const centralId = getCentralBox(draggedMindmapBox.id);
-                        const root = state.boxes.find(b => b.id === centralId);
-                        const chain = [];
-                        let cid = centralId;
-                        while (true) {
-                            const next = state.boxes.find(b => b.mindmapParentId === cid && b.mindmapType === 'tema');
-                            if (!next) break;
-                            chain.push(next);
-                            cid = next.id;
-                        }
-                        const others = chain.filter(t => t.id !== draggedMindmapBox.id);
-                        if (others.length > 0 && root) {
-                            let insertIdx = others.length;
-                            for (let i = 0; i < others.length; i++) {
-                                if (draggedMindmapBox.x < others[i].x) { insertIdx = i; break; }
-                            }
-                            // Check if order actually changes
-                            const oldIdx = chain.findIndex(t => t.id === draggedMindmapBox.id);
-                            const newIdxInFull = insertIdx <= oldIdx ? insertIdx : insertIdx; // position in others maps directly
-                            const orderChanges = chain.some((t, i) => {
-                                const newOrder = [...others];
-                                newOrder.splice(insertIdx, 0, draggedMindmapBox);
-                                return t.id !== newOrder[i].id;
-                            });
-                            if (orderChanges) {
-                                // Calculate X position for the indicator line
-                                let lineX;
-                                if (insertIdx === 0) {
-                                    lineX = root.x + root.w + 40; // midpoint between root and first tema
-                                } else {
-                                    const prevTema = others[insertIdx - 1];
-                                    const prevExt = getDescendantExtent(prevTema.id);
-                                    lineX = prevExt.right + 40; // midpoint in the gap
+                        const central = state.boxes.find(b => b.id === centralId);
+                        if (central) {
+                            if (state.mindmapGraphType !== 'mindmap') {
+                                // Timeline mode: vertical indicator
+                                const chain = [];
+                                let cid = centralId;
+                                while (true) {
+                                    const next = state.boxes.find(b => b.mindmapParentId === cid && b.mindmapType === 'tema');
+                                    if (!next) break;
+                                    chain.push(next);
+                                    cid = next.id;
                                 }
-                                const rootCY = root.y + root.h / 2;
-                                state.timelineInsertIndicator = {
-                                    x: lineX,
-                                    top: rootCY - 120,
-                                    bottom: rootCY + 120
-                                };
+                                const others = chain.filter(t => t.id !== draggedMindmapBox.id);
+                                if (others.length > 0) {
+                                    let insertIdx = others.length;
+                                    for (let i = 0; i < others.length; i++) {
+                                        if (draggedMindmapBox.x < others[i].x) { insertIdx = i; break; }
+                                    }
+                                    const newOrder = [...others];
+                                    newOrder.splice(insertIdx, 0, draggedMindmapBox);
+                                    if (!newOrder.every((t, i) => t.id === chain[i].id)) {
+                                        let lineX;
+                                        if (insertIdx === 0) {
+                                            lineX = central.x + central.w + 40;
+                                        } else {
+                                            const prevExt = getDescendantExtent(others[insertIdx - 1].id);
+                                            lineX = prevExt.right + 40;
+                                        }
+                                        const cy = central.y + central.h / 2;
+                                        state.timelineInsertIndicator = { x1: lineX, y1: cy - 120, x2: lineX, y2: cy + 120 };
+                                    }
+                                }
+                            } else {
+                                // Mindmap mode: indicator within direction group
+                                const allTemas = state.boxes.filter(b => b.mindmapParentId === centralId && b.mindmapType === 'tema');
+                                const dir = detectTemaDirection(draggedMindmapBox, central);
+                                const group = allTemas.filter(t => getTemaDirection(t.id) === dir);
+                                const others = group.filter(t => t.id !== draggedMindmapBox.id);
+                                if (others.length > 0) {
+                                    let insertIdx = others.length;
+                                    const useY = (dir === 'right' || dir === 'left');
+                                    for (let i = 0; i < others.length; i++) {
+                                        if (useY ? draggedMindmapBox.y < others[i].y : draggedMindmapBox.x < others[i].x) {
+                                            insertIdx = i; break;
+                                        }
+                                    }
+                                    const newOrder = [...others];
+                                    newOrder.splice(insertIdx, 0, draggedMindmapBox);
+                                    if (!newOrder.every((t, i) => t.id === group[i].id)) {
+                                        if (useY) {
+                                            // Vertical group → horizontal indicator line
+                                            let lineY;
+                                            if (insertIdx === 0) {
+                                                const firstExt = getDescendantExtent(others[0].id);
+                                                lineY = firstExt.top - 12;
+                                            } else {
+                                                const prevExt = getDescendantExtent(others[insertIdx - 1].id);
+                                                lineY = prevExt.bottom + 12;
+                                            }
+                                            const cx = central.x + central.w / 2;
+                                            const span = dir === 'right' ? 150 : -150;
+                                            state.timelineInsertIndicator = { x1: cx + (dir === 'right' ? 40 : -40), y1: lineY, x2: cx + span, y2: lineY };
+                                        } else {
+                                            // Horizontal group → vertical indicator line
+                                            let lineX;
+                                            if (insertIdx === 0) {
+                                                const firstExt = getDescendantExtent(others[0].id);
+                                                lineX = firstExt.left - 12;
+                                            } else {
+                                                const prevExt = getDescendantExtent(others[insertIdx - 1].id);
+                                                lineX = prevExt.right + 12;
+                                            }
+                                            const cy = central.y + central.h / 2;
+                                            const span = dir === 'down' ? 150 : -150;
+                                            state.timelineInsertIndicator = { x1: lineX, y1: cy + (dir === 'down' ? 40 : -40), x2: lineX, y2: cy + span };
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
