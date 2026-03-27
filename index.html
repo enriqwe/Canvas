@@ -2557,6 +2557,11 @@
                             treesToRelayout.add(central.id);
                         }
                     }
+                } else if (box.mindmapType === 'tema' && box.mindmapParentId && state.mindmapGraphType !== 'mindmap') {
+                    // Timeline mode: detect reorder by dragged X position
+                    const centralId = getCentralBox(box.id);
+                    reorderTimelineTema(box, centralId);
+                    treesToRelayout.add(centralId);
                 } else if (box.mindmapType === 'subtema' && box.mindmapParentId) {
                     const parent = state.boxes.find(b => b.id === box.mindmapParentId);
                     if (parent) {
@@ -2895,6 +2900,47 @@
                 const ext = getDescendantExtent(tema.id);
                 prevRight = ext.right;
             });
+        }
+
+        // Reorder a tema in the timeline chain based on its dragged X position
+        function reorderTimelineTema(draggedTema, centralId) {
+            // Build current chain
+            const allTemas = [];
+            let curId = centralId;
+            while (true) {
+                const next = state.boxes.find(b => b.mindmapParentId === curId && b.mindmapType === 'tema');
+                if (!next) break;
+                allTemas.push(next);
+                curId = next.id;
+            }
+            if (allTemas.length <= 1) return false;
+
+            // Remove dragged tema, find insertion point by X
+            const others = allTemas.filter(t => t.id !== draggedTema.id);
+            let insertIdx = others.length;
+            for (let i = 0; i < others.length; i++) {
+                if (draggedTema.x < others[i].x) { insertIdx = i; break; }
+            }
+
+            // Build new order
+            const newOrder = [...others];
+            newOrder.splice(insertIdx, 0, draggedTema);
+
+            // If order unchanged, skip
+            if (newOrder.every((t, i) => t.id === allTemas[i].id)) return false;
+
+            // Re-link mindmapParentId chain and arrows
+            newOrder.forEach((tema, i) => {
+                const expectedParent = i === 0 ? centralId : newOrder[i - 1].id;
+                if (tema.mindmapParentId !== expectedParent) {
+                    const arrow = state.arrows.find(a =>
+                        a.end && a.end.boxId === tema.id && a.start && a.start.boxId === tema.mindmapParentId);
+                    if (arrow) arrow.start = { boxId: expectedParent, side: 'right' };
+                    tema.mindmapParentId = expectedParent;
+                }
+                tema.subtemaDirection = (i % 2 === 0) ? 'up' : 'down';
+            });
+            return true;
         }
 
         // --- CURVED CONNECTOR DRAWING (MINDMAP MODE) ---
