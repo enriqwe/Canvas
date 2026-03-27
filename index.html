@@ -700,7 +700,7 @@
             mindmapSubtemaCounter: 0,
             mindmapDropTargetId: null,
             mindmapGraphType: 'mindmap',
-            timelineInsertIndicator: null
+            insertHighlightConnector: null
         };
 
         let history = [];
@@ -3550,10 +3550,21 @@
                     ctx.lineWidth = (parseInt(arrow.strokeWidth) || 2) + 2;
                 } else if (isSearchResult) {
                     ctx.shadowColor = 'rgba(234, 179, 8, 0.4)'; ctx.shadowBlur = 6;
-                    ctx.strokeStyle = '#facc15'; ctx.fillStyle = '#facc15'; 
+                    ctx.strokeStyle = '#facc15'; ctx.fillStyle = '#facc15';
                     ctx.lineWidth = (parseInt(arrow.strokeWidth) || 2) + 1;
                 }
-                
+
+                // Highlight connector at insertion point (timeline mode)
+                const isInsertHighlight = state.insertHighlightConnector &&
+                    state.insertHighlightConnector.type === 'arrow' &&
+                    state.insertHighlightConnector.arrowId === arrow.id;
+                if (isInsertHighlight) {
+                    ctx.shadowColor = 'rgba(16, 185, 129, 0.9)';
+                    ctx.shadowBlur = 18 / state.camera.zoom;
+                    ctx.strokeStyle = '#10b981'; ctx.fillStyle = '#10b981';
+                    ctx.lineWidth = (parseInt(arrow.strokeWidth) || 2) + 2;
+                }
+
                 ctx.beginPath();
                 ctx.moveTo(curve.S.x, curve.S.y);
                 curve.segments.forEach(seg => {
@@ -3689,22 +3700,6 @@
                 ctx.restore();
             }
 
-            // Insertion indicator (subtle glow line)
-            if (state.timelineInsertIndicator) {
-                const ind = state.timelineInsertIndicator;
-                ctx.save();
-                ctx.strokeStyle = 'rgba(16, 185, 129, 0.5)';
-                ctx.lineWidth = 2 / state.camera.zoom;
-                ctx.shadowColor = 'rgba(16, 185, 129, 0.9)';
-                ctx.shadowBlur = 20 / state.camera.zoom;
-                ctx.beginPath();
-                ctx.moveTo(ind.x1, ind.y1);
-                ctx.lineTo(ind.x2, ind.y2);
-                ctx.stroke();
-                ctx.stroke(); // double stroke for stronger glow
-                ctx.restore();
-            }
-
             // Acciones temporales selección o dibujar
             if (state.isDrawingBox || state.isSelecting || state.isDrawingCapture) {
                 const mouseWorld = screenToWorld(state.mouseX, state.mouseY);
@@ -3776,11 +3771,25 @@
                             if (isCollapsedByAncestor(tema.id)) return;
                             const dir = getTemaDirection(tema.id);
                             const connColor = tema.strokeColor || '#1f2937';
-                            ctx.strokeStyle = connColor;
-                            ctx.lineWidth = 2 / state.camera.zoom;
+                            const isHighlighted = state.insertHighlightConnector &&
+                                state.insertHighlightConnector.type === 'connector' &&
+                                state.insertHighlightConnector.temaId === tema.id;
+                            ctx.strokeStyle = isHighlighted ? '#10b981' : connColor;
+                            ctx.lineWidth = isHighlighted ? 4 / state.camera.zoom : 2 / state.camera.zoom;
+                            if (isHighlighted) {
+                                ctx.shadowColor = 'rgba(16, 185, 129, 0.9)';
+                                ctx.shadowBlur = 18 / state.camera.zoom;
+                            } else {
+                                ctx.shadowColor = 'transparent';
+                                ctx.shadowBlur = 0;
+                            }
                             ctx.setLineDash([]);
                             const p = getConnectorEndpoints(box, tema, dir);
                             drawCurvedConnector(p.sx, p.sy, p.ex, p.ey, dir);
+                            if (isHighlighted) {
+                                ctx.shadowColor = 'transparent';
+                                ctx.shadowBlur = 0;
+                            }
                         });
                     }
                     // Draw subtema curved connectors
@@ -4352,14 +4361,14 @@
                     });
                     if (target) state.mindmapDropTargetId = target.id;
 
-                    // Show insertion indicator for tema reorder
-                    state.timelineInsertIndicator = null;
+                    // Highlight existing connector at insertion point
+                    state.insertHighlightConnector = null;
                     if (draggedMindmapBox.mindmapType === 'tema' && !target) {
                         const centralId = getCentralBox(draggedMindmapBox.id);
                         const central = state.boxes.find(b => b.id === centralId);
                         if (central) {
                             if (state.mindmapGraphType !== 'mindmap') {
-                                // Timeline mode: vertical indicator
+                                // Timeline mode: highlight arrow at insertion point
                                 const chain = [];
                                 let cid = centralId;
                                 while (true) {
@@ -4377,19 +4386,14 @@
                                     const newOrder = [...others];
                                     newOrder.splice(insertIdx, 0, draggedMindmapBox);
                                     if (!newOrder.every((t, i) => t.id === chain[i].id)) {
-                                        let lineX;
-                                        if (insertIdx === 0) {
-                                            lineX = central.x + central.w + 40;
-                                        } else {
-                                            const prevExt = getDescendantExtent(others[insertIdx - 1].id);
-                                            lineX = prevExt.right + 40;
-                                        }
-                                        const cy = central.y + central.h / 2;
-                                        state.timelineInsertIndicator = { x1: lineX, y1: cy - 120, x2: lineX, y2: cy + 120 };
+                                        // Find arrow to highlight: the one pointing TO the tema at insertIdx
+                                        const targetTema = insertIdx < others.length ? others[insertIdx] : others[others.length - 1];
+                                        const arrow = state.arrows.find(a => a.end && a.end.boxId === targetTema.id);
+                                        if (arrow) state.insertHighlightConnector = { type: 'arrow', arrowId: arrow.id };
                                     }
                                 }
                             } else {
-                                // Mindmap mode: indicator within direction group
+                                // Mindmap mode: highlight central→tema connector at insertion point
                                 const allTemas = state.boxes.filter(b => b.mindmapParentId === centralId && b.mindmapType === 'tema');
                                 const dir = detectTemaDirection(draggedMindmapBox, central);
                                 const group = allTemas.filter(t => getTemaDirection(t.id) === dir);
@@ -4405,33 +4409,8 @@
                                     const newOrder = [...others];
                                     newOrder.splice(insertIdx, 0, draggedMindmapBox);
                                     if (!newOrder.every((t, i) => t.id === group[i].id)) {
-                                        if (useY) {
-                                            // Vertical group → horizontal indicator line
-                                            let lineY;
-                                            if (insertIdx === 0) {
-                                                const firstExt = getDescendantExtent(others[0].id);
-                                                lineY = firstExt.top - 12;
-                                            } else {
-                                                const prevExt = getDescendantExtent(others[insertIdx - 1].id);
-                                                lineY = prevExt.bottom + 12;
-                                            }
-                                            const cx = central.x + central.w / 2;
-                                            const span = dir === 'right' ? 150 : -150;
-                                            state.timelineInsertIndicator = { x1: cx + (dir === 'right' ? 40 : -40), y1: lineY, x2: cx + span, y2: lineY };
-                                        } else {
-                                            // Horizontal group → vertical indicator line
-                                            let lineX;
-                                            if (insertIdx === 0) {
-                                                const firstExt = getDescendantExtent(others[0].id);
-                                                lineX = firstExt.left - 12;
-                                            } else {
-                                                const prevExt = getDescendantExtent(others[insertIdx - 1].id);
-                                                lineX = prevExt.right + 12;
-                                            }
-                                            const cy = central.y + central.h / 2;
-                                            const span = dir === 'down' ? 150 : -150;
-                                            state.timelineInsertIndicator = { x1: lineX, y1: cy + (dir === 'down' ? 40 : -40), x2: lineX, y2: cy + span };
-                                        }
+                                        const targetTema = insertIdx < others.length ? others[insertIdx] : others[others.length - 1];
+                                        state.insertHighlightConnector = { type: 'connector', temaId: targetTema.id };
                                     }
                                 }
                             }
@@ -4693,7 +4672,7 @@
                 handleMindmapAfterDrag();
             }
             state.mindmapDropTargetId = null;
-            state.timelineInsertIndicator = null;
+            state.insertHighlightConnector = null;
             if (state.isResizing && state.hasDraggedThisClick) madeChange = true;
             if (state.isRotating && state.hasDraggedThisClick) madeChange = true;
 
