@@ -2576,7 +2576,12 @@
                                 treesToRelayout.add(getMindmapRoot(box.id));
                             }
                         } else {
-                            // Timeline mode: always relayout to snap to correct position
+                            // Timeline mode: detect if subtema was dragged to opposite side
+                            const parentCY = parent.y + parent.h / 2;
+                            const newDir = cy < parentCY ? 'up' : 'down';
+                            if (parent.subtemaDirection !== newDir) {
+                                parent.subtemaDirection = newDir;
+                            }
                             treesToRelayout.add(getMindmapRoot(box.id));
                         }
                     }
