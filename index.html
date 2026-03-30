@@ -2891,14 +2891,46 @@
 
             if (chain.length === 0) return;
 
+            // Collect all mindmap box IDs so we can identify free (non-mindmap) boxes
+            const mindmapBoxIds = new Set();
+            mindmapBoxIds.add(rootId);
+            getSubtemaDescendants(rootId).forEach(id => mindmapBoxIds.add(id));
+            chain.forEach(t => {
+                mindmapBoxIds.add(t.id);
+                getSubtemaDescendants(t.id).forEach(id => mindmapBoxIds.add(id));
+            });
+
             // Position each tema so it doesn't overlap with previous extents
             const GAP = 80;
             let prevRight = getDescendantExtent(rootId).right;
+            const movedFreeBoxes = new Set();
 
             chain.forEach(tema => {
+                const oldX = tema.x;
+                const oldY = tema.y;
+
                 // Always position: X after previous extent, Y aligned with root
                 tema.x = prevRight + GAP;
                 tema.y = root.y + root.h / 2 - tema.h / 2;
+
+                // Move non-mindmap boxes connected via arrows by the same delta
+                const dx = tema.x - oldX;
+                const dy = tema.y - oldY;
+                if (dx !== 0 || dy !== 0) {
+                    state.arrows.forEach(arrow => {
+                        let connId = null;
+                        if (arrow.start.boxId === tema.id && arrow.end.boxId) connId = arrow.end.boxId;
+                        else if (arrow.end.boxId === tema.id && arrow.start.boxId) connId = arrow.start.boxId;
+                        if (connId && !mindmapBoxIds.has(connId) && !movedFreeBoxes.has(connId)) {
+                            const freeBox = state.boxes.find(b => b.id === connId);
+                            if (freeBox) {
+                                freeBox.x += dx;
+                                freeBox.y += dy;
+                                movedFreeBoxes.add(connId);
+                            }
+                        }
+                    });
+                }
 
                 // Relayout this tema's subtemas at new position
                 relayoutSubtemas(tema.id);
